@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.config.store_cancle_excel_data_sorting">
+	
+	<insert id="insertStoreCancleExcelDataSorting" parameterType="StoreSectionVO">
+		INSERT INTO store_cancle_excel_data_sorting(ss_fk)
+		VALUES(#{ssPk})
+	</insert>
+	
+	<select id="selectStoreCancleExcelDataSorting" parameterType="StoreSectionVO" resultType="StoreCancleExcelDataSortingVO">
+		SELECT
+			*
+		FROM
+			store_cancle_excel_data_sorting
+		WHERE
+			ss_fk = #{ssPk}
+	</select>
+
+	<update id="updateStoreCancleExcelDataSorting" parameterType="StoreCancleExcelDataSortingVO">
+		UPDATE
+			store_cancle_excel_data_sorting
+		SET
+			sceds_order_number = #{scedsOrderNumber},
+			sceds_product_order_number = #{scedsProductOrderNumber},
+			sceds_reason = #{scedsReason},
+			sceds_date = #{scedsDate}
+		WHERE
+			sceds_pk = #{scedsPk}
+	</update>
+	
+	<select id="cancledOrderSearch" parameterType="java.util.List" resultType="OrdersVO">
+		SELECT
+			or_pk,
+			or_serial_special_number,
+			or_buyer_name,
+			or_buyer_contract_number1,
+			or_receiver_name,
+			or_receiver_contract_number1,
+			or_shipping_address,
+			or_shipping_address_detail,
+			or_product,
+			or_product_option,
+			or_amount
+		FROM
+			orders
+		WHERE
+			<![CDATA[
+				or_regdate >=  DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -50 DAY), '%Y-%m-%d')
+			]]>
+			AND or_cancled_flag = 0
+			AND ss_fk = #{ssName}
+			AND or_product_order_number IN 
+			<foreach collection="orVoList" item="item" open="(" close=")" separator=",">
+				#{item.orProductOrderNumber}
+			</foreach>
+	</select>
+	
+	<update id="updateCancledOrder" parameterType="OrdersVO">
+		UPDATE
+			orders
+		SET
+			or_cancled_flag = 1
+		WHERE
+			or_pk = #{orPk}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+

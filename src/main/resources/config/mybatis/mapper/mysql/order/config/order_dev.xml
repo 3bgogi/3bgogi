@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.config.div">
+
+	<resultMap id="packingIrreOrderInfoResultMap" type="OrdersVOList">
+		<id property="orOrderNumber" column="or_order_number" javaType="String"/>
+		<result property="orBuyerId" column="or_buyer_id" javaType="String"/>
+		<result property="orBuyerName" column="or_buyer_name" javaType="String"/>
+		<result property="ssName" column="ss_name" javaType="String"/>
+		<result property="orBuyerAnotherName" column="or_buyer_another_name" javaType="String"/>
+		<result property="orBuyerContractNumber1" column="or_buyer_contract_number1" javaType="String"/>
+		<result property="orBuyerContractNumber2" column="or_buyer_contract_number2" javaType="String"/>
+		<result property="orReceiverName" column="or_receiver_name" javaType="String"/>
+		<result property="orReceiverContractNumber1" column="or_receiver_contract_number1" javaType="String"/>
+		<result property="orReceiverContractNumber2" column="or_receiver_contract_number2" javaType="String"/>
+		<result property="orDeliveryInvoiceNumber" column="or_delivery_invoice_number" javaType="String"/>
+		<result property="orShippingAddress" column="or_shipping_address" javaType="String"/>
+		<result property="orShippingAddressDetail" column="or_shipping_address_detail" javaType="String"/>
+			
+		<collection property="orVoList" ofType="OrdersVO">
+			<id property="orPk" column="or_pk" javaType="int"/>
+			<result property="orSerialSpecialNumber" column="or_serial_special_number" javaType="String"/>
+			<result property="pmFk" column="pm_fk" javaType="int"/>
+			<result property="ssFk" column="ss_fk" javaType="int"/>
+			<result property="orProduct" column="or_product" javaType="String"/>
+			<result property="orProductType" column="or_product_type" javaType="String"/>
+			<result property="orProductOption" column="or_product_option" javaType="String"/>
+			<result property="orAmount" column="or_amount" javaType="int"/>
+			<result property="orDeliveryMessage" column="or_delivery_message" javaType="String"/>
+			<result property="orDeliveryType" column="or_delivery_type" javaType="String"/>
+			<result property="orDeliveryCompany" column="or_delivery_company" javaType="String"/>
+			<result property="orPaymentPositionType" column="or_payment_position_type" javaType="String"/>
+			<result property="orSettlementDay" column="or_settlement_day" javaType="java.sql.Timestamp"/>
+			<result property="orProductPrice" column="or_product_price" javaType="int"/>
+			<result property="orProductOptionPrice" column="or_product_option_price" javaType="int"/>
+			<result property="orDiscountPrice" column="or_discount_price" javaType="int"/>
+			<result property="orTotalPrice" column="or_total_price" javaType="int"/>
+			<result property="orTotalCost" column="or_total_cost" javaType="int"/>
+			<result property="orCheckDay" column="or_check_day" javaType="java.sql.Date"/>
+			<result property="orSendingDeadline" column="or_sending_deadline" javaType="java.sql.Date"/>
+			<result property="orSendingDay" column="or_sending_day" javaType="java.sql.Date"/>
+			<result property="orDeliveryChargeType" column="or_delivery_charge_type" javaType="String"/>
+			<result property="orDeliveryNumber" column="or_delivery_number" javaType="String"/>
+			<result property="orDeliveryPrice" column="or_delivery_price" javaType="int"/>
+			<result property="orPaymentType" column="or_payment_type" javaType="String"/>
+			<result property="orPaymentCommision" column="or_payment_commision" javaType="int"/>
+			<result property="orAnotherPaymentCommision" column="or_another_payment_commision" javaType="int"/>
+			<result property="orInflowRoute" column="or_inflow_route" javaType="String"/>
+			<result property="orRequest" column="or_request" javaType="String"/>
+			<result property="orTaxFlag" column="or_tax_flag" javaType="boolean"/>
+			<result property="orDevideFlag" column="or_devide_flag" javaType="boolean"/>
+			<result property="orRegdate" column="or_regdate" javaType="java.sql.Timestamp"/>
+			<result property="productMatchingChecking" column="product_matching_checking" javaType="boolean"/>
+			<result property="optionMatchingChecking" column="option_matching_checking" javaType="boolean"/>
+			<result property="productChecking" column="product_checking" javaType="boolean"/>
+			<result property="orCancledFlag" column="or_cancled_flag" javaType="boolean"/>
+			<result property="orInvFlag" column="or_Inv_flag" javaType="boolean"/>
+			
+			<!-- or_pk 를 리스트 형태로 가져옴 -->
+			<result property="orUserColumn1" column="or_user_column1" javaType="String"/>
+			
+			<!-- 상품명 매칭 -->
+			<collection property="productMatchingVOList" ofType="ProductMatchingVO">
+				<id property="pmPk" column="pm_pk" javaType="int"/>
+				<!-- <result property="productPk" column="product_pk" javaType="int"/> -->
+				<result property="pmStoreProductName" column="pm_store_product_name" javaType="String"/>
+				<result property="pmEachFlag" column="pm_each_flag" javaType="boolean"/>
+				<result property="pmEachs" column="pm_eachs" javaType="int"/>
+				<result property="pmRegdate" column="pm_regdate" javaType="java.sql.Timestamp"/>
+				
+				<!-- <collection property="productsVOList" ofType="ProductsVO">
+					<id property="productPk" column="product_pk" javaType="int"/>
+					<result property="cfFk" column="cf_fk" javaType="int"/>
+					<result property="productName" column="product_name" javaType="String"/>
+					<result property="productFlag" column="product_flag" javaType="boolean"/>
+				</collection> -->
+				
+				<!-- 옵션명 매칭 -->
+				<collection property="optionMatchingVOList" ofType="OptionMatchingVO">
+					<id property="omPk" column="om_pk" javaType="int"/>
+					<result property="pmFk" column="pm_fk" javaType="int"/>
+					<result property="optionFk" column="option_fk" javaType="int"/>
+					<result property="omStoreOptionName" column="om_store_option_name" javaType="String"/>
+					<result property="omOptionAmount" column="om_option_amount" javaType="int"/>
+					<result property="omOptionMultipleFlag" column="om_option_multiple_flag" javaType="boolean"/>
+					<result property="omOptionMultipleEach" column="om_option_multiple_each" javaType="int"/>
+					<result property="omOptionMultipleAmount" column="om_option_multiple_amount" javaType="int"/>
+					<result property="omCombineFlag" column="om_combine_flag" javaType="boolean"/>
+					<result property="omRegdate" column="om_regdate" javaType="java.sql.Timestamp"/>
+					
+					<!-- <collection property="optionsVOList" ofType="OptionsVO">
+						<id property="optionPk" column="option_pk" javaType="int"/>
+						<result property="optionName" column="option_name" javaType="String"/>
+				
+					</collection> -->
+					
+					<collection property="productOptionList" ofType="ProductOptionVO">
+						<id property="optionPk" column="option_pk" javaType="int"/>
+						<result property="optionName" column="option_name" javaType="String"/>
+						
+						<!-- cfFk로 수량 가져옴  -->
+						<result property="cfFk" column="cf_fk" javaType="int"/>
+						<result property="productPk" column="product_pk" javaType="int"/>
+						<result property="productName" column="product_name" javaType="String"/>
+						<result property="productFlag" column="product_flag" javaType="boolean"/>
+					</collection>
+					
+				</collection>
+				
+			</collection>
+			
+		</collection>
+	</resultMap>
+	
+	
+	<select id="selectPackingIrreTargetOrderCounting" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			(
+	        SELECT
+				outter.or_order_number,
+				COUNT(outter.or_serial_special_number) div_count,
+				SUM(outter.normal_prod) AS normal_prod,
+				SUM(outter.cold_prod) AS cold_prod,
+				SUM(outter.freeze_prod) AS freeze_prod,
+				SUM(outter.set_prod) AS set_prod,
+				SUM(outter.om_count) AS om_count
+			FROM
+				(
+				SELECT
+					inne.or_order_number,
+					inne.or_serial_special_number,
+					COUNT(inne.or_serial_special_number),
+					SUM(inne.ss_count),
+					SUM(inne.normal_prod) AS normal_prod,
+					SUM(inne.cold_prod) AS cold_prod,
+					SUM(inne.freeze_prod) AS freeze_prod,
+					SUM(inne.set_prod) AS set_prod,
+					SUM(inne.om_count) AS om_count
+				FROM
+					(
+					SELECT
+						od.or_order_number,
+						od.or_serial_special_number,
+						COUNT(od.or_serial_special_number) AS ss_count,
+						SUM(
+							IF(pcc.pcc_code = 0, 1, 0)
+							) AS normal_prod,
+						SUM(
+							IF(pcc.pcc_code = 1, 1, 0)
+							) AS cold_prod,
+						SUM(
+							IF(pcc.pcc_code = 2, 1, 0)
+							) AS freeze_prod,
+						SUM(
+							IF(pcc.pcc_code = 3, 1, 0)
+							) AS set_prod,
+						COUNT(om.om_pk) AS om_count
+					FROM
+						orders od
+			
+						INNER JOIN option_matching om ON om.pm_fk = od.pm_fk AND od.or_product_option = om.om_store_option_name
+						INNER JOIN options op ON om.option_fk = op.option_pk
+						INNER JOIN packing_combine_code pcc ON op.pcc_fk = pcc.pcc_pk
+						INNER JOIN products pro ON pro.product_pk = op.product_fk
+						INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+			
+					WHERE
+						od.or_sending_deadline = DATE_FORMAT(NOW(), '%Y-%m-%d')
+						AND od.or_delivery_invoice_number IS NULL
+						AND od.or_cancled_flag = 0
+						AND od.or_refunds = 0
+						AND od.or_excel_div_flag = 0
+						AND od.or_deposit_flag = 1
+					GROUP BY
+						od.or_order_number,
+						od.or_serial_special_number,
+						pcc.pcc_code
+					) inne
+				GROUP BY
+					inne.or_serial_special_number,
+					inne.or_order_number
+			) outter
+			GROUP BY
+				outter.or_order_number
+			HAVING
+				<![CDATA[			
+					!(freeze_prod > 0 AND cold_prod > 0)
+					AND ( (normal_prod > 0 AND (freeze_prod > 0 OR cold_prod > 0) ) OR ( normal_prod = 0 AND (freeze_prod > 0 OR cold_prod > 0))   )
+					AND div_count > 1
+				]]>
+			) targets
+	</select>
+	<select id="selectPackingIrreTargetOrder" resultType="OrdersVO">
+		SELECT
+			outter.or_order_number,
+			COUNT(outter.or_serial_special_number) div_count,
+			SUM(outter.normal_prod) AS normal_prod,
+			SUM(outter.cold_prod) AS cold_prod,
+			SUM(outter.freeze_prod) AS freeze_prod,
+			SUM(outter.set_prod) AS set_prod,
+			SUM(outter.om_count) AS om_count
+		FROM
+			(
+			SELECT
+				inne.or_order_number,
+				inne.or_serial_special_number,
+				COUNT(inne.or_serial_special_number),
+				SUM(inne.ss_count),
+				SUM(inne.normal_prod) AS normal_prod,
+				SUM(inne.cold_prod) AS cold_prod,
+				SUM(inne.freeze_prod) AS freeze_prod,
+				SUM(inne.set_prod) AS set_prod,
+				SUM(inne.om_count) AS om_count
+			FROM
+				(
+				SELECT
+					od.or_order_number,
+					od.or_serial_special_number,
+					COUNT(od.or_serial_special_number) AS ss_count,
+					SUM(
+						IF(pcc.pcc_code = 0, 1, 0)
+						) AS normal_prod,
+					SUM(
+						IF(pcc.pcc_code = 1, 1, 0)
+						) AS cold_prod,
+					SUM(
+						IF(pcc.pcc_code = 2, 1, 0)
+						) AS freeze_prod,
+					SUM(
+						IF(pcc.pcc_code = 3, 1, 0)
+						) AS set_prod,
+					COUNT(om.om_pk) AS om_count
+				FROM
+					orders od
+		
+					INNER JOIN option_matching om ON om.pm_fk = od.pm_fk AND od.or_product_option = om.om_store_option_name
+					INNER JOIN options op ON om.option_fk = op.option_pk
+					INNER JOIN packing_combine_code pcc ON op.pcc_fk = pcc.pcc_pk
+					INNER JOIN products pro ON pro.product_pk = op.product_fk
+					INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+		
+				WHERE
+					od.or_sending_deadline = DATE_FORMAT(NOW(), '%Y-%m-%d')
+					AND od.or_delivery_invoice_number IS NULL
+					AND od.or_cancled_flag = 0
+					AND od.or_refunds = 0
+					AND od.or_excel_div_flag = 0
+					AND od.or_deposit_flag = 1
+				GROUP BY
+					od.or_order_number,
+					od.or_serial_special_number,
+					pcc.pcc_code
+				) inne
+			GROUP BY
+				inne.or_serial_special_number,
+				inne.or_order_number
+		) outter
+		GROUP BY
+			outter.or_order_number
+		HAVING
+			<![CDATA[			
+				!(freeze_prod > 0 AND cold_prod > 0)
+				AND ( (normal_prod > 0 AND (freeze_prod > 0 OR cold_prod > 0) ) OR ( normal_prod = 0 AND (freeze_prod > 0 OR cold_prod > 0))   )
+				AND div_count > 1
+			]]>
+	</select>
+
+
+	<select id="selectPackingIrreTargetOrderList" parameterType="java.util.List" resultMap="packingIrreOrderInfoResultMap">
+
+            SELECT
+				od.or_serial_special_number,
+				od.or_pk,
+				od.ss_fk,
+				ss.ss_name,
+				od.or_product_option,
+				od.or_product,
+				od.or_buyer_name,
+				od.or_buyer_contract_number1,
+				od.or_receiver_name,
+				od.or_receiver_contract_number1,
+				od.or_delivery_invoice_number,
+				od.or_shipping_address,
+				od.or_shipping_address_detail,
+				od.or_order_number,
+				od.or_product_order_number,
+				od.or_product_number,
+				od.or_sending_deadline,
+                SUM(od.or_inv_flag) AS or_inv_flag,
+				SUM(od.or_total_price) AS or_total_price,
+				SUM(od.or_total_cost) AS or_total_cost,
+	            pm.pm_pk,
+				pro.product_pk,
+                pro.product_name,
+				om.om_pk,
+				op.option_pk,
+                op.option_name,
+                op.option_cost_flag,
+                SUM(od.or_amount * om.om_option_amount) AS cf_fk
+			FROM
+				orders od
+				INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+				INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+				INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+				INNER JOIN options op ON om.option_fk = op.option_pk
+				INNER JOIN products pro ON pro.product_pk = op.product_fk
+				INNER JOIN excel_order_seq eo ON op.eo_fk = eo.eos_pk
+			WHERE
+				<![CDATA[
+					od.or_sending_deadline = DATE_FORMAT(NOW(), '%Y-%m-%d')
+					AND od.or_delivery_invoice_number IS NULL
+					AND od.or_excel_div_flag = 0
+					AND od.or_cancled_flag = 0
+					AND od.or_deposit_flag = 1
+				]]>
+					AND od.or_order_number IN  
+					<foreach item="item" collection="list" open="(" separator="," close=")">
+						    #{item.orOrderNumber}
+					</foreach>
+			GROUP BY
+				od.or_serial_special_number,
+				od.or_pk,
+				od.ss_fk,
+				od.or_product_option,
+				od.or_product,
+				od.or_product_option,
+				od.or_buyer_name,
+				od.or_buyer_contract_number1,
+				od.or_receiver_name,
+				od.or_receiver_contract_number1,
+				od.or_delivery_invoice_number,
+				od.or_order_number,
+				od.or_product_order_number,
+				od.or_product_number,
+				od.or_sending_deadline,
+	            pm.pm_pk,
+	            om.om_pk,
+				pro.product_pk,
+                pro.product_name,
+				op.option_pk,
+                op.option_cost_flag,
+                op.option_name
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

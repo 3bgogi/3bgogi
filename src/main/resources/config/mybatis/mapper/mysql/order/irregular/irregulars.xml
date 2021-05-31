@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.irregular">
+	
+	<!-- 고객 필터링 관련 부분 매핑 -->
+
+	<!-- 고객 필터링 데이터 삽입 -->
+	<insert id="addIrregularOrders" parameterType="IrregularOrderVO">
+	
+		INSERT INTO 
+			irregular_order
+		(
+			iro_name,
+			ss_fk,
+			iro_phone_number,
+			iro_detail,
+			iro_flag,
+			iro_regdate
+		)
+		VALUES(
+			#{iroName},
+			#{ssFk},
+			#{iroPhoneNumber},
+			#{iroDetail},
+			0,
+			NOW()
+		)
+	</insert>
+	
+	<!-- 고객 필터링이 아직 되지 않은 대기상태의 값들 -->
+	<select id="selectIrregularOrdersNotFiltered" resultType="IrregularOrderVO">
+		SELECT
+			*
+		FROM
+			irregular_order
+		WHERE
+			iro_flag = 0
+		ORDER BY
+			iro_pk DESC
+	</select>
+	
+	<!-- 모든 고객필터링 값 가져오기 -->
+	<select id="selectIrregularOrders" resultType="IrregularOrderVO">
+		SELECT
+			*
+		FROM
+			irregular_order
+		ORDER BY
+			iro_pk DESC
+	</select>
+	
+	<!-- 필터링 확인처리 하기 -->
+	<update id="successedFiltering" parameterType="IrregularOrderVO">
+		UPDATE
+			irregular_order
+		SET
+			iro_flag = 1
+		WHERE
+			iro_pk = #{iroPk}
+	</update>
+	
+	<!-- 필터링 확인사항 수정하기 -->
+	<update id="updateFilteringData" parameterType="IrregularOrderVO">
+		UPDATE
+			irregular_order
+		SET
+			iro_detail = #{iroDetail}
+		WHERE
+			iro_pk = #{iroPk}
+	</update>
+	
+	<!-- 필터링 데이터 삭제하기 -->
+	<delete id="deleteFilteringData" parameterType="IrregularOrderVO">
+		DELETE FROM
+			irregular_order
+		WHERE
+			iro_pk = #{iroPk}
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="products.option">
+
+	<resultMap type="com.gogi.proj.product.options.vo.OptionsVO" id="optionsAndCostsMatchingCollectionList">
+		<id property="optionPk" column="option_pk" javaType="int"/>
+		<result property="eoFk" column="eo_fk" javaType="int"/>
+		<result property="resFk" column="res_fk" javaType="int"/>
+		<result property="eventFk" column="event_fk" javaType="int"/>
+		<result property="pccFk" column="pcc_fk" javaType="int"/>
+		<result property="productFk" column="product_fk" javaType="int"/>
+		<result property="optionName" column="option_name" javaType="String"/>
+		<result property="optionPrice" column="option_price" javaType="int"/>
+		<result property="optionFlag" column="option_flag" javaType="boolean"/>
+		<result property="optionSeq" column="option_seq" javaType="int"/>
+		<result property="optionBarcodeNumber1" column="option_barcode_number1" javaType="String"/>
+		<result property="optionBarcodeNumber2" column="option_barcode_number2" javaType="String"/>
+		<result property="optionRemark" column="option_remark" javaType="String"/>
+		<result property="optionCost" column="option_cost" javaType="int"/>
+		<result property="optionCostFlag" column="option_cost_flag" javaType="boolean"/>
+		<result property="optionTaxFlag" column="option_tax_flag" javaType="boolean"/>
+		<result property="optionStockFlag" column="option_stock_flag" javaType="boolean"/>
+		<result property="optionStockMaxAlarm" column="option_stock_max_alarm" javaType="int"/>
+		<result property="optionStock" column="option_stock" javaType="int"/>
+		<result property="optionExcelColorCheck" column="option_excel_color_check" javaType="boolean"/>
+		<result property="optionMemo1" column="option_memo1" javaType="String"/>
+		<result property="optionMemo2" column="option_memo2" javaType="String"/>
+		<result property="optionMemo3" column="option_memo3" javaType="String"/>
+		<result property="optionThumbnail1" column="option_thumbnail1" javaType="String"/>
+		<result property="optionThumbnail2" column="option_thumbnail2" javaType="String"/>
+		<result property="optionUpdate" column="option_update" javaType="java.sql.Timestamp"/>
+		<result property="optionRegdate" column="option_regdate" javaType="java.sql.Date"/>
+		<result property="anotherOptionPk" column="another_option_pk" javaType="int"/>
+		<result property="anotherOptionQty" column="another_option_qty" javaType="int"/>
+		<result property="optionSupplyCost" column="option_supply_cost" javaType="int"/>
+		
+		
+		<collection property="optionCostsMatchingVOList" ofType="OptionsCostsMatchingVO">
+			<id property="ocmPk" column="ocm_pk" javaType="int"/>
+			<result property="costFk" column="cost_fk" javaType="int"/>
+			<result property="optionFk" column="option_fk" javaType="int"/>
+			<result property="ocmGramRecalFlag" column="ocm_gram_recal_flag" javaType="int"/>
+			<result property="ocmGram" column="ocm_gram" javaType="int"/>
+			<result property="ocmProductionDivide" column="ocm_production_divide" javaType="int"/>
+			<result property="ocmEach" column="ocm_each" javaType="int"/>
+			<result property="ocmRealGram" column="ocm_real_gram" javaType="int"/>
+			<result property="costName" column="cost_name" javaType="String"/>
+			<result property="costUniqueNum" column="cost_unique_num" javaType="String"/>
+			<result property="totalPrice" column="total_price" javaType="int"/>
+		</collection>
+
+	</resultMap>
+	
+	<insert id="insertOptions" useGeneratedKeys="true" keyProperty="optionPk" parameterType="OptionsVO">
+		INSERT INTO options(eo_fk,  pcc_fk, product_fk, option_name, option_price, option_flag, option_seq, option_barcode_number1,
+							option_barcode_number2, option_remark, option_tax_flag, option_stock_flag, option_stock, option_stock_max_alarm, option_excel_color_check,
+							option_memo1, option_memo2, option_memo3, option_memo4, option_thumbnail1, option_thumbnail2,option_update, option_regdate, option_cost, option_cost_flag, 
+							option_supply_cost,another_option_pk, another_option_qty)
+		VALUES(#{eoFk},  #{pccFk}, #{productFk}, #{optionName}, #{optionPrice}, #{optionFlag}, #{optionSeq}, #{optionBarcodeNumber1},#{optionBarcodeNumber2},
+			#{optionRemark}, #{optionTaxFlag}, #{optionStockFlag} ,#{optionStock}, #{optionStockMaxAlarm}, #{optionExcelColorCheck}, #{optionMemo1}, #{optionMemo2}, #{optionMemo3}, #{optionMemo4},
+			#{optionThumbnail1}, #{optionThumbnail2}, NOW(), NOW(), #{optionCost}, #{optionCostFlag}, #{optionSupplyCost}, #{anotherOptionPk}, #{anotherOptionQty})
+	</insert>
+	
+	<update id="updateOptions" parameterType="OptionsVO">
+		UPDATE
+			options
+		SET
+			eo_fk = #{eoFk},
+			pcc_fk = #{pccFk},
+			option_name = #{optionName},
+			option_price = #{optionPrice},
+			option_flag = #{optionFlag},
+			option_seq = #{optionSeq},
+			option_barcode_number1 = #{optionBarcodeNumber1},
+			option_barcode_number2 = #{optionBarcodeNumber2},
+			option_remark = #{optionRemark},
+			option_tax_flag = #{optionTaxFlag},
+			option_stock = #{optionStock},
+			option_stock_flag = #{optionStockFlag},
+			option_stock_max_alarm = #{optionStockMaxAlarm},
+			option_excel_color_check = #{optionExcelColorCheck},
+			option_memo1 = #{optionMemo1},
+			option_memo2 = #{optionMemo2},
+			option_memo3 = #{optionMemo3},
+			option_memo4 = #{optionMemo4},
+			option_thumbnail1 = #{optionThumbnail1},
+			option_thumbnail2 = #{optionThumbnail2},
+			option_update = NOW(),
+			option_cost = #{optionCost},
+			option_cost_flag = #{optionCostFlag},
+			another_option_pk = #{anotherOptionPk},
+			another_option_qty = #{anotherOptionQty},
+			option_supply_cost = #{optionSupplyCost}
+		WHERE
+			option_pk = #{optionPk}
+	</update>
+	
+	
+	<delete id="deleteOptions" parameterType="OptionsVO">
+		DELETE FROM options
+		WHERE option_pk = #{optionPk}
+	</delete>
+	
+	
+	<select id="selectOptionsByOptionPk" parameterType="int" resultMap="optionsAndCostsMatchingCollectionList">
+	SELECT
+		op.option_pk,
+		op.eo_fk,
+		op.pcc_fk,
+		op.product_fk,
+		op.option_name,
+		op.option_price,
+		op.option_flag,
+		op.option_seq,
+		op.option_remark,
+		op.option_stock,
+		op.option_stock_flag,
+		op.option_stock_max_alarm,
+		op.option_tax_flag,
+		op.option_excel_color_check,
+		op.option_barcode_number1,
+		op.option_barcode_number2,
+		op.option_memo1,
+		op.option_memo2,
+		op.option_memo3,
+		op.option_memo4,
+		op.option_thumbnail1,
+		op.option_thumbnail2,
+		op.option_update,
+		op.option_regdate,
+		op.option_cost,
+		op.option_cost_flag,
+		another_option_pk,
+		another_option_qty,
+		option_supply_cost,
+		ocm.ocm_gram,
+		ocm.ocm_production_divide,
+		ocm.ocm_each,
+		cs.cost_name,
+		cs.cost_unique_num
+	FROM
+		options op
+		LEFT JOIN options_costs_matching ocm ON ocm.option_fk = op.option_pk
+		-- INNER JOIN products pro ON pro.product_pk = op.product_fk
+		LEFT JOIN costs cs ON cs.cost_pk = ocm.cost_fk
+		LEFT JOIN cost_detail cd ON cs.cd_fk = cd.cd_pk
+	WHERE
+		op.option_pk = #{optionPk}
+	GROUP BY
+		op.option_pk,
+		op.eo_fk,
+		op.pcc_fk,
+		op.product_fk,
+		op.option_name,
+		op.option_price,
+		op.option_flag,
+		op.option_seq,
+		op.option_remark,
+		op.option_stock,
+		op.option_stock_flag,
+		op.option_tax_flag,
+		op.option_stock_max_alarm,
+		op.option_excel_color_check,
+		op.option_barcode_number1,
+		op.option_barcode_number2,
+		op.option_memo1,
+		op.option_memo2,
+		op.option_memo3,
+		op.option_memo4,
+		op.option_thumbnail1,
+		op.option_thumbnail2,
+		op.option_update,
+		op.option_regdate,
+		op.option_cost,
+		op.option_cost_flag,
+		another_option_pk,
+		another_option_qty,
+		option_supply_cost,
+		ocm.ocm_gram,
+		ocm.ocm_production_divide,
+		ocm.ocm_each,
+		cs.cost_name,
+		cs.cost_unique_num
+	</select>
+	
+	
+</mapper>
+
+
+
+
+
+
+
+

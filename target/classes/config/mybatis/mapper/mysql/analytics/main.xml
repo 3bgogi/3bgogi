@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="analytics.main">
+
+	<select id="selectMainDeliveryResult" resultType="java.util.LinkedHashMap">
+		SELECT
+			SUM(output.negative) as matching_fail,
+			SUM(output.delivery) as dont_grant_invoice_num,
+			SUM(output.weiting) as output_weiting_order,
+			SUM(output.finished) as output_order,
+            SUM(output.reserv) as reserv_order,
+            SUM(output.deposit) AS deposit_order
+		FROM
+			(
+			SELECT
+				CASE
+					WHEN
+						INNE.pk_count != INNE.flag_count
+					THEN
+						COUNT(INNE.or_serial_special_number)
+				END AS negative,
+		        CASE
+					WHEN
+						INNE.pk_count = INNE.flag_count AND INNE.invoice_count = 0
+					THEN
+						COUNT(INNE.or_serial_special_number)
+				END AS delivery,
+				CASE
+					WHEN
+						INNE.pk_count = INNE.flag_count AND inne.sending_count = 0 AND INNE.invoice_count != 0
+					THEN
+						COUNT(INNE.or_serial_special_number)
+				END AS weiting,
+		        CASE
+					WHEN
+						INNE.pk_count = INNE.flag_count AND inne.sending_count != 0 AND inne.or_output_flag = INNE.pk_count
+					THEN
+						COUNT(INNE.or_serial_special_number)
+				END AS finished,
+		        CASE
+					WHEN
+						reserv_flag > 0
+					THEN
+						COUNT(INNE.or_serial_special_number)
+				END AS reserv,
+		        CASE
+					WHEN
+						deposit_flag = 0
+					THEN
+						COUNT(INNE.or_serial_special_number)
+				END AS deposit
+			FROM
+				(
+				SELECT
+					or_serial_special_number,
+					COUNT(or_serial_special_number) AS pk_count,
+		            SUM(
+						IF(or_delivery_invoice_number IS NULL, 0, 1)
+					) AS invoice_count,
+					SUM(or_inv_flag) AS flag_count,
+					SUM(
+						IF(or_sending_day IS NULL, 0, 1)
+					) AS sending_count,
+		            SUM(or_output_flag) AS or_output_flag,
+                    SUM(
+						IF(or_sending_deadline > DATE_FORMAT(NOW(), '%Y-%m-%d'), 1, 0)
+                    ) AS reserv_flag,
+                    SUM(or_deposit_flag) AS deposit_flag
+				FROM
+					orders
+				WHERE
+					<![CDATA[
+						or_regdate >= DATE_ADD(NOW(), INTERVAL -1 MONTH)
+					]]>
+					AND or_cancled_flag = 0
+					AND or_refunds = 0
+					AND or_excel_div_flag = 0
+					<![CDATA[
+						AND (or_sending_day >= DATE_FORMAT(NOW(), '%Y-%m-%d') OR or_sending_day IS NULL)
+					]]>
+				group by
+					or_serial_special_number,
+					or_sending_day
+				) inne
+			GROUP BY
+				INNE.flag_count,
+				INNE.pk_count,
+				INNE.sending_count,
+				INNE.or_output_flag,
+		        INNE.invoice_count,
+                INNE.reserv_flag,
+                INNE.deposit_flag
+			) output
+	</select>
+	
+	
+	<!-- 가격대별 차트 넣기 -->
+	<select id="selectPriceChartInsert" resultType="java.util.LinkedHashMap">
+		SELECT
+			SUM(outter.`1u`) as `만원미만`,
+		    SUM(outter.`2u`) as `2만원미만`,
+		    SUM(outter.`3u`) as `3만원미만`,
+		    SUM(outter.`4u`) as `4만원미만`,
+		    SUM(outter.`5u`) as `5만원미만`,
+		    SUM(outter.`6u`) as `6만원미만`,
+		    SUM(outter.`7u`) as `7만원미만`,
+		    SUM(outter.`8u`) as `8만원미만`,
+		    SUM(outter.`9u`) as `9만원미만`,
+		    SUM(outter.`10o`) as `10만원이상`
+		    
+		FROM
+			(
+			SELECT
+				<![CDATA[
+					CASE
+						WHEN inne.or_total_price < 10000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `1u`,
+					CASE
+						WHEN inne.or_total_price >= 10000 AND inne.or_total_price < 20000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `2u`,
+					CASE
+						WHEN inne.or_total_price >= 20000 AND inne.or_total_price < 30000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `3u`,
+					CASE
+						WHEN inne.or_total_price >= 30000 AND inne.or_total_price < 40000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `4u`,
+					CASE
+						WHEN inne.or_total_price >= 40000 AND inne.or_total_price < 50000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `5u`,
+					CASE
+						WHEN inne.or_total_price >= 50000 AND inne.or_total_price < 60000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `6u`,
+					CASE
+						WHEN inne.or_total_price >= 60000 AND inne.or_total_price < 70000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `7u`,
+					CASE
+						WHEN inne.or_total_price >= 70000 AND inne.or_total_price < 80000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `8u`,
+					CASE
+						WHEN inne.or_total_price >= 80000 AND inne.or_total_price < 90000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `9u`,
+					CASE
+						WHEN inne.or_total_price >= 100000
+					THEN 
+						COUNT(inne.or_order_number)
+					END AS `10o`
+				]]>
+			FROM
+				(
+				SELECT
+					or_order_number,
+					SUM(or_total_price) AS or_total_price
+				FROM
+					orders
+				WHERE
+					<![CDATA[
+						or_regdate > DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -30 DAY), '%Y-%m-%d')
+					]]>
+				GROUP BY
+					or_order_number
+			) inne
+			GROUP BY
+				inne.or_total_price
+		) outter
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

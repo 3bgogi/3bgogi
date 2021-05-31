@@ -1,0 +1,1903 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.search_customer_order_info">
+
+	<resultMap id="OrdersInfoResultMap" type="OrdersVO">
+		<id property="orPk" column="or_pk" javaType="int"/>
+		<result property="pmFk" column="pm_fk" javaType="int"/>
+		<result property="ssFk" column="ss_fk" javaType="int"/>
+		<result property="ssName" column="ss_name" javaType="String"/>
+		<result property="orSerialSpecialNumber" column="or_serial_special_number" javaType="String"/>
+		<result property="orBuyerId" column="or_buyer_id" javaType="String"/>
+		<result property="orBuyerName" column="or_buyer_name" javaType="String"/>
+		<result property="orBuyerAnotherName" column="or_buyer_another_name" javaType="String"/>
+		<result property="orBuyerContractNumber1" column="or_buyer_contract_number1" javaType="String"/>
+		<result property="orBuyerContractNumber2" column="or_buyer_contract_number2" javaType="String"/>
+		<result property="orReceiverName" column="or_receiver_name" javaType="String"/>
+		<result property="orProduct" column="or_product" javaType="String"/>
+		<result property="orProductType" column="or_product_type" javaType="String"/>
+		<result property="orProductOption" column="or_product_option" javaType="String"/>
+		<result property="orAmount" column="or_amount" javaType="int"/>
+		<result property="orDeliveryMessage" column="or_delivery_message" javaType="String"/>
+		<result property="orDeliveryType" column="or_delivery_type" javaType="String"/>
+		<result property="orDeliveryCompany" column="or_delivery_company" javaType="String"/>
+		<result property="orOrderNumber" column="or_order_number" javaType="String"/>
+		<result property="orProductOrderNumber" column="or_product_order_number" javaType="String"/>
+		<result property="orProductNumber" column="or_product_number" javaType="String"/>
+		<result property="orPaymentPositionType" column="or_payment_position_type" javaType="String"/>
+		<result property="orProductPrice" column="or_product_price" javaType="int"/>
+		<result property="orProductOptionPrice" column="or_product_option_price" javaType="int"/>
+		<result property="orDiscountPrice" column="or_discount_price" javaType="int"/>
+		<result property="orTotalPrice" column="or_total_price" javaType="int"/>
+		<result property="orTotalCost" column="or_total_cost" javaType="int"/>
+		<result property="orCheckDay" column="or_check_day" javaType="java.sql.Date"/>
+		<result property="orSendingDeadline" column="or_sending_deadline" javaType="java.sql.Date"/>
+		<result property="orSendingDay" column="or_sending_day" javaType="java.sql.Date"/>
+		<result property="orDeliveryChargeType" column="or_delivery_charge_type" javaType="String"/>
+		<result property="orDeliveryNumber" column="or_delivery_number" javaType="String"/>
+		<result property="orDeliveryPrice" column="or_delivery_price" javaType="int"/>
+		<result property="orDeliveryInvoiceNumber" column="or_delivery_invoice_number" javaType="String"/>
+		<result property="orDeliveryDiscountPrice" column="or_delivery_discount_price" javaType="int"/>
+		<result property="orReceiverContractNumber1" column="or_receiver_contract_number1" javaType="String"/>
+		<result property="orReceiverContractNumber2" column="or_receiver_contract_number2" javaType="String"/>
+		<result property="orShippingAddressNumber" column="or_shipping_address_number" javaType="String"/>
+		<result property="orShippingProvince" column="or_shipping_province" javaType="String"/>
+		<result property="orShippingAddress" column="or_shipping_address" javaType="String"/>
+		<result property="orShippingAddressDetail" column="or_shipping_address_detail" javaType="String"/>
+		<result property="orSpecialRegionDetail" column="or_special_region_detail" javaType="boolean"/>
+		<result property="orSendingAddress" column="or_sending_address" javaType="String"/>
+		<result property="orPaymentType" column="or_payment_type" javaType="String"/>
+		<result property="orPaymentCommision" column="or_payment_commision" javaType="int"/>
+		<result property="orAnotherPaymentCommision" column="or_another_payment_commision" javaType="int"/>
+		<result property="orInflowRoute" column="or_inflow_route" javaType="String"/>
+		<result property="orRequest" column="or_request" javaType="String"/>
+		<result property="orTaxFlag" column="or_tax_flag" javaType="boolean"/>
+		<result property="orDevideFlag" column="or_devide_flag" javaType="boolean"/>
+		<result property="orRegdate" column="or_regdate" javaType="java.sql.Timestamp"/>
+		<result property="productMatchingChecking" column="product_matching_checking" javaType="boolean"/>
+		<result property="optionMatchingChecking" column="option_matching_checking" javaType="boolean"/>
+		<result property="productChecking" column="product_checking" javaType="boolean"/>
+		<result property="orCancledFlag" column="or_cancled_flag" javaType="boolean"/>
+		<result property="orInvFlag" column="or_Inv_flag" javaType="boolean"/>
+		<result property="orRefunds" column="or_refunds" javaType="int"/>
+		<result property="orCancledQty" column="or_cancled_qty" javaType="int"/>
+		<result property="orDepositFlag" column="or_deposit_flag" javaType="boolean"/>
+		<result property="orExcelDivFlag" column="or_excel_div_flag" javaType="boolean"/>
+		<result property="orFk" column="or_fk" javaType="int"/>
+		<result property="edtFk" column="edt_fk" javaType="int"/>
+		
+		<!-- 상품명 매칭 -->
+		<collection property="productMatchingVOList" ofType="ProductMatchingVO">
+			<id property="pmPk" column="pm_pk" javaType="int"/>
+			<result property="productFk" column="product_fk" javaType="int"/>
+			<result property="pmStoreProductName" column="pm_store_product_name" javaType="String"/>
+			<result property="pmEachFlag" column="pm_each_flag" javaType="boolean"/>
+			<result property="pmEachs" column="pm_eachs" javaType="int"/>
+			<result property="pmRegdate" column="pm_regdate" javaType="java.sql.Timestamp"/>
+			
+			<!-- 잠시 사용 중지
+			<collection property="productsVOList" ofType="ProductsVO">
+				<id property="productPk" column="product_pk" javaType="int"/>
+				<result property="cfFk" column="cf_fk" javaType="int"/>
+				<result property="productName" column="product_name" javaType="String"/>
+				<result property="productFlag" column="product_flag" javaType="boolean"/>
+			</collection> -->
+			
+			<!-- 옵션명 매칭 -->
+			<collection property="optionMatchingVOList" ofType="OptionMatchingVO">
+				<id property="omPk" column="om_pk" javaType="int"/>
+				<result property="pmFk" column="pm_fk" javaType="int"/>
+				<result property="optionFk" column="option_fk" javaType="int"/>
+				<result property="omStoreOptionName" column="om_store_option_name" javaType="String"/>
+				<result property="omOptionAmount" column="om_option_amount" javaType="int"/>
+				<result property="omOptionMultipleFlag" column="om_option_multiple_flag" javaType="boolean"/>
+				<result property="omOptionMultipleEach" column="om_option_multiple_each" javaType="int"/>
+				<result property="omOptionMultipleAmount" column="om_option_multiple_amount" javaType="int"/>
+				<result property="omCombineFlag" column="om_combine_flag" javaType="boolean"/>
+				<result property="omRegdate" column="om_regdate" javaType="java.sql.Timestamp"/>
+				
+				<!-- <collection property="optionsVOList" ofType="OptionsVO">
+					<id property="optionPk" column="option_pk" javaType="int"/>
+					<result property="optionName" column="option_name" javaType="String"/>
+			
+				</collection> -->
+				
+				<collection property="productOptionList" ofType="ProductOptionVO">
+					<id property="optionPk" column="option_pk" javaType="int"/>
+					<result property="optionName" column="option_name" javaType="String"/>
+					<result property="cfFk" column="cf_fk" javaType="int"/>
+					<result property="productPk" column="product_pk" javaType="int"/>
+					<result property="productName" column="product_name" javaType="String"/>
+					<result property="productFlag" column="product_flag" javaType="boolean"/>
+				</collection>
+				
+			</collection>
+			
+		</collection>
+		
+	</resultMap>
+	
+	<resultMap id="renewalCsInfoResultMap" type="OrdersVO">
+		<id property="orSerialSpecialNumber" column="or_serial_special_number" javaType="String"/>
+		<result property="ssName" column="ss_name" javaType="String"/>
+		<result property="orBuyerId" column="or_buyer_id" javaType="String"/>
+		<result property="orShippingAddressDetail" column="or_shipping_address_detail" javaType="String"/>
+		<result property="orBuyerName" column="or_buyer_name" javaType="String"/>
+		<result property="orBuyerAnotherName" column="or_buyer_another_name" javaType="String"/>
+		<result property="orReceiverName" column="or_receiver_name" javaType="String"/>
+		<result property="orShippingAddress" column="or_shipping_address" javaType="String"/>
+		<result property="orDeliveryInvoiceNumber" column="or_delivery_invoice_number" javaType="String"/>
+		<result property="orBuyerContractNumber1" column="or_buyer_contract_number1" javaType="String"/>
+		<result property="orReceiverContractNumber1" column="or_receiver_contract_number1" javaType="String"/>
+		<result property="orTotalPrice" column="or_total_price" javaType="int"/>
+		<result property="totalOrderCount" column="total_order_count" javaType="int"/>
+		<result property="orAmount" column="or_amount" javaType="int"/>
+		<result property="orCancledQty" column="or_cancled_qty" javaType="int"/>
+		<result property="totalOrderCount" column="total_order_count" javaType="int"/>
+		<result property="orSendingDeadline" column="or_sending_deadline" javaType="java.sql.Date"/>
+		<result property="orSendingDay" column="or_sending_day" javaType="java.sql.Timestamp"/>
+		<result property="orRefunds" column="or_refunds" javaType="int"/>
+		<result property="orTotalExcelDiv" column="or_total_excel_div" javaType="int"/>
+		<result property="orExcelDivCount" column="or_excel_div_flag" javaType="int"/>
+		<result property="orDepositFlag" column="or_deposit_flag" javaType="boolean"/>
+		<result property="orRecType" column="or_rec_type" javaType="int"/>
+		<result property="orRecMemo" column="or_rec_memo" javaType="String"/>
+		<result property="orRecStoragePlace" column="or_rec_storage_place" javaType="String"/>
+		
+	</resultMap>
+	
+	
+	<!-- cs쪽 검색하는 기능 -->
+	<select id="newSearchCustomerOrderInfo" parameterType="OrderSearchVO" resultMap="renewalCsInfoResultMap">
+		SELECT
+            datas.or_serial_special_number,
+			datas.or_buyer_id,
+			datas.ss_name,
+			datas.or_buyer_another_name,
+			datas.or_shipping_address_detail,
+			datas.or_buyer_name,
+			datas.or_receiver_name,
+			datas.or_shipping_address,
+			GROUP_CONCAT(DISTINCT datas.or_delivery_invoice_number SEPARATOR ',') AS or_delivery_invoice_number,
+			GROUP_CONCAT(DISTINCT datas.or_delivery_company SEPARATOR ',') AS or_delivery_company,
+			datas.or_buyer_contract_number1,
+			datas.or_receiver_contract_number1,
+			SUM(datas.or_total_price) AS or_total_price,
+            COUNT(datas.or_pk) AS total_order_count,
+            SUM(datas.or_amount) AS or_amount,
+			SUM(datas.or_cancled_qty) AS or_cancled_qty,
+			datas.or_sending_deadline,
+			SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT datas.or_sending_day ORDER BY or_sending_day DESC SEPARATOR ',' ), ',', 1) AS or_sending_day,
+			SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT datas.or_settlement_day ORDER BY or_settlement_day DESC SEPARATOR ',' ), ',', 1) AS or_settlement_day,
+			SUM(datas.or_refunds) AS or_refunds,
+			datas.edt_fk,
+			datas.or_rec_type,
+			SUM(datas.or_excel_div_flag) AS or_excel_div_flag,
+			IF( 
+				SUM(datas.or_deposit_flag) IS NULL,
+				0,
+                1) AS or_deposit_flag
+		FROM
+            (
+            SELECT
+				od.or_serial_special_number,
+				od.or_buyer_id,
+				ss.ss_name,
+				od.or_buyer_name,
+				od.or_buyer_another_name,
+				od.or_receiver_name,
+				od.or_shipping_address,
+				od.or_shipping_address_detail,
+				od.or_delivery_invoice_number,
+				od.or_delivery_company,
+				od.or_buyer_contract_number1,
+				od.or_receiver_contract_number1,
+				od.or_pk,
+				od.or_total_price,
+				od.or_sending_deadline,
+				od.or_sending_day,
+				od.or_cancled_flag,
+				od.or_refunds,
+				od.or_settlement_day,
+				od.or_rec_type,
+				CASE
+					WHEN od.or_cancled_flag = 0
+					THEN
+						SUM(od.or_amount)
+				END AS or_amount,
+				CASE
+					WHEN od.or_cancled_flag = 1
+					THEN
+						SUM(od.or_amount)
+				END AS or_cancled_qty,
+				od.edt_fk,
+				SUM(od.or_excel_div_flag) AS or_excel_div_flag,
+                CASE
+					WHEN od.or_deposit_flag = 0
+					THEN
+						SUM(od.or_amount)
+				END AS or_deposit_flag
+			FROM
+				orders od
+				INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+                INNER JOIN (
+					SELECT
+						od.or_serial_special_number,
+						COUNT(od.or_serial_special_number) AS serial_count,
+						SUM(od.or_inv_flag) AS total_flag 
+					FROM
+						orders od
+						LEFT JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+						LEFT JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+						LEFT JOIN options op ON om.option_fk = op.option_pk
+						LEFT JOIN products pro ON pro.product_pk = op.product_fk
+						<trim prefix="WHERE" prefixOverrides="AND |OR ">
+									<if test="createInvoiceNumList != null and createInvoiceNumList.size != 0">
+											AND or_invoice_num_date IN
+											<foreach collection="createInvoiceNumList" item="inoviceNum" open="(" close=")" separator=",">
+												#{inoviceNum}
+											</foreach>
+										</if>
+									<if test="ssPk != 0">
+										AND od.ss_fk = #{ssPk}
+									</if>
+									<if test="edtFk != 0">
+										AND edt_fk = #{edtFk}
+									</if>
+									<if test="datePeriod == 0">
+										<![CDATA[
+											AND ${dateType} >= DATE_FORMAT(NOW(), '%Y-%m-%d')
+											AND  ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+										]]>
+									</if>
+									<if test="datePeriod == 1">
+										<![CDATA[
+											AND ${dateType} >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+											AND ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+										]]>
+									</if>
+									<if test="datePeriod == 2">
+										<![CDATA[
+											AND ${dateType} >= #{dateStart} 
+											AND ${dateType} < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+										]]>
+									</if>
+									
+									<if test="insertingCount != null and !insertingCount.equals('')">
+										AND od.or_regdate = #{insertingCount}
+									</if>
+									
+									<if test="deliveryInvoiceFlag == 1">
+										AND (or_delivery_invoice_number IS NOT NULL AND or_delivery_invoice_number != '')
+									</if>
+									<if test="deliveryInvoiceFlag == 2">
+										AND (or_delivery_invoice_number IS NULL OR or_delivery_invoice_number = '')
+									</if>
+									<if test="reservationType == 1">
+										<![CDATA[
+										AND od.or_sending_deadline > DATE_FORMAT(NOW(), '%Y-%m-%d')
+										]]>
+									</if>
+									<if test="reservationType == 2">
+										<![CDATA[
+										AND od.or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+										]]>
+									</if>
+									
+									<if test="specialReq == 1">
+										AND od.or_request = ''
+									</if>
+									<if test="specialReq == 2">
+										AND od.or_request != ''
+									</if>
+									<!-- 출고 가능 여부 -->
+									<if test="outputPosiv == 1">
+										AND od.or_sending_day IS NULL
+									</if>
+									<if test="outputPosiv == 2">
+										AND od.or_sending_day IS NOT NULL
+									</if>
+									
+									<!-- 특수지역 여부 -->
+									<if test="specialRegionFlag == 1">
+										AND od.or_special_region_flag = 1
+									</if>
+									<if test="specialRegionFlag == 2">
+										AND od.or_special_region_flag = 1
+										AND od.or_special_region_check_flag = 0
+									</if>
+									<if test="specialRegionFlag == 3">
+										AND od.or_special_region_flag = 1
+										AND od.or_special_region_check_flag = 1
+									</if>
+									<if test="specialRegionFlag == 4">
+										AND od.or_special_region_flag == 0
+									</if>
+									
+									<!-- 입금 여부 -->
+									<if test="depositFlag == 1">
+										AND od.or_deposit_flag = 1
+									</if>
+									<if test="depositFlag == 2">
+										AND od.or_deposit_flag = 0
+									</if>
+									
+									<!-- 수령 타입 -->
+									<if test="receiveType == 1">
+										AND od.or_rec_type = 0
+									</if>
+									<if test="receiveType == 2">
+										AND od.or_rec_type = 1
+									</if>
+									<if test="receiveType == 3">
+										AND od.or_rec_type = 2
+									</if>
+									<if test="receiveType == 4">
+										AND od.or_rec_type = 3
+									</if>
+									
+									<!-- 대량 주소 엑셀 여부 -->
+									<if test="excelFlag == 1">
+										AND od.or_excel_div_flag = 1
+									</if>
+									<if test="excelFlag == 2">
+										 AND od.or_fk != 0
+									</if>
+									<if test="excelFlag == 3">
+										AND 
+											(
+												od.or_excel_div_flag = 1
+												OR
+												od.or_fk != 0
+											)
+									</if>
+									<if test="excelFlag == 4">
+										AND od.or_excel_div_flag = 0
+									</if>
+									
+									<!-- 대량주소 타겟 -->
+									<if test="excelOrFk != 0">
+										AND od.or_fk = #{excelOrFk}
+									</if>
+									
+									<!-- 환불 여부 -->
+									<if test="refundFlag == 1">
+										AND od.or_refunds != 0
+									</if>
+									<if test="refundFlag == 2">
+										AND od.or_refunds = 0
+									</if>
+									
+									<!-- 배송비 여부 -->
+									<if test="deliveryPrice == 1">
+										<![CDATA[
+											AND od.or_delivery_price > 0 AND od.or_delivery_discount_price = 0
+										]]>
+									</if>
+									<if test="deliveryPrice == 2">
+										<![CDATA[
+											AND (od.or_delivery_price = 0 OR od.or_delivery_discount_price > 0 )
+										]]>
+									</if>
+									
+									<if test="searchKeyword != null and !searchKeyword.equals('')">
+										<if test="searchType == 'orderNames'">
+											AND (
+												<foreach collection="searchKeywordList" item="specialNumber" separator="or">
+													
+													 or_buyer_name LIKE CONCAT('%',#{specialNumber},'%') 
+													 OR or_receiver_name LIKE CONCAT('%',#{specialNumber},'%') 
+												</foreach>
+												)
+										</if>					
+										<if test="searchType == 'buyerName'">
+											AND or_buyer_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'anotherName'">
+											AND or_buyer_another_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverName'">
+											AND or_receiver_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'buyerNum'">
+											AND or_buyer_contract_number1 LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverNum'">
+											AND or_receiver_contract_number1 LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'orderNum'">
+											AND (
+												<foreach collection="searchKeywordList" item="specialNumber" separator="or">
+													or_order_number = #{specialNumber}
+												</foreach>
+											)
+										</if>
+										<if test="searchType == 'invoiceNum'">
+											AND or_delivery_invoice_number LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverAddress'">
+											AND (or_shipping_address_detail LIKE CONCAT('%',#{searchKeyword},'%') OR or_shipping_address LIKE CONCAT('%',#{searchKeyword},'%') )
+										</if>
+										<if test="searchType == 'deliveryMessage'">
+											AND or_delivery_message LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'orderProductNum'">
+											AND or_product_order_number LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'storeProduct'">
+											AND ( or_product LIKE CONCAT('%',#{searchKeyword},'%') OR or_product_option LIKE CONCAT('%',#{searchKeyword},'%') )
+										</if>
+										
+										<if test="searchType == 'matchingProduct'">
+											AND pro.product_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'matchingOption'">
+											AND op.option_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+									</if>
+									
+								</trim>
+					GROUP BY
+						od.or_serial_special_number
+					)  output ON od.or_serial_special_number = output.or_serial_special_number
+					<if test="searchAddKeyword != null and !searchAddKeyword.equals('')">
+						WHERE
+							<if test="searchAddType == 0">
+								od.or_serial_special_number IN
+							</if>
+							<if test="searchAddType == 1">
+								od.or_serial_special_number NOT IN
+							</if> 
+						(
+							SELECT
+								od.or_serial_special_number
+							FROM
+								orders od
+								LEFT JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+								LEFT JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+								LEFT JOIN options op ON om.option_fk = op.option_pk
+								LEFT JOIN products pro ON pro.product_pk = op.product_fk
+								<trim prefix="WHERE" prefixOverrides="AND |OR ">
+											<if test="createInvoiceNumList != null and createInvoiceNumList.size != 0">
+												AND or_invoice_num_date IN
+												<foreach collection="createInvoiceNumList" item="inoviceNum" open="(" close=")" separator=",">
+													#{inoviceNum}
+												</foreach>
+											</if>
+											<if test="ssPk != 0">
+												AND od.ss_fk = #{ssPk}
+											</if>
+											<if test="edtFk != 0">
+												AND edt_fk = #{edtFk}
+											</if>
+											<if test="datePeriod == 0">
+												<![CDATA[
+													AND ${dateType} >= DATE_FORMAT(NOW(), '%Y-%m-%d')
+													AND  ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="datePeriod == 1">
+												<![CDATA[
+													AND ${dateType} >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+													AND ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="datePeriod == 2">
+												<![CDATA[
+													AND ${dateType} >= #{dateStart} 
+													AND ${dateType} < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											
+											<if test="insertingCount != null and !insertingCount.equals('')">
+												AND od.or_regdate = #{insertingCount}
+											</if>
+											
+											<if test="deliveryInvoiceFlag == 1">
+												AND (or_delivery_invoice_number IS NOT NULL AND or_delivery_invoice_number != '')
+											</if>
+											<if test="deliveryInvoiceFlag == 2">
+												AND (or_delivery_invoice_number IS NULL OR or_delivery_invoice_number = '')
+											</if>
+											<if test="reservationType == 1">
+												<![CDATA[
+												AND od.or_sending_deadline > DATE_FORMAT(NOW(), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="reservationType == 2">
+												<![CDATA[
+												AND od.or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+												]]>
+											</if>
+											
+											<if test="specialReq == 1">
+												AND od.or_request = ''
+											</if>
+											<if test="specialReq == 2">
+												AND od.or_request != ''
+											</if>
+											<!-- 출고 가능 여부 -->
+											<if test="outputPosiv == 1">
+												AND od.or_sending_day IS NULL
+											</if>
+											<if test="outputPosiv == 2">
+												AND od.or_sending_day IS NOT NULL
+											</if>
+											
+											<!-- 특수지역 여부 -->
+											<if test="specialRegionFlag == 1">
+												AND od.or_special_region_flag = 1
+											</if>
+											<if test="specialRegionFlag == 2">
+												AND od.or_special_region_flag = 1
+												AND od.or_special_region_check_flag = 0
+											</if>
+											<if test="specialRegionFlag == 3">
+												AND od.or_special_region_flag = 1
+												AND od.or_special_region_check_flag = 1
+											</if>
+											<if test="specialRegionFlag == 4">
+												AND od.or_special_region_flag == 0
+											</if>
+											
+											<!-- 입금 여부 -->
+											<if test="depositFlag == 1">
+												AND od.or_deposit_flag = 1
+											</if>
+											<if test="depositFlag == 2">
+												AND od.or_deposit_flag = 0
+											</if>
+											
+											<!-- 수령 타입 -->
+											<if test="receiveType == 1">
+												AND od.or_rec_type = 0
+											</if>
+											<if test="receiveType == 2">
+												AND od.or_rec_type = 1
+											</if>
+											<if test="receiveType == 3">
+												AND od.or_rec_type = 2
+											</if>
+											<if test="receiveType == 4">
+												AND od.or_rec_type = 3
+											</if>
+											
+											<!-- 대량 주소 엑셀 여부 -->
+											<if test="excelFlag == 1">
+												AND od.or_excel_div_flag = 1
+											</if>
+											<if test="excelFlag == 2">
+												 AND od.or_fk != 0
+											</if>
+											<if test="excelFlag == 3">
+												AND 
+													(
+														od.or_excel_div_flag = 1
+														OR
+														 od.or_fk != 0
+													)
+											</if>
+											<if test="excelFlag == 4">
+												AND od.or_excel_div_flag = 0
+											</if>
+											
+											<!-- 대량주소 타겟 -->
+											<if test="excelOrFk != 0">
+												AND od.or_fk = #{excelOrFk}
+											</if>
+											
+											<!-- 환불 여부 -->
+											<if test="refundFlag == 1">
+												AND od.or_refunds != 0
+											</if>
+											<if test="refundFlag == 2">
+												AND od.or_refunds = 0
+											</if>
+											
+											<!-- 배송비 여부 -->
+											<if test="deliveryPrice == 1">
+												<![CDATA[
+													AND od.or_delivery_price > 0 AND od.or_delivery_discount_price = 0
+												]]>
+											</if>
+											<if test="deliveryPrice == 2">
+												<![CDATA[
+													AND (od.or_delivery_price = 0 OR od.or_delivery_discount_price > 0 )
+												]]>
+											</if>
+											
+											<!-- 추가적으로 검색 -->
+											<if test="searchAddKeyword != null and !searchAddKeyword.equals('')">
+												<if test="searchAddKind == 'orderNames'">
+												AND (
+														 or_buyer_name LIKE CONCAT('%',#{searchAddKeyword},'%') 
+														 OR or_receiver_name LIKE CONCAT('%',#{searchAddKeyword},'%') 
+													)
+												</if>						
+												<if test="searchAddKind == 'buyerName'">
+													AND or_buyer_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverName'">
+													AND or_receiver_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'buyerNum'">
+													AND or_buyer_contract_number1 LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverNum'">
+													AND or_receiver_contract_number1 LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'orderNum'">
+													AND or_order_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'invoiceNum'">
+													AND or_delivery_invoice_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverAddress'">
+													AND (or_shipping_address_detail LIKE CONCAT('%',#{searchAddKeyword},'%') OR or_shipping_address LIKE CONCAT('%',#{searchAddKeyword},'%') )
+												</if>
+												<if test="searchAddKind == 'deliveryMessage'">
+													AND or_delivery_message LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'orderProductNum'">
+													AND or_product_order_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'storeProduct'">
+													AND ( or_product LIKE CONCAT('%',#{searchAddKeyword},'%') OR or_product_option LIKE CONCAT('%',#{searchAddKeyword},'%') )
+												</if>
+												
+												<if test="searchAddKind == 'matchingProduct'">
+													AND pro.product_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'matchingOption'">
+													AND op.option_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+											</if>
+										</trim>
+							GROUP BY
+								od.or_serial_special_number
+						) 
+							
+						</if>
+			GROUP BY
+				od.or_serial_special_number,
+				od.or_buyer_id,
+				ss.ss_name,
+				od.or_buyer_name,
+				od.or_buyer_another_name,
+				od.or_receiver_name,
+				od.or_shipping_address,
+				od.or_shipping_address_detail,
+				od.or_delivery_invoice_number,
+				od.or_delivery_company,
+				od.or_buyer_contract_number1,
+				od.or_receiver_contract_number1,
+		        od.or_pk,
+		        or_amount,
+				od.or_total_price,
+				od.or_sending_deadline,
+				od.or_sending_day,
+				od.or_cancled_flag,
+				od.or_refunds,
+				od.or_settlement_day,
+				od.or_rec_type,
+				od.edt_fk
+			ORDER BY
+				od.or_settlement_day DESC
+			) datas
+		GROUP BY
+			datas.or_serial_special_number,
+			datas.or_buyer_id,
+			datas.ss_name,
+			datas.or_buyer_name,
+			datas.or_buyer_another_name,
+			datas.or_receiver_name,
+			datas.or_shipping_address,
+			datas.or_shipping_address_detail,
+			datas.or_buyer_contract_number1,
+			datas.or_receiver_contract_number1,
+			datas.or_sending_deadline,
+			datas.or_rec_type,
+			datas.edt_fk
+		<trim prefix="HAVING" prefixOverrides="AND |OR ">
+			<if test="cancledFlag == 1">
+				AND SUM(datas.or_cancled_qty) IS NULL
+			</if>
+			<if test="cancledFlag == 2">
+				<![CDATA[
+					AND SUM(datas.or_cancled_qty) > 0
+				]]>
+			</if>
+			<if test="cancledFlag == 3">
+				AND SUM(datas.or_amount) IS NULL
+			</if>
+		</trim>
+		ORDER BY
+			or_settlement_day DESC
+        LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	<!-- cs결과 페이징 처리 -->
+	<select id="newSearchCustomerOrderInfoCounting" parameterType="OrderSearchVO" resultType="int">
+			SELECT
+				COUNT(inne.or_serial_special_number)
+			FROM
+			(
+			SELECT
+	            datas.or_serial_special_number,
+				datas.or_buyer_id,
+				datas.ss_name,
+				datas.or_buyer_another_name,
+				datas.or_shipping_address_detail,
+				datas.or_buyer_name,
+				datas.or_receiver_name,
+				datas.or_shipping_address,
+				GROUP_CONCAT(DISTINCT datas.or_delivery_invoice_number SEPARATOR ',') AS or_delivery_invoice_number,
+				GROUP_CONCAT(DISTINCT datas.or_delivery_company SEPARATOR ',') AS or_delivery_company,
+				datas.or_buyer_contract_number1,
+				datas.or_receiver_contract_number1,
+				SUM(datas.or_total_price) AS or_total_price,
+	            COUNT(datas.or_pk) AS total_order_count,
+	            SUM(datas.or_amount) AS or_amount,
+				SUM(datas.or_cancled_qty) AS or_cancled_qty,
+				datas.or_sending_deadline,
+				SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT datas.or_sending_day ORDER BY or_sending_day DESC SEPARATOR ',' ), ',', 1) AS or_sending_day,
+				SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT datas.or_settlement_day ORDER BY or_settlement_day DESC SEPARATOR ',' ), ',', 1) AS or_settlement_day,
+				SUM(datas.or_refunds) AS or_refunds,
+				datas.edt_fk,
+				datas.or_rec_type,
+				SUM(datas.or_excel_div_flag) AS or_excel_div_flag,
+            	IF( 
+					SUM(datas.or_deposit_flag) IS NULL,
+					0,
+	                1
+	            ) AS or_deposit_flag
+			FROM
+	            (
+	            SELECT
+					od.or_serial_special_number,
+					od.or_buyer_id,
+					ss.ss_name,
+					od.or_buyer_name,
+					od.or_buyer_another_name,
+					od.or_receiver_name,
+					od.or_shipping_address,
+					od.or_shipping_address_detail,
+					od.or_delivery_invoice_number,
+					od.or_delivery_company,
+					od.or_buyer_contract_number1,
+					od.or_receiver_contract_number1,
+					od.or_pk,
+					od.or_total_price,
+					od.or_sending_deadline,
+					od.or_sending_day,
+					od.or_cancled_flag,
+					od.or_refunds,
+					od.or_settlement_day,
+					od.or_rec_type,
+					CASE
+						WHEN od.or_cancled_flag = 0
+						THEN
+							SUM(od.or_amount)
+					END AS or_amount,
+					CASE
+						WHEN od.or_cancled_flag = 1
+						THEN
+							SUM(od.or_amount)
+					END AS or_cancled_qty,
+					od.edt_fk,
+					SUM(od.or_excel_div_flag) AS or_excel_div_flag,
+                CASE
+					WHEN od.or_deposit_flag = 0
+					THEN
+						SUM(od.or_amount)
+				END AS or_deposit_flag
+				FROM
+					orders od
+					INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+	                INNER JOIN (
+						SELECT
+							od.or_serial_special_number,
+							COUNT(od.or_serial_special_number) AS serial_count,
+							SUM(od.or_inv_flag) AS total_flag 
+						FROM
+							orders od
+							LEFT JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+							LEFT JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+							LEFT JOIN options op ON om.option_fk = op.option_pk
+							LEFT JOIN products pro ON pro.product_pk = op.product_fk
+							<trim prefix="WHERE" prefixOverrides="AND |OR ">
+										<if test="createInvoiceNumList != null and createInvoiceNumList.size != 0">
+												AND or_invoice_num_date IN
+												<foreach collection="createInvoiceNumList" item="inoviceNum" open="(" close=")" separator=",">
+													#{inoviceNum}
+												</foreach>
+											</if>
+										<if test="ssPk != 0">
+											AND od.ss_fk = #{ssPk}
+										</if>
+										<if test="edtFk != 0">
+											AND edt_fk = #{edtFk}
+										</if>
+										<if test="datePeriod == 0">
+											<![CDATA[
+												AND ${dateType} >= DATE_FORMAT(NOW(), '%Y-%m-%d')
+												AND  ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+											]]>
+										</if>
+										<if test="datePeriod == 1">
+											<![CDATA[
+												AND ${dateType} >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+												AND ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+											]]>
+										</if>
+										<if test="datePeriod == 2">
+											<![CDATA[
+												AND ${dateType} >= #{dateStart} 
+												AND ${dateType} < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+											]]>
+										</if>
+										
+										<if test="insertingCount != null and !insertingCount.equals('')">
+											AND od.or_regdate = #{insertingCount}
+										</if>
+										
+										<if test="deliveryInvoiceFlag == 1">
+											AND (or_delivery_invoice_number IS NOT NULL AND or_delivery_invoice_number != '')
+										</if>
+										<if test="deliveryInvoiceFlag == 2">
+											AND (or_delivery_invoice_number IS NULL OR or_delivery_invoice_number = '')
+										</if>
+										<if test="reservationType == 1">
+											<![CDATA[
+											AND od.or_sending_deadline > DATE_FORMAT(NOW(), '%Y-%m-%d')
+											]]>
+										</if>
+										<if test="reservationType == 2">
+											<![CDATA[
+											AND od.or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+											]]>
+										</if>
+										
+										<if test="specialReq == 1">
+											AND od.or_request = ''
+										</if>
+										<if test="specialReq == 2">
+											AND od.or_request != ''
+										</if>
+										<!-- 출고 가능 여부 -->
+										<if test="outputPosiv == 1">
+											AND od.or_sending_day IS NULL
+										</if>
+										<if test="outputPosiv == 2">
+											AND od.or_sending_day IS NOT NULL
+										</if>
+										
+										<!-- 특수지역 여부 -->
+										<if test="specialRegionFlag == 1">
+											AND od.or_special_region_flag = 1
+										</if>
+										<if test="specialRegionFlag == 2">
+											AND od.or_special_region_flag = 1
+											AND od.or_special_region_check_flag = 0
+										</if>
+										<if test="specialRegionFlag == 3">
+											AND od.or_special_region_flag = 1
+											AND od.or_special_region_check_flag = 1
+										</if>
+										<if test="specialRegionFlag == 4">
+											AND od.or_special_region_flag == 0
+										</if>
+										
+										<!-- 입금 여부 -->
+										<if test="depositFlag == 1">
+											AND od.or_deposit_flag = 1
+										</if>
+										<if test="depositFlag == 2">
+											AND od.or_deposit_flag = 0
+										</if>
+										
+										<!-- 수령 타입 -->
+										<if test="receiveType == 1">
+											AND od.or_rec_type = 0
+										</if>
+										<if test="receiveType == 2">
+											AND od.or_rec_type = 1
+										</if>
+										<if test="receiveType == 3">
+											AND od.or_rec_type = 2
+										</if>
+										<if test="receiveType == 4">
+											AND od.or_rec_type = 3
+										</if>
+										
+										<!-- 대량 주소 엑셀 여부 -->
+										<if test="excelFlag == 1">
+											AND od.or_excel_div_flag = 1
+										</if>
+										<if test="excelFlag == 2">
+											 AND od.or_fk != 0
+										</if>
+										<if test="excelFlag == 3">
+											AND 
+												(
+													od.or_excel_div_flag = 1
+													OR
+													od.or_fk != 0
+												)
+										</if>
+										<if test="excelFlag == 4">
+											AND od.or_excel_div_flag = 0
+										</if>
+										
+										<!-- 대량주소 타겟 -->
+										<if test="excelOrFk != 0">
+											AND od.or_fk = #{excelOrFk}
+										</if>
+										
+										<!-- 환불 여부 -->
+										<if test="refundFlag == 1">
+											AND od.or_refunds != 0
+										</if>
+										<if test="refundFlag == 2">
+											AND od.or_refunds = 0
+										</if>
+										
+										<!-- 배송비 여부 -->
+										<if test="deliveryPrice == 1">
+											<![CDATA[
+												AND od.or_delivery_price > 0 AND od.or_delivery_discount_price = 0
+											]]>
+										</if>
+										<if test="deliveryPrice == 2">
+											<![CDATA[
+												AND (od.or_delivery_price = 0 OR od.or_delivery_discount_price > 0 )
+											]]>
+										</if>
+										
+										<if test="searchKeyword != null and !searchKeyword.equals('')">
+											<if test="searchType == 'orderNames'">
+												AND (
+													<foreach collection="searchKeywordList" item="specialNumber" separator="or">
+														
+														 or_buyer_name LIKE CONCAT('%',#{specialNumber},'%') 
+														 OR or_receiver_name LIKE CONCAT('%',#{specialNumber},'%') 
+													</foreach>
+													)
+											</if>					
+											<if test="searchType == 'buyerName'">
+												AND or_buyer_name LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'anotherName'">
+												AND or_buyer_another_name LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'receiverName'">
+												AND or_receiver_name LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'buyerNum'">
+												AND or_buyer_contract_number1 LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'receiverNum'">
+												AND or_receiver_contract_number1 LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'orderNum'">
+												AND (
+													<foreach collection="searchKeywordList" item="specialNumber" separator="or">
+														or_order_number = #{specialNumber}
+													</foreach>
+												)
+											</if>
+											<if test="searchType == 'invoiceNum'">
+												AND or_delivery_invoice_number LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'receiverAddress'">
+												AND (or_shipping_address_detail LIKE CONCAT('%',#{searchKeyword},'%') OR or_shipping_address LIKE CONCAT('%',#{searchKeyword},'%') )
+											</if>
+											<if test="searchType == 'deliveryMessage'">
+												AND or_delivery_message LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'orderProductNum'">
+												AND or_product_order_number LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'storeProduct'">
+												AND ( or_product LIKE CONCAT('%',#{searchKeyword},'%') OR or_product_option LIKE CONCAT('%',#{searchKeyword},'%') )
+											</if>
+											
+											<if test="searchType == 'matchingProduct'">
+												AND pro.product_name LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+											<if test="searchType == 'matchingOption'">
+												AND op.option_name LIKE CONCAT('%',#{searchKeyword},'%')
+											</if>
+										</if>
+										
+									</trim>
+						GROUP BY
+							od.or_serial_special_number
+						)  output ON od.or_serial_special_number = output.or_serial_special_number
+						<if test="searchAddKeyword != null and !searchAddKeyword.equals('')">
+						WHERE
+							<if test="searchAddType == 0">
+								od.or_serial_special_number IN
+							</if>
+							<if test="searchAddType == 1">
+								od.or_serial_special_number NOT IN
+							</if> 
+						(
+							SELECT
+								od.or_serial_special_number
+							FROM
+								orders od
+								LEFT JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+								LEFT JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+								LEFT JOIN options op ON om.option_fk = op.option_pk
+								LEFT JOIN products pro ON pro.product_pk = op.product_fk
+								<trim prefix="WHERE" prefixOverrides="AND |OR ">
+											<if test="createInvoiceNumList != null and createInvoiceNumList.size != 0">
+												AND or_invoice_num_date IN
+												<foreach collection="createInvoiceNumList" item="inoviceNum" open="(" close=")" separator=",">
+													#{inoviceNum}
+												</foreach>
+											</if>
+											<if test="ssPk != 0">
+												AND od.ss_fk = #{ssPk}
+											</if>
+											<if test="edtFk != 0">
+												AND edt_fk = #{edtFk}
+											</if>
+											<if test="datePeriod == 0">
+												<![CDATA[
+													AND ${dateType} >= DATE_FORMAT(NOW(), '%Y-%m-%d')
+													AND  ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="datePeriod == 1">
+												<![CDATA[
+													AND ${dateType} >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+													AND ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="datePeriod == 2">
+												<![CDATA[
+													AND ${dateType} >= #{dateStart} 
+													AND ${dateType} < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											
+											<if test="insertingCount != null and !insertingCount.equals('')">
+												AND od.or_regdate = #{insertingCount}
+											</if>
+											
+											<if test="deliveryInvoiceFlag == 1">
+												AND (or_delivery_invoice_number IS NOT NULL AND or_delivery_invoice_number != '')
+											</if>
+											<if test="deliveryInvoiceFlag == 2">
+												AND (or_delivery_invoice_number IS NULL OR or_delivery_invoice_number = '')
+											</if>
+											<if test="reservationType == 1">
+												<![CDATA[
+												AND od.or_sending_deadline > DATE_FORMAT(NOW(), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="reservationType == 2">
+												<![CDATA[
+												AND od.or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+												]]>
+											</if>
+											
+											<if test="specialReq == 1">
+												AND od.or_request = ''
+											</if>
+											<if test="specialReq == 2">
+												AND od.or_request != ''
+											</if>
+											<!-- 출고 가능 여부 -->
+											<if test="outputPosiv == 1">
+												AND od.or_sending_day IS NULL
+											</if>
+											<if test="outputPosiv == 2">
+												AND od.or_sending_day IS NOT NULL
+											</if>
+											
+											<!-- 특수지역 여부 -->
+											<if test="specialRegionFlag == 1">
+												AND od.or_special_region_flag = 1
+											</if>
+											<if test="specialRegionFlag == 2">
+												AND od.or_special_region_flag = 1
+												AND od.or_special_region_check_flag = 0
+											</if>
+											<if test="specialRegionFlag == 3">
+												AND od.or_special_region_flag = 1
+												AND od.or_special_region_check_flag = 1
+											</if>
+											<if test="specialRegionFlag == 4">
+												AND od.or_special_region_flag == 0
+											</if>
+											
+											<!-- 입금 여부 -->
+											<if test="depositFlag == 1">
+												AND od.or_deposit_flag = 1
+											</if>
+											<if test="depositFlag == 2">
+												AND od.or_deposit_flag = 0
+											</if>
+											
+											<!-- 수령 타입 -->
+											<if test="receiveType == 1">
+												AND od.or_rec_type = 0
+											</if>
+											<if test="receiveType == 2">
+												AND od.or_rec_type = 1
+											</if>
+											<if test="receiveType == 3">
+												AND od.or_rec_type = 2
+											</if>
+											<if test="receiveType == 4">
+												AND od.or_rec_type = 3
+											</if>
+											
+											<!-- 대량 주소 엑셀 여부 -->
+											<if test="excelFlag == 1">
+												AND od.or_excel_div_flag = 1
+											</if>
+											<if test="excelFlag == 2">
+												 AND od.or_fk != 0
+											</if>
+											<if test="excelFlag == 3">
+												AND 
+													(
+														od.or_excel_div_flag = 1
+														OR
+														 od.or_fk != 0
+													)
+											</if>
+											<if test="excelFlag == 4">
+												AND od.or_excel_div_flag = 0
+											</if>
+											
+											<!-- 대량주소 타겟 -->
+											<if test="excelOrFk != 0">
+												AND od.or_fk = #{excelOrFk}
+											</if>
+											
+											<!-- 환불 여부 -->
+											<if test="refundFlag == 1">
+												AND od.or_refunds != 0
+											</if>
+											<if test="refundFlag == 2">
+												AND od.or_refunds = 0
+											</if>
+											
+											<!-- 배송비 여부 -->
+											<if test="deliveryPrice == 1">
+												<![CDATA[
+													AND od.or_delivery_price > 0 AND od.or_delivery_discount_price = 0
+												]]>
+											</if>
+											<if test="deliveryPrice == 2">
+												<![CDATA[
+													AND (od.or_delivery_price = 0 OR od.or_delivery_discount_price > 0 )
+												]]>
+											</if>
+											
+											<!-- 추가적으로 검색 -->
+											<if test="searchAddKeyword != null and !searchAddKeyword.equals('')">
+												<if test="searchAddKind == 'orderNames'">
+												AND (
+														 or_buyer_name LIKE CONCAT('%',#{searchAddKeyword},'%') 
+														 OR or_receiver_name LIKE CONCAT('%',#{searchAddKeyword},'%') 
+													)
+												</if>						
+												<if test="searchAddKind == 'buyerName'">
+													AND or_buyer_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverName'">
+													AND or_receiver_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'buyerNum'">
+													AND or_buyer_contract_number1 LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverNum'">
+													AND or_receiver_contract_number1 LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'orderNum'">
+													AND or_order_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'invoiceNum'">
+													AND or_delivery_invoice_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverAddress'">
+													AND (or_shipping_address_detail LIKE CONCAT('%',#{searchAddKeyword},'%') OR or_shipping_address LIKE CONCAT('%',#{searchAddKeyword},'%') )
+												</if>
+												<if test="searchAddKind == 'deliveryMessage'">
+													AND or_delivery_message LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'orderProductNum'">
+													AND or_product_order_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'storeProduct'">
+													AND ( or_product LIKE CONCAT('%',#{searchAddKeyword},'%') OR or_product_option LIKE CONCAT('%',#{searchAddKeyword},'%') )
+												</if>
+												
+												<if test="searchAddKind == 'matchingProduct'">
+													AND pro.product_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'matchingOption'">
+													AND op.option_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+											</if>
+										</trim>
+							GROUP BY
+								od.or_serial_special_number
+						) 
+							
+						</if>
+				GROUP BY
+					od.or_serial_special_number,
+					od.or_buyer_id,
+					ss.ss_name,
+					od.or_buyer_name,
+					od.or_buyer_another_name,
+					od.or_receiver_name,
+					od.or_shipping_address,
+					od.or_shipping_address_detail,
+					od.or_delivery_invoice_number,
+					od.or_delivery_company,
+					od.or_buyer_contract_number1,
+					od.or_receiver_contract_number1,
+			        od.or_pk,
+			        or_amount,
+					od.or_total_price,
+					od.or_sending_deadline,
+					od.or_sending_day,
+					od.or_cancled_flag,
+					od.or_refunds,
+					od.or_settlement_day,
+					od.or_rec_type,
+					od.edt_fk
+				ORDER BY
+					od.or_settlement_day DESC
+				) datas
+			GROUP BY
+				datas.or_serial_special_number,
+				datas.or_buyer_id,
+				datas.ss_name,
+				datas.or_buyer_name,
+				datas.or_buyer_another_name,
+				datas.or_receiver_name,
+				datas.or_shipping_address,
+				datas.or_shipping_address_detail,
+				datas.or_buyer_contract_number1,
+				datas.or_receiver_contract_number1,
+				datas.or_sending_deadline,
+				datas.or_rec_type,
+				datas.edt_fk
+			<trim prefix="HAVING" prefixOverrides="AND |OR ">
+				<if test="cancledFlag == 1">
+					AND SUM(datas.or_cancled_qty) IS NULL
+				</if>
+				<if test="cancledFlag == 2">
+					<![CDATA[
+						AND SUM(datas.or_cancled_qty) > 0
+					]]>
+				</if>
+				<if test="cancledFlag == 3">
+					AND SUM(datas.or_amount) IS NULL
+				</if>
+			</trim>
+			) inne
+	</select>
+
+
+	<select id="newSearchCustomerOrderInfoToExcelFile" parameterType="OrderSearchVO" resultType="OrdersVO">
+				SELECT
+           datas.or_serial_special_number,
+			datas.or_buyer_id,
+			datas.ss_name,
+			datas.or_shipping_address_detail,
+			datas.or_buyer_name,
+			datas.or_receiver_name,
+			datas.or_shipping_address,
+			GROUP_CONCAT(DISTINCT datas.or_delivery_invoice_number SEPARATOR ',') AS or_delivery_invoice_number,
+			GROUP_CONCAT(DISTINCT datas.or_delivery_company SEPARATOR ',') AS or_delivery_company,
+			datas.or_buyer_contract_number1,
+			datas.or_buyer_contract_number2,
+			datas.or_receiver_contract_number1,
+			datas.or_receiver_contract_number2,
+			datas.or_order_number,
+			datas.or_product_order_number,
+			SUM(datas.or_total_price) AS or_total_price,
+            COUNT(datas.or_pk) AS total_order_count,
+            SUM(datas.or_amount) AS or_amount,
+			SUM(datas.or_cancled_qty) AS or_cancled_qty,
+			datas.or_sending_deadline,
+			GROUP_CONCAT(DISTINCT datas.or_sending_day SEPARATOR ',') AS or_sending_day,
+			SUM(datas.or_refunds) AS or_refunds,
+			datas.or_settlement_day,
+            datas.total_amounts,
+            datas.or_product,
+            datas.or_product_option,
+            datas.or_inflow_route,
+			datas.product_name AS or_user_column1,
+			datas.option_name AS or_user_column2,
+			datas.edt_fk,
+			IF( 
+				SUM(datas.or_deposit_flag) IS NULL,
+				0,
+	            1
+	        ) AS or_deposit_flag
+		FROM
+            (
+            SELECT
+				od.or_serial_special_number,
+				od.or_buyer_id,
+				ss.ss_name,
+				od.or_buyer_name,
+				od.or_receiver_name,
+				od.or_shipping_address,
+				od.or_shipping_address_detail,
+				od.or_delivery_invoice_number,
+				od.or_delivery_company,
+				od.or_buyer_contract_number1,
+				od.or_buyer_contract_number2,
+				od.or_receiver_contract_number1,
+				od.or_receiver_contract_number2,
+				od.or_order_number,
+				od.or_product_order_number,
+				od.or_pk,
+				od.or_total_price,
+				od.or_sending_deadline,
+				od.or_sending_day,
+				od.or_cancled_flag,
+				od.or_refunds,
+				od.or_settlement_day,
+				od.edt_fk,
+				CASE
+					WHEN od.or_cancled_flag = 0
+					THEN
+						SUM(od.or_amount)
+				END AS or_amount,
+				CASE
+					WHEN od.or_cancled_flag = 1
+					THEN
+						SUM(od.or_amount)
+				END AS or_cancled_qty,
+                SUM(od.or_amount * om.om_option_amount) AS total_amounts,
+                od.or_product,
+                od.or_product_option,
+                od.or_inflow_route,
+                pro.product_name,
+                op.option_name,
+                CASE
+					WHEN od.or_deposit_flag = 0
+					THEN
+						SUM(od.or_amount)
+				END AS or_deposit_flag
+			FROM
+				orders od
+				INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+                LEFT JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+				LEFT JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+				LEFT JOIN options op ON om.option_fk = op.option_pk
+				LEFT JOIN products pro ON pro.product_pk = op.product_fk
+                INNER JOIN (
+					SELECT
+						od.or_serial_special_number,
+						COUNT(od.or_serial_special_number) AS serial_count,
+						SUM(od.or_inv_flag) AS total_flag 
+					FROM
+						orders od
+						LEFT JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+						LEFT JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+						LEFT JOIN options op ON om.option_fk = op.option_pk
+						LEFT JOIN products pro ON pro.product_pk = op.product_fk
+						<trim prefix="WHERE" prefixOverrides="AND |OR ">
+									<if test="createInvoiceNumList != null and createInvoiceNumList.size != 0">
+											AND or_invoice_num_date IN
+											<foreach collection="createInvoiceNumList" item="inoviceNum" open="(" close=")" separator=",">
+												#{inoviceNum}
+											</foreach>
+										</if>
+									<if test="ssPk != 0">
+										AND od.ss_fk = #{ssPk}
+									</if>
+									<if test="edtFk != 0">
+										AND edt_fk = #{edtFk}
+									</if>
+									<if test="datePeriod == 0">
+										<![CDATA[
+											AND ${dateType} >= DATE_FORMAT(NOW(), '%Y-%m-%d')
+											AND  ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+										]]>
+									</if>
+									<if test="datePeriod == 1">
+										<![CDATA[
+											AND ${dateType} >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+											AND ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+										]]>
+									</if>
+									<if test="datePeriod == 2">
+										<![CDATA[
+											AND ${dateType} >= #{dateStart} 
+											AND ${dateType} < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+										]]>
+									</if>
+									
+									<if test="insertingCount != null and !insertingCount.equals('')">
+										AND od.or_regdate = #{insertingCount}
+									</if>
+									
+									<if test="deliveryInvoiceFlag == 1">
+										AND (or_delivery_invoice_number IS NOT NULL AND or_delivery_invoice_number != '')
+									</if>
+									<if test="deliveryInvoiceFlag == 2">
+										AND (or_delivery_invoice_number IS NULL OR or_delivery_invoice_number = '')
+									</if>
+									<if test="reservationType == 1">
+										<![CDATA[
+										AND od.or_sending_deadline > DATE_FORMAT(NOW(), '%Y-%m-%d')
+										]]>
+									</if>
+									<if test="reservationType == 2">
+										<![CDATA[
+										AND od.or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+										]]>
+									</if>
+									
+									<if test="specialReq == 1">
+										AND od.or_request = ''
+									</if>
+									<if test="specialReq == 2">
+										AND od.or_request != ''
+									</if>
+									<!-- 출고 가능 여부 -->
+									<if test="outputPosiv == 1">
+										AND od.or_sending_day IS NULL
+									</if>
+									<if test="outputPosiv == 2">
+										AND od.or_sending_day IS NOT NULL
+									</if>
+									
+									<!-- 특수지역 여부 -->
+									<if test="specialRegionFlag == 1">
+										AND od.or_special_region_flag = 1
+									</if>
+									<if test="specialRegionFlag == 2">
+										AND od.or_special_region_flag = 1
+										AND od.or_special_region_check_flag = 0
+									</if>
+									<if test="specialRegionFlag == 3">
+										AND od.or_special_region_flag = 1
+										AND od.or_special_region_check_flag = 1
+									</if>
+									<if test="specialRegionFlag == 4">
+										AND od.or_special_region_flag == 0
+									</if>
+									
+									<!-- 입금 여부 -->
+									<if test="depositFlag == 1">
+										AND od.or_deposit_flag = 1
+									</if>
+									<if test="depositFlag == 2">
+										AND od.or_deposit_flag = 0
+									</if>
+									
+									<!-- 수령 타입 -->
+									<if test="receiveType == 1">
+										AND od.or_rec_type = 0
+									</if>
+									<if test="receiveType == 2">
+										AND od.or_rec_type = 1
+									</if>
+									<if test="receiveType == 3">
+										AND od.or_rec_type = 2
+									</if>
+									<if test="receiveType == 4">
+										AND od.or_rec_type = 3
+									</if>
+									
+									<!-- 대량 주소 엑셀 여부 -->
+									<if test="excelFlag == 1">
+										AND od.or_excel_div_flag = 1
+									</if>
+									<if test="excelFlag == 2">
+										 AND od.or_fk != 0
+									</if>
+									<if test="excelFlag == 3">
+										AND 
+											(
+												od.or_excel_div_flag = 1
+												OR
+												od.or_fk != 0
+											)
+									</if>
+									<if test="excelFlag == 4">
+										AND od.or_excel_div_flag = 0
+									</if>
+									
+									<!-- 대량주소 타겟 -->
+									<if test="excelOrFk != 0">
+										AND od.or_fk = #{excelOrFk}
+									</if>
+									
+									<!-- 환불 여부 -->
+									<if test="refundFlag == 1">
+										AND od.or_refunds != 0
+									</if>
+									<if test="refundFlag == 2">
+										AND od.or_refunds = 0
+									</if>
+									
+									<!-- 배송비 여부 -->
+									<if test="deliveryPrice == 1">
+										<![CDATA[
+											AND od.or_delivery_price > 0 AND od.or_delivery_discount_price = 0
+										]]>
+									</if>
+									<if test="deliveryPrice == 2">
+										<![CDATA[
+											AND (od.or_delivery_price = 0 OR od.or_delivery_discount_price > 0 )
+										]]>
+									</if>
+									
+									<if test="searchKeyword != null and !searchKeyword.equals('')">
+										<if test="searchType == 'orderNames'">
+											AND (
+												<foreach collection="searchKeywordList" item="specialNumber" separator="or">
+													
+													 or_buyer_name LIKE CONCAT('%',#{specialNumber},'%') 
+													 OR or_receiver_name LIKE CONCAT('%',#{specialNumber},'%') 
+												</foreach>
+												)
+										</if>					
+										<if test="searchType == 'buyerName'">
+											AND or_buyer_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'anotherName'">
+											AND or_buyer_another_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverName'">
+											AND or_receiver_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'buyerNum'">
+											AND or_buyer_contract_number1 LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverNum'">
+											AND or_receiver_contract_number1 LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'orderNum'">
+											AND (
+												<foreach collection="searchKeywordList" item="specialNumber" separator="or">
+													or_order_number = #{specialNumber}
+												</foreach>
+											)
+										</if>
+										<if test="searchType == 'invoiceNum'">
+											AND or_delivery_invoice_number LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverAddress'">
+											AND (or_shipping_address_detail LIKE CONCAT('%',#{searchKeyword},'%') OR or_shipping_address LIKE CONCAT('%',#{searchKeyword},'%') )
+										</if>
+										<if test="searchType == 'deliveryMessage'">
+											AND or_delivery_message LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'orderProductNum'">
+											AND or_product_order_number LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'storeProduct'">
+											AND ( or_product LIKE CONCAT('%',#{searchKeyword},'%') OR or_product_option LIKE CONCAT('%',#{searchKeyword},'%') )
+										</if>
+										
+										<if test="searchType == 'matchingProduct'">
+											AND pro.product_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'matchingOption'">
+											AND op.option_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+									</if>
+									
+								</trim>
+					GROUP BY
+						od.or_serial_special_number
+					)  output ON od.or_serial_special_number = output.or_serial_special_number
+					<if test="searchAddKeyword != null and !searchAddKeyword.equals('')">
+						WHERE
+							<if test="searchAddType == 0">
+								od.or_serial_special_number IN
+							</if>
+							<if test="searchAddType == 1">
+								od.or_serial_special_number NOT IN
+							</if> 
+						(
+							SELECT
+								od.or_serial_special_number
+							FROM
+								orders od
+								LEFT JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+								LEFT JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+								LEFT JOIN options op ON om.option_fk = op.option_pk
+								LEFT JOIN products pro ON pro.product_pk = op.product_fk
+								<trim prefix="WHERE" prefixOverrides="AND |OR ">
+											<if test="createInvoiceNumList != null and createInvoiceNumList.size != 0">
+												AND or_invoice_num_date IN
+												<foreach collection="createInvoiceNumList" item="inoviceNum" open="(" close=")" separator=",">
+													#{inoviceNum}
+												</foreach>
+											</if>
+											<if test="ssPk != 0">
+												AND od.ss_fk = #{ssPk}
+											</if>
+											<if test="edtFk != 0">
+												AND edt_fk = #{edtFk}
+											</if>
+											<if test="datePeriod == 0">
+												<![CDATA[
+													AND ${dateType} >= DATE_FORMAT(NOW(), '%Y-%m-%d')
+													AND  ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="datePeriod == 1">
+												<![CDATA[
+													AND ${dateType} >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+													AND ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="datePeriod == 2">
+												<![CDATA[
+													AND ${dateType} >= #{dateStart} 
+													AND ${dateType} < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+												]]>
+											</if>
+											
+											<if test="insertingCount != null and !insertingCount.equals('')">
+												AND od.or_regdate = #{insertingCount}
+											</if>
+											
+											<if test="deliveryInvoiceFlag == 1">
+												AND (or_delivery_invoice_number IS NOT NULL AND or_delivery_invoice_number != '')
+											</if>
+											<if test="deliveryInvoiceFlag == 2">
+												AND (or_delivery_invoice_number IS NULL OR or_delivery_invoice_number = '')
+											</if>
+											<if test="reservationType == 1">
+												<![CDATA[
+												AND od.or_sending_deadline > DATE_FORMAT(NOW(), '%Y-%m-%d')
+												]]>
+											</if>
+											<if test="reservationType == 2">
+												<![CDATA[
+												AND od.or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+												]]>
+											</if>
+											
+											<if test="specialReq == 1">
+												AND od.or_request = ''
+											</if>
+											<if test="specialReq == 2">
+												AND od.or_request != ''
+											</if>
+											<!-- 출고 가능 여부 -->
+											<if test="outputPosiv == 1">
+												AND od.or_sending_day IS NULL
+											</if>
+											<if test="outputPosiv == 2">
+												AND od.or_sending_day IS NOT NULL
+											</if>
+											
+											<!-- 특수지역 여부 -->
+											<if test="specialRegionFlag == 1">
+												AND od.or_special_region_flag = 1
+											</if>
+											<if test="specialRegionFlag == 2">
+												AND od.or_special_region_flag = 1
+												AND od.or_special_region_check_flag = 0
+											</if>
+											<if test="specialRegionFlag == 3">
+												AND od.or_special_region_flag = 1
+												AND od.or_special_region_check_flag = 1
+											</if>
+											<if test="specialRegionFlag == 4">
+												AND od.or_special_region_flag == 0
+											</if>
+											
+											<!-- 입금 여부 -->
+											<if test="depositFlag == 1">
+												AND od.or_deposit_flag = 1
+											</if>
+											<if test="depositFlag == 2">
+												AND od.or_deposit_flag = 0
+											</if>
+											
+											<!-- 수령 타입 -->
+											<if test="receiveType == 1">
+												AND od.or_rec_type = 0
+											</if>
+											<if test="receiveType == 2">
+												AND od.or_rec_type = 1
+											</if>
+											<if test="receiveType == 3">
+												AND od.or_rec_type = 2
+											</if>
+											<if test="receiveType == 4">
+												AND od.or_rec_type = 3
+											</if>
+											<!-- 대량 주소 엑셀 여부 -->
+											<if test="excelFlag == 1">
+												AND od.or_excel_div_flag = 1
+											</if>
+											<if test="excelFlag == 2">
+												 AND od.or_fk != 0
+											</if>
+											<if test="excelFlag == 3">
+												AND 
+													(
+														od.or_excel_div_flag = 1
+														OR
+														 od.or_fk != 0
+													)
+											</if>
+											<if test="excelFlag == 4">
+												AND od.or_excel_div_flag = 0
+											</if>
+											
+											<!-- 대량주소 타겟 -->
+											<if test="excelOrFk != 0">
+												AND od.or_fk = #{excelOrFk}
+											</if>
+											
+											<!-- 환불 여부 -->
+											<if test="refundFlag == 1">
+												AND od.or_refunds != 0
+											</if>
+											<if test="refundFlag == 2">
+												AND od.or_refunds = 0
+											</if>
+											
+											<!-- 배송비 여부 -->
+											<if test="deliveryPrice == 1">
+												<![CDATA[
+													AND od.or_delivery_price > 0 AND od.or_delivery_discount_price = 0
+												]]>
+											</if>
+											<if test="deliveryPrice == 2">
+												<![CDATA[
+													AND (od.or_delivery_price = 0 OR od.or_delivery_discount_price > 0 )
+												]]>
+											</if>
+											
+											<!-- 추가적으로 검색 -->
+											<if test="searchAddKeyword != null and !searchAddKeyword.equals('')">
+												<if test="searchAddKind == 'orderNames'">
+												AND (
+														 or_buyer_name LIKE CONCAT('%',#{searchAddKeyword},'%') 
+														 OR or_receiver_name LIKE CONCAT('%',#{searchAddKeyword},'%') 
+													)
+												</if>						
+												<if test="searchAddKind == 'buyerName'">
+													AND or_buyer_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverName'">
+													AND or_receiver_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'buyerNum'">
+													AND or_buyer_contract_number1 LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverNum'">
+													AND or_receiver_contract_number1 LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'orderNum'">
+													AND or_order_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'invoiceNum'">
+													AND or_delivery_invoice_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'receiverAddress'">
+													AND (or_shipping_address_detail LIKE CONCAT('%',#{searchAddKeyword},'%') OR or_shipping_address LIKE CONCAT('%',#{searchAddKeyword},'%') )
+												</if>
+												<if test="searchAddKind == 'deliveryMessage'">
+													AND or_delivery_message LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'orderProductNum'">
+													AND or_product_order_number LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'storeProduct'">
+													AND ( or_product LIKE CONCAT('%',#{searchAddKeyword},'%') OR or_product_option LIKE CONCAT('%',#{searchAddKeyword},'%') )
+												</if>
+												
+												<if test="searchAddKind == 'matchingProduct'">
+													AND pro.product_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+												<if test="searchAddKind == 'matchingOption'">
+													AND op.option_name LIKE CONCAT('%',#{searchAddKeyword},'%')
+												</if>
+											</if>
+										</trim>
+							GROUP BY
+								od.or_serial_special_number
+						) 
+							
+						</if>
+			GROUP BY
+				od.or_serial_special_number,
+				od.or_buyer_id,
+				ss.ss_name,
+				od.or_buyer_name,
+				od.or_receiver_name,
+				od.or_shipping_address,
+				od.or_shipping_address_detail,
+				od.or_delivery_invoice_number,
+				od.or_delivery_company,
+				od.or_buyer_contract_number1,
+				od.or_buyer_contract_number2,
+				od.or_receiver_contract_number1,
+				od.or_receiver_contract_number2,
+				od.or_order_number,
+				od.or_product_order_number,
+		        od.or_pk,
+		        or_amount,
+				od.or_total_price,
+				od.or_sending_deadline,
+				od.or_sending_day,
+				od.or_cancled_flag,
+				od.or_refunds,
+				od.or_settlement_day,
+				od.or_product,
+                od.or_product_option,
+                od.or_inflow_route,
+                pro.product_name,
+                op.option_name,
+                od.edt_fk
+			ORDER BY
+				od.or_settlement_day DESC
+			) datas
+		GROUP BY
+			datas.or_serial_special_number,
+			datas.or_buyer_id,
+			datas.ss_name,
+			datas.or_buyer_name,
+			datas.or_receiver_name,
+			datas.or_shipping_address,
+			datas.or_shipping_address_detail,
+			datas.or_buyer_contract_number1,
+			datas.or_buyer_contract_number2,
+			datas.or_receiver_contract_number1,
+			datas.or_receiver_contract_number2,
+			datas.or_order_number,
+			datas.or_product_order_number,
+			datas.or_sending_deadline,
+			datas.or_product,
+            datas.or_product_option,
+            datas.or_inflow_route,
+            datas.or_settlement_day,
+            datas.total_amounts,
+			datas.product_name,
+			datas.option_name,
+			datas.edt_fk
+		<trim prefix="HAVING" prefixOverrides="AND |OR ">
+			<if test="cancledFlag == 1">
+				AND SUM(datas.or_cancled_qty) IS NULL
+			</if>
+			<if test="cancledFlag == 2">
+				<![CDATA[
+					AND SUM(datas.or_cancled_qty) > 0
+				]]>
+			</if>
+			<if test="cancledFlag == 3">
+				AND SUM(datas.or_amount) IS NULL
+			</if>
+		</trim>
+		ORDER BY
+			or_settlement_day DESC
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

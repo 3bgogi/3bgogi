@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="classification.code.cf_code">
+	
+	<select id="selectCfListOrderbyCfPk" resultType="ClassificationVO">
+		SELECT 
+			* 
+		FROM 
+			classification
+		ORDER BY
+			cf_pk ASC
+	</select>
+	
+	<update id="updateClassificationCode" parameterType="ClassificationVO">
+		UPDATE
+			classification
+		SET
+			cf_code = #{cfCode},
+			cf_code_type = #{cfCodeType}
+		WHERE
+			cf_pk = #{cfPk}
+	</update>
+	
+	<insert id="insertClassificationCode" parameterType="ClassificationVO">
+		INSERT INTO
+			classification(
+				cf_code,
+				cf_code_type,
+				cf_regdate
+			)
+		VALUES(
+			#{cfCode},
+			#{cfCodeType},
+			NOW()
+		)
+	</insert>
+</mapper>
+
+
+
+
+
+
+
+

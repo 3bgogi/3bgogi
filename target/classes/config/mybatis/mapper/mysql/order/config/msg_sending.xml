@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.config.event_msg">
+
+	<select id="selectEventMsgTarget" parameterType="OrderSearchVO" resultType="OrdersVO">
+		SELECT
+			od.or_buyer_name,
+			od.or_buyer_contract_number1
+		FROM
+			orders od
+			INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+			INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND
+			od.or_product_option = om.om_store_option_name
+			INNER JOIN options op ON om.option_fk = op.option_pk
+			INNER JOIN products pro ON pro.product_pk = op.product_fk
+			
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			od.or_cancled_flag = 0
+			AND od.or_refunds = 0
+			
+			<if test="ssPkList != null and ssPkList.size() != 0">			
+					AND od.ss_fk IN
+					<foreach collection="ssPkList" item="storeList" open="(" close=")" separator=",">
+						#{storeList}
+					</foreach>
+				</if>
+				<if test="cfPkList != null and cfPkList.size() != 0">
+					AND pro.cf_fk IN 
+						<foreach item="item" collection="cfPkList" open="(" separator="," close=")">
+							   #{item}
+						</foreach>
+				</if>
+			<if test="datePeriod == 0">
+				<![CDATA[
+					AND  od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 MONTH), '%Y-%m-%d')
+				]]>
+			</if>
+			<if test="datePeriod == 1">
+				<![CDATA[
+					AND od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -6 MONTH), '%Y-%m-%d')
+				]]>
+			</if>
+			<if test="datePeriod == 2">
+				<![CDATA[
+					AND od.or_sending_deadline >= #{dateStart} 
+					AND od.or_sending_deadline < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+				]]>
+			</if>
+				<if test="searchKeyword != null and !searchKeyword.equals('')">
+					<if test="searchType == 'storeProduct'">
+						AND
+						(
+							<foreach collection="searchKeywordList" item="keyword" separator="or">
+								od.or_product LIKE CONCAT('%',#{keyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="searchType == 'storeOption'">
+						AND
+						(
+							<foreach collection="searchKeywordList" item="keyword" separator="or">
+								 od.or_product_option LIKE CONCAT('%',#{keyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="searchType == 'matchingProduct'">
+						AND
+						(
+							<foreach collection="searchKeywordList" item="keyword" separator="or">
+								 pro.product_name LIKE CONCAT('%',#{keyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="searchType == 'matchingOption'">
+						AND
+						(
+							<foreach collection="searchKeywordList" item="keyword" separator="or">
+								op.option_name LIKE CONCAT('%',#{keyword},'%')
+							</foreach>
+						)
+					</if>
+				</if>
+				<if test="exSerachKeyword != null and !exSerachKeyword.equals('')">
+					<if test="exSearchType == 'storeProduct'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								od.or_product LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'storeOption'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								 od.or_product_option LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'matchingProduct'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								 pro.product_name LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'matchingOption'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								op.option_name LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+				</if>
+		</trim>
+		GROUP BY
+			od.or_buyer_name,
+			od.or_buyer_contract_number1
+		HAVING
+			SUBSTR(od.or_buyer_contract_number1,5,4) != '0000'
+			AND SUBSTR(od.or_buyer_contract_number1,5,3) != '000'
+			AND SUBSTR(od.or_buyer_contract_number1,1,3) != '000'
+		<if test="bslList.size() != 0">		
+			AND od.or_buyer_contract_number1 NOT IN 
+				<foreach item="item" collection="bslList" open="(" separator="," close=")">
+					 #{item.bslNumber}
+				</foreach>
+		</if>
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	<select id="selectEventMsgTargetCounting" parameterType="OrderSearchVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM(
+			SELECT
+				od.or_buyer_name,
+				od.or_buyer_contract_number1
+			FROM
+				orders od
+				INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+				INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND
+				od.or_product_option = om.om_store_option_name
+				INNER JOIN options op ON om.option_fk = op.option_pk
+				INNER JOIN products pro ON pro.product_pk = op.product_fk
+				
+			<trim prefix="WHERE" prefixOverrides="AND |OR ">
+				od.or_cancled_flag = 0
+				AND od.or_refunds = 0
+				<if test="ssPkList != null and ssPkList.size() != 0">			
+					AND od.ss_fk IN
+					<foreach collection="ssPkList" item="storeList" open="(" close=")" separator=",">
+						#{storeList}
+					</foreach>
+				</if>
+				<if test="cfPkList != null and cfPkList.size() != 0">
+					AND pro.cf_fk IN 
+						<foreach item="item" collection="cfPkList" open="(" separator="," close=")">
+							   #{item}
+						</foreach>
+				</if>
+				<if test="datePeriod == 0">
+					<![CDATA[
+						AND  od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 MONTH), '%Y-%m-%d')
+					]]>
+				</if>
+				<if test="datePeriod == 1">
+					<![CDATA[
+						AND od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -6 MONTH), '%Y-%m-%d')
+					]]>
+				</if>
+				<if test="datePeriod == 2">
+					<![CDATA[
+						AND od.or_sending_deadline >= #{dateStart} 
+						AND od.or_sending_deadline < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+					]]>
+				</if>
+				<if test="searchKeyword != null and !searchKeyword.equals('')">
+					<if test="searchType == 'storeProduct'">
+						AND
+						(
+							<foreach collection="searchKeywordList" item="keyword" separator="or">
+								od.or_product LIKE CONCAT('%',#{keyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="searchType == 'storeOption'">
+						AND
+						(
+							<foreach collection="searchKeywordList" item="keyword" separator="or">
+								 od.or_product_option LIKE CONCAT('%',#{keyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="searchType == 'matchingProduct'">
+						AND
+						(
+							<foreach collection="searchKeywordList" item="keyword" separator="or">
+								 pro.product_name LIKE CONCAT('%',#{keyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="searchType == 'matchingOption'">
+						AND
+						(
+							<foreach collection="searchKeywordList" item="keyword" separator="or">
+								op.option_name LIKE CONCAT('%',#{keyword},'%')
+							</foreach>
+						)
+					</if>
+				</if>
+				<if test="exSerachKeyword != null and !exSerachKeyword.equals('')">
+					<if test="exSearchType == 'storeProduct'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								od.or_product LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'storeOption'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								 od.or_product_option LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'matchingProduct'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								 pro.product_name LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'matchingOption'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								op.option_name LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+				</if>
+			</trim>
+			GROUP BY
+				od.or_buyer_name,
+				od.or_buyer_contract_number1
+			HAVING
+				SUBSTR(od.or_buyer_contract_number1,5,4) != '0000'
+				AND SUBSTR(od.or_buyer_contract_number1,5,3) != '000'
+				AND SUBSTR(od.or_buyer_contract_number1,1,3) != '000'
+			<if test="bslList.size() != 0">		
+				AND od.or_buyer_contract_number1 NOT IN 
+					<foreach item="item" collection="bslList" open="(" separator="," close=")">
+						 #{item.bslNumber}
+					</foreach>
+			</if>
+		) INNE
+	</select>
+	
+	<select id="selectEventMsgProductKeyword" parameterType="OrderSearchVO" resultType="OrdersVO">
+		SELECT
+			od.or_product,
+            od.or_product_option,
+            pro.product_name AS or_user_column1,
+            op.option_name AS or_user_column2
+		FROM
+			orders od
+			INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+			INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND
+			od.or_product_option = om.om_store_option_name
+			INNER JOIN options op ON om.option_fk = op.option_pk
+			INNER JOIN products pro ON pro.product_pk = op.product_fk
+			
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			od.or_cancled_flag = 0
+			AND od.or_refunds = 0
+			<if test="ssPk != 0">
+				AND od.ss_fk = #{ssPk}
+			</if>
+			<if test="ssPkList!= null and ssPkList.size() != 0">
+				AND pro.cf_fk IN 
+					<foreach item="item" collection="ssPkList" open="(" separator="," close=")">
+						   #{item}
+					</foreach>
+			</if>
+			<if test="datePeriod == 0">
+				<![CDATA[
+					AND  od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 MONTH), '%Y-%m-%d')
+				]]>
+			</if>
+			<if test="datePeriod == 1">
+				<![CDATA[
+					AND od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -6 MONTH), '%Y-%m-%d')
+				]]>
+			</if>
+			<if test="datePeriod == 2">
+				<![CDATA[
+					AND od.or_sending_deadline >= #{dateStart} 
+					AND od.or_sending_deadline < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+				]]>
+			</if>
+			<if test="searchKeyword != null and searchKeyword.equals('')">
+				<if test="searchType == 'storeProduct'">
+					AND
+					(
+						<foreach collection="searchKeywordList" item="keyword" separator="or">
+							od.or_product LIKE CONCAT('%',#{keyword},'%')
+						</foreach>
+					)
+				</if>
+				<if test="searchType == 'storeOption'">
+					AND
+					(
+						<foreach collection="searchKeywordList" item="keyword" separator="or">
+							 od.or_product_option LIKE CONCAT('%',#{keyword},'%')
+						</foreach>
+					)
+				</if>
+				<if test="searchType == 'matchingProduct'">
+					AND
+					(
+						<foreach collection="searchKeywordList" item="keyword" separator="or">
+							 pro.product_name LIKE CONCAT('%',#{keyword},'%')
+						</foreach>
+					)
+				</if>
+				<if test="searchType == 'matchingOption'">
+					AND
+					(
+						<foreach collection="searchKeywordList" item="keyword" separator="or">
+							op.option_name LIKE CONCAT('%',#{keyword},'%')
+						</foreach>
+					)
+				</if>
+			</if>
+				<if test="exSerachKeyword != null and !exSerachKeyword.equals('')">
+					<if test="exSearchType == 'storeProduct'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								od.or_product LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'storeOption'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								 od.or_product_option LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'matchingProduct'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								 pro.product_name LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'matchingOption'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								op.option_name LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+				</if>
+				
+				AND SUBSTR(od.or_buyer_contract_number1,5,4) != '0000'
+				AND SUBSTR(od.or_buyer_contract_number1,5,3) != '000'
+				AND SUBSTR(od.or_buyer_contract_number1,1,3) != '000'
+				<if test="bslList.size() != 0">		
+				AND od.or_buyer_contract_number1 NOT IN 
+					<foreach item="item" collection="bslList" open="(" separator="," close=")">
+						 #{item.bslNumber}
+					</foreach>
+				</if>
+		</trim>
+		GROUP BY
+			od.or_product,
+            od.or_product_option,
+            pro.product_name,
+            op.option_name
+	</select>
+	
+	<select id="selectAllEventMsgTarget" parameterType="OrderSearchVO" resultType="OrdersVO">
+		SELECT
+			od.or_buyer_name,
+			od.or_buyer_contract_number1
+		FROM
+			orders od
+			INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+			INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND
+			od.or_product_option = om.om_store_option_name
+			INNER JOIN options op ON om.option_fk = op.option_pk
+			INNER JOIN products pro ON pro.product_pk = op.product_fk
+			
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			od.or_cancled_flag = 0
+			AND od.or_refunds = 0
+				<if test="ssPkList != null and ssPkList.size() != 0">			
+					AND od.ss_fk IN
+					<foreach collection="ssPkList" item="storeList" open="(" close=")" separator=",">
+						#{storeList}
+					</foreach>
+				</if>
+				<if test="cfPkList != null and cfPkList.size() != 0">
+					AND pro.cf_fk IN 
+						<foreach item="item" collection="cfPkList" open="(" separator="," close=")">
+							   #{item}
+						</foreach>
+				</if>
+			<if test="datePeriod == 0">
+				<![CDATA[
+					AND  od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 MONTH), '%Y-%m-%d')
+				]]>
+			</if>
+			<if test="datePeriod == 1">
+				<![CDATA[
+					AND od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -6 MONTH), '%Y-%m-%d')
+				]]>
+			</if>
+			<if test="datePeriod == 2">
+				<![CDATA[
+					AND od.or_sending_deadline >= #{dateStart} 
+					AND od.or_sending_deadline < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+				]]>
+			</if>
+			<if test="searchKeyword != null and !searchKeyword.equals('')">
+				<if test="searchType == 'storeProduct'">
+					AND
+					(
+						<foreach collection="searchKeywordList" item="keyword" separator="or">
+							od.or_product LIKE CONCAT('%',#{keyword},'%')
+						</foreach>
+					)
+				</if>
+				<if test="searchType == 'storeOption'">
+					AND
+					(
+						<foreach collection="searchKeywordList" item="keyword" separator="or">
+							 od.or_product_option LIKE CONCAT('%',#{keyword},'%')
+						</foreach>
+					)
+				</if>
+				<if test="searchType == 'matchingProduct'">
+					AND
+					(
+						<foreach collection="searchKeywordList" item="keyword" separator="or">
+							 pro.product_name LIKE CONCAT('%',#{keyword},'%')
+						</foreach>
+					)
+				</if>
+				<if test="searchType == 'matchingOption'">
+					AND
+					(
+						<foreach collection="searchKeywordList" item="keyword" separator="or">
+							op.option_name LIKE CONCAT('%',#{keyword},'%')
+						</foreach>
+					)
+				</if>
+			</if>
+				<if test="exSerachKeyword != null and !exSerachKeyword.equals('')">
+					<if test="exSearchType == 'storeProduct'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								od.or_product LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'storeOption'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								 od.or_product_option LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'matchingProduct'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								 pro.product_name LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+					<if test="exSearchType == 'matchingOption'">
+						AND
+						(
+							<foreach collection="exSearchKeywordList" item="addKeyword" separator="or">
+								op.option_name LIKE CONCAT('%',#{addKeyword},'%')
+							</foreach>
+						)
+					</if>
+				</if>
+		</trim>
+		GROUP BY
+			od.or_buyer_name,
+			od.or_buyer_contract_number1
+		HAVING
+			SUBSTR(od.or_buyer_contract_number1,5,4) != '0000'
+			AND SUBSTR(od.or_buyer_contract_number1,5,3) != '000'
+			AND SUBSTR(od.or_buyer_contract_number1,1,3) != '000'
+		<if test="bslList.size() != 0">		
+			AND od.or_buyer_contract_number1 NOT IN 
+				<foreach item="item" collection="bslList" open="(" separator="," close=")">
+					 #{item.bslNumber}
+				</foreach>
+		</if>
+	</select>
+	
+	
+</mapper>
+
+
+
+
+
+
+
+

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin.attendance">
+
+	<select id="selectAdminAttendance" parameterType="int" resultType="com.gogi.proj.admin.attendance.vo.AdminAttendanceVO">
+		SELECT aa_pk, aa_work_start, aa_work_end 
+		FROM admin_attendance
+		WHERE admin_fk = #{adminPk}
+		AND (DATE_FORMAT(aa_work_start, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d'))
+		ORDER BY aa_pk DESC
+	</select>
+	
+	<select id="selectAdminAttendanceList" parameterType="int" resultType="com.gogi.proj.admin.attendance.vo.AdminAttendanceVO">
+		SELECT *
+		FROM admin_attendance
+		WHERE admin_fk = #{adminPk}
+		ORDER BY aa_work_start DESC
+		
+	</select>
+	
+	<insert id="insertAdminAttendanceStartWork" parameterType="int">
+		INSERT INTO admin_attendance(admin_fk, aa_work_start)
+		VALUES( #{adminPk}, NOW() )
+	</insert>
+	
+	<update id="updateAdminAttendanceEndWork" parameterType="int">
+		UPDATE admin_attendance
+		SET aa_work_end = NOW()
+		WHERE aa_pk = #{aaPk}
+	</update>
+	
+	<select id="selectAdminAttendanceYearAndMonth" resultType="com.gogi.proj.admin.attendance.vo.AdminAttendanceVO">
+		SELECT date_format(aa_work_start, '%Y') as work_year, date_format(aa_work_end, '%m') as work_month
+		FROM admin_attendance
+		GROUP BY  work_year, work_month
+		HAVING work_month IS NOT NULL
+		ORDER BY work_year DESC, work_month DESC
+	</select>
+	
+	<select id="selectAdminAttendanceByFkAndYearAndMonth" resultType="com.gogi.proj.admin.attendance.vo.AdminAttendanceVO" parameterType="com.gogi.proj.admin.attendance.vo.AdminAttendanceVO">
+		SELECT *, TIMEDIFF(aa_work_end, aa_work_start) AS work_time 
+		FROM admin_attendance
+		WHERE DATE_FORMAT(aa_work_start, '%Y') = #{workYear}
+		AND DATE_FORMAT(aa_work_start, '%m') = #{workMonth}
+		AND admin_fk = #{adminFk}
+		ORDER BY aa_work_start DESC
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- relation of admin break  -->
+	<select id="selectTodayAttendanceStatus" resultType="com.gogi.proj.admin.attendance.vo.AdminAttendanceVO">
+		SELECT  inne.*,
+			CASE ad.ad_weeks IS NOT NULL OR ad.ad_start IS NOT NULL
+				WHEN ad.ad_weeks = WEEKDAY(NOW()) = 0 THEN ad.ad_title
+				WHEN ad.ad_weeks = WEEKDAY(NOW()) = 1 THEN ad.ad_title
+				WHEN ad.ad_weeks = WEEKDAY(NOW()) = 2 THEN ad.ad_title
+				WHEN ad.ad_weeks = WEEKDAY(NOW()) = 3 THEN ad.ad_title
+				WHEN ad.ad_weeks = WEEKDAY(NOW()) = 4 THEN ad.ad_title
+				WHEN ad.ad_weeks = WEEKDAY(NOW()) = 5 THEN ad.ad_title
+				WHEN ad.ad_weeks = WEEKDAY(NOW()) = 6 THEN ad.ad_title
+				WHEN ad.ad_weeks = WEEKDAY(NOW())
+				<![CDATA[
+					< 
+				]]> 
+				0 THEN ad.ad_title
+				WHEN NOW() BETWEEN ad.ad_start AND ad.ad_end THEN ad.ad_title
+				ELSE null
+			END AS work_breaks,
+			TIME_TO_SEC(str_to_date(concat(date_format(inne.aa_work_start, '%Y-%m-%d'),' ',inne.admin_worktime), '%Y-%m-%d %H%i')) - TIME_TO_SEC(aa_work_start) AS attendance_rank
+		FROM
+		(
+			SELECT admin.admin_pk, jc.jc_type, admin.admin_name, admin.jc_fk, aa.aa_work_start, aa.aa_work_end, admin.admin_worktime
+			FROM `admins` AS admin 
+			LEFT OUTER JOIN `admin_attendance` AS aa
+			ON admin.admin_pk = aa.admin_fk
+			AND DATE_FORMAT(aa.aa_work_start, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+		    LEFT JOIN job_code AS jc
+		    ON admin.jc_fk = jc.jc_pk
+			WHERE enabled > 0
+		) AS inne
+		LEFT OUTER JOIN `admin_daysoff` AS ad
+		ON inne.admin_pk = ad.admin_fk
+		AND (if(ad_weeks IS NOT NULL, WEEKDAY(NOW())=ad_weeks, NOW() BETWEEN ad.ad_start AND ad.ad_end)
+		<![CDATA[
+	        OR (ad_weeks = -1 AND DATE_FORMAT(now(), '%Y-%m-%d') >= date_format(ad.ad_start, '%Y-%m-%d') AND DATE_FORMAT(now(), '%Y-%m-%d') <= date_format(ad.ad_end, '%Y-%m-%d')))
+			AND ad.ad_flag > 0
+		]]> 
+		GROUP BY inne.admin_pk, inne.admin_name, inne.jc_fk, inne.aa_work_start, inne.aa_work_end, work_breaks
+		ORDER BY attendance_rank DESC
+	</select>
+	
+	
+	
+	<select id="selectTotalAdminBreaks" parameterType="int" resultType="com.gogi.proj.admin.attendance.vo.AdminAttendanceVO">
+		SELECT
+			*,
+		    IF(inne.aa_work_start IS NOT NULL, SEC_TO_TIME(TIME_TO_SEC(inne.aa_work_end)-TIME_TO_SEC(inne.aa_work_start)  - ( inne.aa_break_time * 60 )) , null) AS work_time
+		FROM
+			(
+				SELECT
+					aa.aa_work_start, aa.aa_work_end, aa.aa_pk, aa.aa_break_time
+				FROM
+					admins admin
+					INNER JOIN admin_attendance aa	ON admin.admin_pk = aa.admin_fk 
+				WHERE admin.admin_pk = #{adminPk}
+			) inne
+		RIGHT JOIN 	dummy_calendar dc 		ON DATE_FORMAT(dc.dc_date, '%Y-%m-%d') 	= DATE_FORMAT(inne.aa_work_start, '%Y-%m-%d') 
+		LEFT JOIN	admin_daysoff ad		ON IF(
+				ad.ad_type = 2,
+		        ad.ad_weeks = WEEKDAY(dc.dc_date),
+		        <![CDATA[
+			        DATE_FORMAT(dc.dc_date, '%Y-%m-%d') >= DATE_FORMAT(ad.ad_start, '%Y-%m-%d') 
+			        AND DATE_FORMAT(dc.dc_date, '%Y-%m-%d') <=DATE_FORMAT(ad.ad_end, '%Y-%m-%d')
+		        ]]> 
+		       
+		    ) AND ad.admin_fk = #{adminPk}
+			
+		WHERE 
+			DATE_FORMAT(dc.dc_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+		ORDER BY
+			DATE_FORMAT(dc.dc_date, '%Y-%m')
+	</select>
+	
+	
+	<!-- daysoff -->
+	<select id="selectAdmindaysoffByAdminFk" parameterType="int" resultType="com.gogi.proj.admin.attendance.vo.AdminDaysoffVO">
+		SELECT *
+		FROM admin_daysoff
+		WHERE admin_fk = #{adminPk}
+	</select>
+	
+	<insert id="insertAdmindaysoff" parameterType="com.gogi.proj.admin.attendance.vo.AdminDaysoffVO">
+		INSERT INTO admin_daysoff(admin_fk, ad_title, ad_flag, ad_type, ad_weeks, ad_start, ad_end, ad_regdate)
+		VALUES(#{adminFk}, #{adTitle}, #{adFlag}, #{adType}, #{adWeeks}, #{adStart}, #{adEnd}, NOW())
+	</insert>
+	
+	<update id="permissionDaysoffByAdPk" parameterType="int">
+		UPDATE admin_daysoff
+		SET ad_flag = 1
+		WHERE ad_pk = #{adPk}
+	</update>
+	
+	<delete id="deleteAdmindaysoffByAdPk" parameterType="int">
+		DELETE FROM admin_daysoff
+		WHERE ad_pk = #{adPk}
+	</delete>
+	
+	<select id="selectAdminAttendanceYearLog" parameterType="DatesVO" resultType="DatesVO">
+		SELECT DATE_FORMAT(aa_work_start, '%Y') AS format_year
+		FROM admin_attendance
+		WHERE admin_fk = #{adminPk}
+		GROUP BY format_year
+	</select>
+	
+	<select id="selectAdminAttendanceMonthLogByYear" parameterType="DatesVO" resultType="DatesVO">
+		SELECT DATE_FORMAT(aa_work_start, '%m') AS format_month
+		FROM admin_attendance
+		WHERE admin_fk = #{adminPk}
+		AND DATE_FORMAT(aa_work_start, '%Y') = #{formatYear}
+		GROUP BY format_month
+	</select>
+	
+	
+	<select id="selectTotalAdminBreaksByDatesVO" parameterType="DatesVO" resultType="com.gogi.proj.admin.attendance.vo.AdminAttendanceVO">
+		SELECT
+			*,
+		    IF(inne.aa_work_start IS NOT NULL, SEC_TO_TIME(TIME_TO_SEC(inne.aa_work_end)-TIME_TO_SEC(inne.aa_work_start)  - ( inne.aa_break_time * 60 )) , null) AS work_time
+		FROM
+			(
+				SELECT
+					aa.aa_work_start, aa.aa_work_end, aa.aa_pk, aa.aa_break_time
+				FROM
+					admins admin
+					INNER JOIN admin_attendance aa	ON admin.admin_pk = aa.admin_fk 
+				WHERE admin.admin_pk = #{adminPk}
+			) inne
+		RIGHT JOIN 	dummy_calendar dc 		ON DATE_FORMAT(dc.dc_date, '%Y-%m-%d') 	= DATE_FORMAT(inne.aa_work_start, '%Y-%m-%d') 
+		LEFT JOIN	admin_daysoff ad		ON IF(
+				ad.ad_type = 2,
+		        ad.ad_weeks = WEEKDAY(dc.dc_date) AND ad_flag = 1,
+		        <![CDATA[
+			        DATE_FORMAT(dc.dc_date, '%Y-%m-%d') >= DATE_FORMAT(ad.ad_start, '%Y-%m-%d') 
+			        AND DATE_FORMAT(dc.dc_date, '%Y-%m-%d') <=DATE_FORMAT(ad.ad_end, '%Y-%m-%d') AND ad_flag = 1
+		        ]]> 
+		       
+		    ) AND ad.admin_fk = #{adminPk}
+			
+		 WHERE 
+			DATE_FORMAT(dc.dc_date, '%Y-%m') = CONCAT(#{formatYear}, '-',#{formatMonth}) 
+		ORDER BY
+			DATE_FORMAT(dc.dc_date, '%Y-%m')
+	</select>
+	
+	
+	<select id="selectWeeklyPriceByAdminPk" parameterType="OrderSearchVO" resultType="map">
+		<![CDATA[
+			SELECT 
+				DATE_FORMAT(DATE_SUB( aa_work_start , INTERVAL (DAYOFWEEK( aa_work_start )-1) DAY), '%Y/%m/%d') as starts, 
+			    DATE_FORMAT(DATE_SUB( aa_work_start, INTERVAL (DAYOFWEEK( aa_work_start )-7) DAY), '%Y/%m/%d') as ends,
+			    DATE_FORMAT(aa_work_start , '%U') AS `dates`,
+				SUM(IF(aa_work_start IS NOT NULL AND aa_work_end IS NOT NULL,(TIME_TO_SEC(aa_work_end)-TIME_TO_SEC(aa_work_start) - ( aa_break_time * 60 )) , 0)) / 3600 AS work_time,
+			    IF( ( SUM(IF(aa_work_start IS NOT NULL AND aa_work_end IS NOT NULL,(TIME_TO_SEC(aa_work_end)-TIME_TO_SEC(aa_work_start) - ( aa_break_time * 60 )) , 0)) / 3600) > 15.5,
+			    SUM(IF(aa_work_start IS NOT NULL AND aa_work_end IS NOT NULL,(TIME_TO_SEC(aa_work_end)-TIME_TO_SEC(aa_work_start) - ( aa_break_time * 60 )) , 0)) / 3600 * 8720,
+			    SUM(IF(aa_work_start IS NOT NULL AND aa_work_end IS NOT NULL,(TIME_TO_SEC(aa_work_end)-TIME_TO_SEC(aa_work_start) - ( aa_break_time * 60 )) , 0)) / 3600 * 8720) AS job_cost
+			FROM 
+				admins ad
+			    
+				JOIN admin_attendance aa on ad.admin_pk = aa.admin_fk
+			WHERE
+				admin_fk = #{datePeriod}
+				AND DATE_FORMAT(aa_work_start, '%Y-%m-%d') >= #{dateStart}
+				AND DATE_FORMAT(aa_work_start, '%Y-%m-%d') <= #{dateEnd}
+				
+			group by
+				starts,
+			    ends,
+				dates
+		]]>
+	</select>
+	
+	<select id="selectAdminAttendanceByAaPk" parameterType="AdminAttendanceVO" resultType="AdminAttendanceVO">
+		SELECT
+			*
+		FROM
+			admin_attendance
+		WHERE
+			aa_pk = #{aaPk}
+	</select>
+	
+	<update id="updateAdminAttendance" parameterType="AdminAttendanceVO">
+		UPDATE
+			admin_attendance
+		SET
+			aa_work_start = #{aaWorkStart},
+			aa_work_end = #{aaWorkEnd},
+			aa_break_time = #{aaBreakTime}
+		WHERE
+			aa_pk = #{aaPk}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+

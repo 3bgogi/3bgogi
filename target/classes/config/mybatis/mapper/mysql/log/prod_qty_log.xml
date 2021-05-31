@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="log.prod_qty_log">
+	
+	<select id="selectProdQtyLog" parameterType="OrderSearchVO" resultType="com.gogi.proj.log.vo.ProdQtyLogVO">
+		SELECT
+			pro.product_name,
+            op.option_name,
+            pql.pql_qty,
+            pql.pql_admin_flag,
+            pql.pql_regdate
+		FROM
+			prod_qty_log pql
+            INNER JOIN options	op	ON		op.option_pk	=	pql.option_fk
+            INNER JOIN products	pro	ON		pro.product_pk	=	op.product_fk
+		WHERE					
+			<![CDATA[			
+				pql.pql_regdate >= #{dateStart} 
+				AND pql.pql_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+			]]>
+		ORDER BY
+			pql.pql_regdate DESC
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	<select id="selectProdQtyLogCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM(		
+			SELECT
+				pro.product_name,
+	            op.option_name,
+	            pql.pql_qty,
+	            pql.pql_admin_flag,
+	            pql.pql_regdate
+			FROM
+				prod_qty_log pql
+	            INNER JOIN options	op	ON		op.option_pk	=	pql.option_fk
+	            INNER JOIN products	pro	ON		pro.product_pk	=	op.product_fk
+			WHERE					
+				<![CDATA[			
+					pql.pql_regdate >= #{dateStart} 
+					AND pql.pql_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+				]]>
+		) INNE
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

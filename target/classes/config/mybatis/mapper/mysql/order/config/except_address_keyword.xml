@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.config.except_address_keyword">
+	
+	<!-- 제외 키워드 넣기 -->
+	<insert id="insertExceptAddressKeyword" parameterType="ExceptAddressKeywordVO">
+		INSERT INTO except_address_keyword(
+			eak_word,
+			eak_flag,
+			eak_reason,
+			eak_regdate
+		)
+		VALUES(
+			#{eakWord},
+			#{eakFlag},
+			#{eakReason},
+			NOW()
+		)
+	</insert>
+	
+	
+	<!-- 제외 키워드 목록 보기 -->
+	<select id="selectExceptAddressKeyword" resultType="ExceptAddressKeywordVO">
+		SELECT
+			*
+		FROM
+			except_address_keyword
+	</select>
+	
+	<update id="searchEceptAddrAndUpdateCheckFlag" parameterType="java.util.List">
+		UPDATE
+			orders
+		SET
+			or_special_region_flag = 1,
+			or_special_region_check_flag = 0
+		WHERE
+			or_pk IN (
+				SELECT
+					INNE.or_pk
+				FROM
+					(					
+					
+					SELECT 
+						or_pk
+					FROM 
+						orders 
+					WHERE
+						or_special_region_flag = 0
+						AND or_special_region_check_flag = 1
+						AND or_delivery_invoice_number IS NULL
+						AND
+						<![CDATA[					
+							or_regdate >= DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -1 DAY)
+						]]>
+						AND(
+							<foreach collection="list" item="items" open="(" close=")" separator="or">
+								or_shipping_address LIKE CONCAT('%',#{items.eakWord}, '%')
+							</foreach>
+						)
+							
+						
+					) INNE
+			)
+	
+	</update>
+	
+	<!-- 기간에 따라 제외 키워드에 속하는 주문서 목록 3일치 가져오기 -->
+	<select id="exceptAddrTargetOrder" parameterType="java.util.List" resultType="OrdersVO">
+		SELECT
+			*
+		FROM
+			orders
+		WHERE
+			or_special_region_flag = 1
+			AND or_special_region_check_flag = 0
+			AND
+			<![CDATA[					
+				or_regdate >= DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -3 DAY)
+			]]>
+			
+	</select>
+	
+	
+	<!-- 제외 키워드에 속한 주문서 전부 특수지역으로 수정하기 -->
+	<update id="updateSpecialRegionOrder" parameterType="java.util.List">
+		UPDATE
+			orders
+		SET
+			or_special_region_check_flag = 1
+		WHERE
+			or_pk IN
+			<foreach collection="list" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+	</update>
+	
+	<!-- 제외 키워드 삭제하기 -->
+	<delete id="deleteExceptAddressKeyword" parameterType="ExceptAddressKeywordVO">
+		DELETE FROM except_address_keyword
+		WHERE eak_pk = #{eakPk}
+	</delete>
+	
+</mapper>
+
+
+
+
+
+
+
+

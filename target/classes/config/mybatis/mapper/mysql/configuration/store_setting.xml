@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="configuration.store">
+
+	<!-- 판매처 등록하기 -->
+	<insert id="addStoreSection" parameterType="StoreSectionVO" useGeneratedKeys="true" keyProperty="ssPk">
+		INSERT INTO store_section(
+			ss_name,
+			ss_store_id,
+			ss_store_password,
+			ss_auth_key,
+			ss_commission,
+			ss_store_url,
+			ss_regdate
+		)
+		VALUES(
+			#{ssName},
+			#{ssStoreId},
+			#{ssStorePassword},
+			#{ssAuthKey},
+			#{ssCommission},
+			#{ssStoreUrl},
+			NOW()
+		)
+	</insert>
+	
+	<!-- 판매처 묶음번호 부여값 증가시키기 -->
+	<update id="increaseStoreSectionSpecialNumber" parameterType="StoreSectionVO">
+		UPDATE
+			store_section
+		SET
+			ss_special_number_count =  #{ssSpecialNumberCount}
+		WHERE
+			ss_pk = #{ssPk}
+	</update>
+	
+	<!-- 등록된 판매처 정보 전부 가져오기 -->
+	<select id="selectStoreSectionList" resultType="StoreSectionVO">
+		SELECT
+			*
+		FROM
+			store_section
+	</select>
+	
+	<select id="storeListOrderInTwoMonth" resultType="StoreSectionVO">
+		SELECT
+			ss.ss_pk,
+		    ss.ss_name,
+		    COUNT(od.or_pk)
+		FROM
+			store_section ss
+		    INNER JOIN orders od ON ss.ss_pk = od.ss_fk
+		WHERE
+			<![CDATA[
+				od.or_regdate >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -2 MONTH), '%Y-%m-%d')
+			]]>
+		GROUP BY
+			ss.ss_pk,
+		    ss.ss_name
+	</select>
+	
+	<!-- 판매처 고유 값으로 판매처 정보 전부 가져오기 -->
+	<select id="selectStoreSectionBySspk" parameterType="int" resultType="StoreSectionVO">
+		SELECT
+			*
+		FROM
+			store_section
+		WHERE
+			ss_pk = #{ssPk}
+	</select>
+	
+	<!-- 판매처 발송 엑셀 제목 및 데이터 셋 업데이트 -->
+	<update id="updateStoreSendingForm" parameterType="StoreSectionVO">
+		UPDATE
+			store_section
+		SET
+			ss_sending_head_form = #{ssSendingHeadForm},
+			ss_sending_body_form = #{ssSendingBodyForm},
+			ss_sending_group_form = #{ssSendingGroupForm}
+		WHERE
+			ss_pk = #{ssPk}
+	</update>
+	
+	<!-- 판매처 정보 변경 -->
+	<update id="updateStoreSection" parameterType="StoreSectionVO">
+		UPDATE
+			store_section
+		SET
+			ss_name = #{ssName},
+			ss_store_id = #{ssStoreId},
+			ss_store_password = #{ssStorePassword},
+			ss_auth_key = #{ssAuthKey},
+			ss_store_url = #{ssStoreUrl},
+			ss_update = NOW(),
+			ss_store_nickname = #{ssStoreNickname},
+			ss_commission = #{ssCommission}
+		WHERE
+			ss_pk = #{ssPk}
+		
+	</update>
+	
+	<!-- 판매처 묶음정리 조회 -->
+	<select id="selectStoreMerge" parameterType="StoreSectionVO" resultType="StoreSectionVO">
+		SELECT
+			ss_pk,
+			ss_merge
+		FROM
+			store_section
+		WHERE
+			ss_pk = #{ssPk}
+	</select>
+	
+	<!-- 판매처 묶음정리 변경 -->
+	<update id="updateStoreMerge" parameterType="StoreSectionVO">
+		UPDATE
+			store_section
+		SET
+			ss_merge = #{ssMerge}
+		WHERE
+			ss_pk = #{ssPk}
+	</update>
+	
+</mapper>
+
+
+
+
+
+
+
+

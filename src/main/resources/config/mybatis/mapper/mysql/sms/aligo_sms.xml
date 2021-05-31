@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sms.aligo_sms">
+	
+	<insert id="insertAligoSendingForm" parameterType="AligoSendingFormVO">
+		INSERT INTO 
+			aligo_sending_form(
+				asf_head,
+				asf_body,
+				asf_footer
+			)
+		VALUES(
+			#{asfHead},
+			#{asfBody},
+			#{asfFooter}
+		)
+	</insert>
+	
+	<select id="selectAligoSendingFormList" resultType="AligoSendingFormVO">
+		SELECT
+			*
+		FROM
+			aligo_sending_form
+	</select>
+	
+	<select id="selectAligoSendingFormByAsfPk" parameterType="AligoSendingFormVO" resultType="AligoSendingFormVO">
+		SELECT
+			*
+		FROM
+			aligo_sending_form
+		WHERE
+			asf_pk = #{asfPk}
+	</select>
+	
+	<delete id="deleteAligoSendingFormByAsfPk" parameterType="AligoSendingFormVO">
+		DELETE FROM aligo_sending_form
+		WHERE asf_pk = #{asfPk}
+	</delete>
+	
+</mapper>
+
+
+
+
+
+
+
+

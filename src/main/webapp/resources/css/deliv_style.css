@@ -1,0 +1,276 @@
+@CHARSET "utf-8";
+.deliv-styles{	
+	/* font-family: 'Do Hyeon', sans-serif; */
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 600;
+	
+}
+
+.deliv-po-nm-point{
+	position: absolute;
+	top: 47px;
+	left:10px;
+	font-size: 12px;
+	color: black;
+		
+}
+
+.deliv-reserv-date{
+	position: absolute;
+	top: 47px;
+	left:160px;
+	font-size: 12px;
+	color: black;
+		
+}
+
+.deliv-buyer-name{
+	position: absolute;
+	top: 70px;
+	left:10px;
+	font-size: 12px;
+	color: black;
+	
+}
+.deliv-ss-name{
+	position: absolute;
+	top: 85px;
+	left:10px;
+	font-size: 12px;
+	color: black;
+	
+}
+.deliv-order-number{
+	position: absolute;
+	top: 100px;
+	left:10px;
+	font-size: 12px;
+	color: black;
+	
+}
+
+.deliv-box-weight{
+	position: absolute;
+	top: 118px;
+	left:10px;
+	font-size: 12px;
+	color: black;
+	
+}
+.deliv-sending-price{
+	position: absolute;
+	top: 118px;
+	left:130px;
+	font-size: 12px;
+	color: black;
+	
+}
+
+.deliv-zip-barcode{
+	position: absolute;
+	top: 150px;
+	left:20px;
+	width: 150px;
+
+}
+.deliv-message-title{
+	position: absolute;
+	top: 257px;
+	left:10px;
+	font-size: 12px;
+	color: black;
+	
+}
+.deliv-message{
+	display:block;
+	position: absolute;
+	top: 274px;
+	left:10px;
+	width:220px;
+	font-size: 12px;
+	white-space: pre-line;
+	color: black;
+	
+}
+
+.arr-cnpo-before{
+	position: absolute;
+	top: 15.4px;
+	left:270px;
+	font-size: 40px;
+	color: black;
+	
+}
+.arr-cnpo-nm{
+	position: absolute;
+	top: 40.4px;
+	left:330px;
+	font-size: 15px;
+	color: black;
+	
+}
+.arr-cnpo-nm-after{
+	position: absolute;
+	top: 16.4px;
+	left:390px;
+	font-size: 40px;
+	color: black;
+	
+}
+.deliv-po-nm{
+	position: absolute;
+	top: 40.4px;
+	left:475px;
+	font-size: 15px;
+	color: black;
+	
+}
+.deliv-po-nm-before{
+	position: absolute;
+	top: 16.4px;
+	left:545px;
+	font-size: 40px;
+	color: black;
+	
+}
+.deliv-po-nm-after{
+	position: absolute;
+	top: 16.4px;
+	left:610px;
+	font-size: 40px;
+	color: black;
+	
+}
+.deliv-sender{
+	position: absolute;
+	top: 110px;
+	left:270px;
+	font-size: 22px;
+	color: black;
+	
+}
+.deliv-dont-deliv-msg-top{
+	position: absolute;
+	top: 40px;
+	left:50px;
+	font-size: 11px;
+	color: black;
+	
+}
+.deliv-dont-deliv-msg-bottom{
+	position: absolute;
+	top: 390px;
+	left:50px;
+	font-size: 11px;
+	color: black;
+	
+}
+.deliv-sender-addr{
+	display: block;
+	position: absolute;
+	top: 70px;
+	left:270px;
+	width: 210px;
+	white-space: pre-line;
+	font-size: 12px;
+	
+	color: black;
+}
+.deliv-sender-zip-num{
+	position: absolute;
+	top: 85px;
+	left:545px;
+	font-size: 12px;
+	color: black;
+	
+}
+.deliv-sender-tel-num{
+	position: absolute;
+	top: 110px;
+	left:510px;
+	font-size: 10px;
+	color: black;
+	
+}
+.deliv-sender-mob-num{
+	position: absolute;
+	top: 16.4px;
+	left:610px;
+	font-size: 15px;
+	color: black;
+	
+}
+
+.rec-addr{
+	display:block;
+	position: absolute;
+	top: 150px;
+	left:265px;
+	width: 360px;
+	font-size: 20px;
+	white-space: pre-line;
+	color: black;
+	
+}
+.receiver{
+	position: absolute;
+	top: 260px;
+	left:270px;
+	font-size: 20px;
+	color: black;
+	
+}
+.rec-tel-num{
+	position: absolute;
+	top: 283px;
+	left:285px;
+	font-size: 10px;
+	color: black;
+	
+}
+.rec-mob-num{
+	position: absolute;
+	top: 297px;
+	left:285px;
+	font-size: 10px;
+	color: black;
+	
+}
+.deliv-invoice-num{
+	position: absolute;
+	top: 330px;
+	left: 270px;
+	width: 280px;
+}
+
+.total-qty{
+	position: absolute;
+	top: 30.4px;
+	left:700px;
+	font-size: 15px;
+	color: black;
+	
+}
+.qty-title{
+	position: absolute;
+	top: 60px;
+	left:690px;
+	font-size: 10px;
+	color: black;
+	
+}
+.product-qty{
+	 position:absolute; 
+	 left:700px; 
+	 font-size:14px; 
+	 color:black; 
+}
+.product-name{
+	position:absolute; 
+	left:730px;  
+	width: 300px; 
+	font-size:14px; 
+	white-space: pre-line; 
+	color:black; 
+
+}

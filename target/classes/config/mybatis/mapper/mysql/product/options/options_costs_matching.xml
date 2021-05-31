@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="products.options_costs_matching">
+	
+	<insert id="insertOptionsCostsMatching" >
+		INSERT INTO options_costs_matching(cost_fk, option_fk, ocm_gram_recal_flag, ocm_production_divide, ocm_each)
+		VALUES(#{costFk}, #{optionFk}, #{ocmGramRecalFlag}, #{ocmProductionDivide}, #{ocmEach})
+	</insert>
+	
+	
+	<!--  삭제에 필요한 원가 매칭 사항의 고유키값 가져오기 -->
+	<select id="selectDeleteOCMData" parameterType="OptionsCostsMatchingVO" resultType="OptionsCostsMatchingVO">
+		SELECT
+			ocm.ocm_pk
+		FROM
+			options op
+			INNER JOIN options_costs_matching ocm ON ocm.option_fk = op.option_pk
+			INNER JOIN costs cs ON cs.cost_pk = ocm.cost_fk
+			INNER JOIN cost_detail cd ON cs.cd_fk = cd.cd_pk
+		WHERE
+			op.option_pk = #{optionFk}
+	        and cs.cost_name = #{costName}
+	        and cs.cost_unique_num = #{costUniqueNum}
+	</select>
+	
+	<!--  원가 매칭 사항 삭제하기 -->
+	<delete id="deleteOCMData" parameterType="OptionsCostsMatchingVO">
+		DELETE FROM 
+			options_costs_matching
+		WHERE
+			ocm_pk = #{ocmPk}
+	</delete>
+	
+</mapper>
+
+
+
+
+
+
+
+

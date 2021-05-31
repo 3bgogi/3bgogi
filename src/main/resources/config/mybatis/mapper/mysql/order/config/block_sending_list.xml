@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.config.block_sending_list">
+	
+	<insert id="insertBlockSendingList" parameterType="BlockSendingListVO">
+		INSERT INTO block_sending_list(bsl_number)
+		VALUES(#{bslNumber})
+	</insert>
+	
+	<select id="selectAllBlockSendingList" parameterType="BlockSendingListVO" resultType="BlockSendingListVO">
+		SELECT
+			bsl_number
+		FROM
+			block_sending_list
+		GROUP BY
+			bsl_number
+	</select>
+	
+	<select id="selectBlockSendingList" parameterType="OrderSearchVO" resultType="BlockSendingListVO">
+		SELECT
+			*
+		FROM
+			block_sending_list
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	<select id="selectBlockSendingListCount" parameterType="OrderSearchVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM(
+			SELECT
+				*
+			FROM
+				block_sending_list
+		) inne
+	</select>
+	
+	<select id="selectBlockSendingListDupli" parameterType="BlockSendingListVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			block_sending_list
+		WHERE
+			bsl_number = #{bslNumber}
+	</select>
+	
+	<delete id="deleteBlockSendingList" parameterType="BlockSendingListVO">
+		DELETE FROM block_sending_list
+		WHERE bsl_pk = #{bslPk}
+	</delete>
+	
+</mapper>
+
+
+
+
+
+
+
+

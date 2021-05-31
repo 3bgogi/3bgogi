@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="log.order_history">
+	
+	<insert id="insertOrderHistory" parameterType="OrderHistoryVO">
+		INSERT INTO order_history(
+			or_fk,
+			oh_ip,
+			oh_admin,
+			oh_end_point,
+			oh_detail,
+			oh_regdate
+		)
+		VALUES(
+			#{orFk},
+			INET_ATON(#{ohIp}),
+			#{ohAdmin},
+			#{ohEndPoint},
+			#{ohDetail},
+			#{ohRegdate}
+		)
+		
+	</insert>
+	
+	<select id="selectOrderHistoryByOrPk" parameterType="OrdersVO" resultType="OrderHistoryVO">
+		SELECT
+			oh_pk,
+			INET_NTOA(oh_ip) AS oh_ip,
+			oh_admin,
+			oh_end_point,
+			oh_detail,
+			oh_regdate
+		FROM
+			order_history
+		WHERE
+			or_fk = #{orPk}
+		ORDER BY
+			oh_regdate ASC
+	</select>
+	
+	<select id="selectOrderPkBySerialSpecialNumber" parameterType="OrdersVO" resultType="OrderHistoryVO">
+		SELECT
+			or_pk AS or_fk
+		FROM
+			orders
+		WHERE
+			or_serial_special_number = #{orSerialSpecialNumber}
+	</select>
+	
+	<select id="selectOrdersChangeBeforeValueByOrPk" parameterType="OrdersVO" resultType="OrdersVO">
+		SELECT
+			or_pk,
+			or_sending_deadline,
+			or_buyer_name,
+			or_buyer_another_name,
+			or_receiver_name,
+			or_shipping_address_number,
+			or_shipping_address,
+			or_shipping_address_detail,
+			or_buyer_contract_number1,
+			or_buyer_contract_number2,
+			or_receiver_contract_number1,
+			or_receiver_contract_number2,
+			or_delivery_message
+		FROM
+			orders
+		WHERE
+			or_pk = #{orPk}
+	</select>
+	
+	<select id="selectOrdersChangeBeforeValueBySerialSpecialNumber" parameterType="OrdersVO" resultType="OrdersVO">
+		SELECT
+			or_pk,
+			or_sending_deadline,
+			or_buyer_name,
+			or_buyer_another_name,
+			or_receiver_name,
+			or_shipping_address_number,
+			or_shipping_address,
+			or_shipping_address_detail,
+			or_buyer_contract_number1,
+			or_buyer_contract_number2,
+			or_receiver_contract_number1,
+			or_receiver_contract_number2,
+			or_delivery_message
+		FROM
+			orders
+		WHERE
+			or_serial_special_number = #{orSerialSpecialNumber}
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

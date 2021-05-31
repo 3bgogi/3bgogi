@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="analytics.product">
+
+	<select id="selectTodayDeliveryCount" resultType="map">
+		SELECT
+			COUNT(inne.or_serial_special_number) AS total_counting,
+		    inne.ss_name AS ss_name
+		FROM
+			(
+			SELECT
+				 od.or_serial_special_number,
+			     ss.ss_name
+			FROM
+				orders od
+			    INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+			WHERE
+				or_sending_deadline = DATE_FORMAT(NOW(), '%Y-%m-%d')
+			GROUP BY
+				od.or_serial_special_number,
+				ss.ss_name
+			) inne
+		GROUP BY
+			inne.ss_name
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

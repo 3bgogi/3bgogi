@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cost.cost_detail">
+
+	<resultMap id="CostDetailVOALlResultmap" type="CostDetailVO">
+		<id property="cdPk" column="cd_pk" javaType="int"/>
+		<result property="ccFk" column="cc_fk" javaType="int"/>
+		<result property="cdName" column="cd_name" javaType="String"/>
+		<result property="cdCost" column="cd_cost" javaType="int"/>
+		<result property="cdLossRate" column="cd_loss_rate" javaType="int"/>
+		<result property="cdLossFlag" column="cd_loss_flag" javaType="boolean"/>
+		<result property="cdCompanyDiagnosis" column="cd_company_diagnosis" javaType="boolean"/>
+		<result property="cdManufacturer" column="cd_manufacturer" javaType="String"/>
+		<result property="cdStoreCompany" column="cd_store_company" javaType="String"/>
+		<result property="cdMeasure" column="cd_measure" javaType="String"/>
+		<result property="cdRemark" column="cd_remark" javaType="String"/>
+		<result property="cdUpdate" column="cd_update" javaType="java.sql.Timestamp"/>
+		<result property="cdRegdate" column="cd_regdate" javaType="java.sql.Date"/>
+		
+		<!-- 원가 분류 코드-->
+		<collection property="costCodeVOList" ofType="CostCodeVO">
+			<id property="ccPk" column="cc_pk" javaType="int"/>
+			<result property="ccCode" column="cc_code" javaType="String"/>
+			<result property="ccCodeType" column="cc_code_type" javaType="String"/>
+		</collection>
+	</resultMap>
+	
+	<resultMap id="CostDetailWithCostIoResultmap" type="CostDetailVO">
+		<id property="cdPk" column="cd_pk" javaType="int"/>
+		<result property="ccFk" column="cc_fk" javaType="int"/>
+		<result property="cdName" column="cd_name" javaType="String"/>
+		<result property="cdCost" column="cd_cost" javaType="int"/>
+		<result property="cdLossRate" column="cd_loss_rate" javaType="int"/>
+		<result property="cdLossFlag" column="cd_loss_flag" javaType="boolean"/>
+		<result property="cdCompanyDiagnosis" column="cd_company_diagnosis" javaType="boolean"/>
+		<result property="cdManufacturer" column="cd_manufacturer" javaType="String"/>
+		<result property="cdStoreCompany" column="cd_store_company" javaType="String"/>
+		<result property="cdMeasure" column="cd_measure" javaType="String"/>
+		<result property="cdRemark" column="cd_remark" javaType="String"/>
+		<result property="cdUpdate" column="cd_update" javaType="java.sql.Timestamp"/>
+		<result property="cdRegdate" column="cd_regdate" javaType="java.sql.Date"/>
+		
+		<!-- 원가, 입출고 합산-->
+		<collection property="costIoVOList" ofType="CostIoVO">
+			<id property="ciPk" column="ci_pk" javaType="int"/>
+			<result property="cdFk" column="cd_fk" javaType="int"/>
+			<result property="ciPrice" column="ci_price" javaType="int"/>
+			<result property="ciWeight" column="ci_weight" javaType="int"/>
+			<result property="ciOutputWeight" column="ci_output_weight" javaType="int"/>
+			<result property="ciOutputQty" column="ci_output_qty" javaType="int"/>
+			<result property="ciOutputLastTime" column="ci_output_last_time" javaType="java.sql.Date"/>
+			<result property="ciOutputFlag" column="ci_output_flag" javaType="boolean"/>
+			<result property="ciAnimalProdTraceNum" column="ci_animal_prod_trace_num" javaType="String"/>
+			<result property="ciLevel" column="ci_level" javaType="String"/>
+			<result property="ciAbattoir" column="ci_abattoir" javaType="String"/>
+			<result property="ciCountryOfOrigin" column="ci_country_of_origin" javaType="String"/>
+			<result property="ciItemsManufNum" column="ci_items_manuf_num" javaType="String"/>
+			<result property="ciRegdate" column="ci_regdate" javaType="java.sql.Timestamp"/>
+		</collection>
+	</resultMap>
+	<!-- insert cost_detail data
+		
+		auth : Jeon KiChan
+		Parameter : CostdetailVO
+		return : 0 or 1
+	 -->
+	<insert id="insertCostDetail" parameterType="CostDetailVO">
+		INSERT INTO 
+			cost_detail(
+				cc_fk, 
+				cd_name, 
+				cd_cost, 
+				cd_loss_rate,
+				cd_loss_flag,
+				cd_company_diagnosis,
+				cd_manufacturer,
+				cd_store_company,
+				cd_measure,
+				cd_remark,
+				cd_update,
+				cd_regdate
+				)
+		VALUES(
+				#{ccFk},
+				#{cdName},
+				#{cdCost},
+				#{cdLossRate},
+				#{cdLossFlag},
+				#{cdCompanyDiagnosis},
+				#{cdManufacturer},
+				#{cdStoreCompany},
+				#{cdMeasure},
+				#{cdRemark},
+				NOW(),
+				NOW()
+				)
+	</insert>
+	
+	<!-- 원가 세부사항과 원가 분류 코드를 합쳐서 가져오기 list 형태로 -->
+	<select id="selectAllCostDetail" resultMap="CostDetailVOALlResultmap" parameterType="PaginationInfo">
+		SELECT 
+			inne.*
+		FROM
+			(		
+				SELECT
+					(@RNUM:=@RNUM + 1) AS ROWNUM, costDetails.*
+				FROM 
+					(SELECT 
+						*
+					FROM
+						cost_detail    cd
+					    JOIN cost_code cc ON cd.cc_fk = cc.cc_pk
+					WHERE 
+						cd.cd_name NOT LIKE '%중복값%'
+						<if test="searchOne != null and searchOne != '' ">
+							AND cd.cd_name LIKE concat('%',#{searchOne},'%')
+						</if>
+						<if test="searchCode gt 0">
+							AND cd.cc_fk = #{searchCode}
+						</if>
+						<if test="searchMaxPrice gt 0">
+							<![CDATA[
+							AND	cd.cd_cost >= #{searchMinPrice} AND  cd.cd_cost <= #{searchMaxPrice}
+							]]>
+						</if>
+						<if test="searchTwo != 'all' and searchTwo != null and searchTwo != ''">
+							AND cd.cd_measure = #{searchTwo}
+						</if>
+					ORDER BY
+						cd.cc_fk
+					) costDetails,
+					
+					(SELECT @RNUM:=0) R
+			) inne
+		WHERE
+			<![CDATA[
+			inne.ROWNUM >  #{firstRecordIndex} AND 
+			inne.ROWNUM <= #{firstRecordIndex}+ #{recordCountPerPage}
+			]]>
+	</select>
+	
+	<!-- 원가 세부사항 총 개수 가져오기 paing용 -->
+	<select id="selectCostDetailCount" resultType="int" parameterType="PaginationInfo">
+		SELECT 
+			COUNT(*)
+		FROM
+			cost_detail    cd
+			JOIN cost_code cc ON cd.cc_fk = cc.cc_pk
+		WHERE 
+			cd.cd_name NOT LIKE '%중복값%'
+			<if test="searchOne != null and searchOne != '' ">
+				AND cd.cd_name LIKE concat('%',#{searchOne},'%')
+			</if>
+			<if test="searchCode gt 0">
+				AND cd.cc_fk = #{searchCode}
+			</if>
+			<if test="searchMaxPrice gt 0">
+				<![CDATA[
+				AND	cd.cd_cost >= #{searchMinPrice} AND  cd.cd_cost <= #{searchMaxPrice}
+				]]>
+			</if>
+			<if test="searchTwo != 'all' and searchTwo != null and searchTwo != ''">
+				AND cd.cd_measure = #{searchTwo}
+			</if>
+		ORDER BY
+			cd.cc_fk
+	</select>
+	
+	<select id="selectCostDetailByCcpk" parameterType="int" resultType="CostDetailVO">
+		SELECT
+			*
+		FROM 
+			cost_detail
+		WHERE 
+			cc_fk = #{ccPk}
+	</select>
+	
+	<select id="selectAllCostDetailJoinCostCodeList" resultMap="CostDetailVOALlResultmap">
+		SELECT 
+			* 
+		FROM 
+			cost_detail cd
+		    JOIN cost_code cc ON cd.cc_fk = cc.cc_pk
+	</select>
+	
+	<select id="selectCostdetailWightCostcodeByCcPk" resultMap="CostDetailVOALlResultmap" parameterType="CostCodeVO">
+		SELECT
+			*
+		FROM
+			cost_code cc
+		    INNER JOIN cost_detail cd ON cc.cc_pk = cd.cc_fk
+		WHERE
+			cc_pk = #{ccPk}
+	</select>
+	
+	
+	<!-- selectCostDetailByCcfk 원가 사항에서 pk를 이용하여 원가사항 및 원가변동사항 전부 가져오기 -->
+	<select id="selectCostDetailByCcfk" parameterType="CostDetailVO" resultMap="CostDetailWithCostIoResultmap">
+		SELECT
+			cd.cd_pk,
+		    cd.cc_fk,
+		    cd.cd_name,
+		    cd.cd_cost,
+		    cd.cd_loss_rate,
+		    cd.cd_loss_flag,
+		    cd.cd_company_diagnosis,
+		    cd.cd_manufacturer,
+		    cd.cd_store_company,
+		    cd.cd_measure,
+		    cd.cd_remark,
+		    cd.cd_update,
+		    ci.ci_pk,
+		    ci.ci_price,
+		    ci.ci_weight,
+		    ci.ci_output_weight,
+		    ci.ci_animal_prod_trace_num,
+		    ci.ci_level,
+		    ci.ci_abattoir,
+		    ci.ci_country_of_origin,
+		    ci.ci_regdate,
+		    ci.ci_output_flag
+		FROM
+			cost_detail cd
+		    LEFT JOIN cost_io ci ON cd.cd_pk = ci.cd_fk
+		WHERE
+			cd.cd_pk = #{cdPk}
+		ORDER BY
+			ci.ci_regdate DESC
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

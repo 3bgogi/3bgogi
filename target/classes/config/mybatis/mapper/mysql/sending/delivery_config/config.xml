@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="delivery.config">
+	
+	<!-- 우편번호 등록 조회용 -->
+	<resultMap id="delivResultMap" type="com.gogi.proj.delivery.config.vo.EarlyDelivTypeVO">
+		<id property="edtPk" column="edt_pk" javaType="int"/>
+		<result property="edtType" column="edt_type" javaType="String"/>
+		<result property="edtUrl" column="edt_url" javaType="String"/>
+		
+		<collection property="edtList" ofType="com.gogi.proj.delivery.config.vo.EarlyDelivAreaVO">
+			<id property="edaPk" column="eda_pk" javaType="int"/>
+			<result property="edtFk" column="edt_fk" javaType="int"/>
+			<result property="edaZipCode" column="eda_zip_code" javaType="String"/>
+			<result property="edaPosFlag" column="eda_pos_flag" javaType="boolean"/>
+			<result property="delivCount" column="deliv_count" javaType="int"/>
+
+		</collection>
+		
+	</resultMap>
+	
+	
+	<!-- 배송불가 키워드 조회용 -->
+	<resultMap id="delivAreaResultMap" type="com.gogi.proj.delivery.config.vo.EarlyDelivAreaVO">
+		<id property="edaPk" column="eda_pk" javaType="int"/>
+		
+		<collection property="diList" ofType="com.gogi.proj.delivery.config.vo.DelivImposVO">
+			<id property="diPk" column="di_pk" javaType="int"/>
+			<result property="edaFk" column="eda_fk" javaType="int"/>
+			<result property="diAddress" column="di_address" javaType="String"/>
+
+		</collection>
+		
+	</resultMap>
+	
+	
+	<select id="earlyDelivType" resultType="EarlyDelivTypeVO">
+		SELECT
+			*
+		FROM
+			early_deliv_type
+		ORDER BY
+			edt_pk ASC
+	</select>
+	
+	<delete id="deleteEarlyDelivArea" parameterType="EarlyDelivAreaVO">
+		DELETE FROM
+			early_deliv_area
+		WHERE
+			eda_pk = #{edaPk}
+	</delete>
+	
+	<select id="delivArea" resultMap="delivResultMap" parameterType="OrderSearchVO">
+		SELECT
+			edt.edt_type,
+		    eda.eda_pk,
+		    eda.eda_zip_code,
+		    eda.eda_pos_flag,
+		    COUNT(di.di_pk) AS deliv_count
+		FROM
+			early_deliv_type edt
+		    INNER JOIN	early_deliv_area	eda		ON	edt.edt_pk		=	eda.edt_fk
+		    LEFT JOIN	deliv_impos			di		ON	eda.eda_pk		=	di.eda_fk
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+				<if test="edtFk != 0">
+					AND edt_fk = #{edtFk}
+				</if>
+				<if test="searchAddKeyword != null and !searchAddKeyword.equals('')">
+					<![CDATA[
+						AND eda.eda_zip_code >= #{searchKeyword} and eda.eda_zip_code <= #{searchAddKeyword}
+					]]>
+				</if>
+				<if test="searchAddKeyword == null and searchKeyword != null">
+						AND eda.eda_zip_code = #{searchKeyword}
+				</if>
+				    
+			</trim>
+		GROUP BY
+			edt.edt_type,
+		    eda.eda_pk,
+		    eda.eda_zip_code,
+		    eda.eda_pos_flag
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	<select id="delivAreaCount" resultType="int" parameterType="OrderSearchVO">
+		SELECT
+			COUNT(*)
+		FROM
+			(SELECT
+				edt.edt_type,
+			    eda.eda_pk,
+			    eda.eda_zip_code,
+			    eda.eda_pos_flag,
+			    COUNT(di.di_pk) AS deliv_count
+			FROM
+				early_deliv_type edt
+			    INNER JOIN	early_deliv_area	eda		ON	edt.edt_pk		=	eda.edt_fk
+			    LEFT JOIN	deliv_impos			di		ON	eda.eda_pk		=	di.eda_fk
+			<trim prefix="WHERE" prefixOverrides="AND |OR ">
+				<if test="edtFk != 0">
+					AND edt_fk = #{edtFk}
+				</if>
+				<if test="searchAddKeyword != null and !searchAddKeyword.equals('')">
+					<![CDATA[
+						AND eda.eda_zip_code >= #{searchKeyword} and eda.eda_zip_code <= #{searchAddKeyword}
+					]]>
+				</if>
+				<if test="searchAddKeyword == null and searchKeyword != null">
+						AND eda.eda_zip_code = #{searchKeyword}
+				</if>
+				
+				    
+			</trim>
+			GROUP BY
+				edt.edt_type,
+			    eda.eda_pk,
+			    eda.eda_zip_code,
+			    eda.eda_pos_flag
+			) INNE
+			
+	</select>
+	
+	<select id="earlyAreaZipcodeDupliCheck" resultType="boolean" parameterType="com.gogi.proj.delivery.config.vo.EarlyDelivAreaVO">
+		SELECT 
+			COUNT(*)
+		FROM
+		    early_deliv_type 	edt 
+		    INNER JOIN early_deliv_area	eda	ON edt.edt_pk	=	eda.edt_fk
+		WHERE
+			edt.edt_pk = #{edtFk}
+			AND eda.eda_zip_code = #{edaZipCode}
+	
+	</select>
+	
+	<insert id="insertEarlyAreaZipcCode" parameterType="com.gogi.proj.delivery.config.vo.EarlyDelivAreaVO">
+		INSERT INTO 
+			early_deliv_area(
+				edt_fk,
+				eda_zip_code,
+				eda_pos_flag
+			)
+		VALUES(
+			#{edtFk},
+			#{edaZipCode},
+			#{edaPosFlag}
+		)
+	</insert>
+	
+	<select id="selectDelivPosArea" resultMap="delivAreaResultMap" parameterType="com.gogi.proj.delivery.config.vo.EarlyDelivAreaVO">
+		SELECT 
+			eda.eda_pk,
+		    di.di_pk,
+		    di.di_address
+		FROM
+		    early_deliv_type 	edt 
+		    INNER JOIN early_deliv_area	eda	ON	edt.edt_pk	=	eda.edt_fk
+		    INNER JOIN deliv_impos		di	ON	eda.eda_pk	=	di.eda_fk
+		WHERE
+			eda.eda_pk = #{edaPk}
+			
+	</select>
+	
+	<insert id="insertDelivImposKeyword" parameterType="com.gogi.proj.delivery.config.vo.DelivImposVO">
+		INSERT INTO 
+			deliv_impos(
+				eda_fk,
+				di_address
+			)	
+		VALUES(
+			#{edaFk},
+			#{diAddress}
+		)
+		
+	</insert>
+	
+	<delete id="deleteDelivImpos" parameterType="com.gogi.proj.delivery.config.vo.DelivImposVO">
+		DELETE FROM
+			deliv_impos
+		WHERE
+			di_pk = #{diPk}
+	</delete>
+	
+	<select id="selectEarlyDelivCommonImposList" parameterType="OrderSearchVO" resultType="com.gogi.proj.delivery.config.vo.EarlyDelivCommonImposVO">
+		SELECT
+			*
+		FROM
+			early_deliv_common_impos
+		WHERE
+			edt_Fk = #{edtFk}
+	</select>
+
+</mapper>

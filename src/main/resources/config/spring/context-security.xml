@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean  id="adminLoginFailureHandler" class="com.gogi.proj.security.handler.AdminLoginFailureHandler" />
+	<bean  id="adminLoginSuccessHandler" class="com.gogi.proj.security.handler.AdminLoginSuccessHandler" />
+   
+    <bean  id="adminServiceImpl" class="com.gogi.proj.security.AdminServiceImpl" />
+   
+    <bean  id="adminAuthenticationProvider" class="com.gogi.proj.security.AdminAuthenticationProvider"></bean>
+    
+    <bean  id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />  
+ 	
+	<security:authentication-manager alias="authenticationManager">
+	
+		<security:authentication-provider ref="adminAuthenticationProvider"></security:authentication-provider>
+		<security:authentication-provider user-service-ref="adminServiceImpl"></security:authentication-provider>
+		
+	</security:authentication-manager>	
+		
+	<security:http auto-config="true" use-expressions="true">
+		<security:intercept-url pattern="/resources/**" access="permitAll" />
+		<security:intercept-url pattern="/stock/carcass/*.do" access="hasRole('ROLE_ADMIN')" />
+		<security:intercept-url pattern="/security/*.do" access="hasRole('ROLE_ADMIN')" />
+		<security:intercept-url pattern="/products/*/*.do" access="hasRole('ROLE_ADMIN')"/>
+		<security:intercept-url pattern="/options/*/*.do" access="hasRole('ROLE_ADMIN')"/>
+		<security:intercept-url pattern="/orders/*.do" access="hasRole('ROLE_ADMIN')"/>
+		<security:intercept-url pattern="/admin/attendance/admin_attendance_status.do" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/admin/attendance/team_info_detail.do" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/admin/team/team_auth.do" access="hasRole('ROLE_ADMIN')"/>
+		<security:intercept-url pattern="/admin/team/attendance_change.do" access="hasRole('ROLE_ADMIN')"/>
+		<security:intercept-url pattern="/login.do" access="permitAll"/>
+		<security:intercept-url pattern="/delivery/*.do" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/admin/attendance.do" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/project/*.do" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/admin/attendance/*.do" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/main/home.do" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/config/store/*.do" access="hasRole('ROLE_ADMIN')"/>
+		<security:intercept-url pattern="/loginFail.do" access="permitAll"/>
+		<security:intercept-url pattern="/broadcasting.do" access="permitAll"/>
+		
+		
+		<security:form-login 
+		login-page="/login.do"
+		login-processing-url="/j_spring_security_check.do"
+		default-target-url="/admin/attendance/admin_attendance_status.do"
+		authentication-failure-url="/loginFail.do"
+		authentication-success-handler-ref="adminLoginSuccessHandler"
+		authentication-failure-handler-ref="adminLoginFailureHandler"
+		
+		/>
+		<security:logout logout-success-url="/login.do" logout-url="/logout.do"
+		invalidate-session="true" />
+		
+		<security:access-denied-handler error-page="/access_denied_page.do"/>
+		
+		<security:custom-filter after="EXCEPTION_TRANSLATION_FILTER" ref="forAjaxAdminSessionFilter"/>
+		
+	</security:http>
+
+	<!-- <security:http pattern="/resources/*" security="none"></security:http> -->
+	
+	<bean id="forAjaxAdminSessionFilter" class="com.gogi.proj.security.filter.ForAjaxAdminSessionFilter">
+		<property name="ajaxHeader" value="AJAX"/>
+	</bean>
+</beans>

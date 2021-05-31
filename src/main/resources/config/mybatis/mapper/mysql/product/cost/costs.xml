@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cost.costs">
+	<resultMap id="costsListResultMap" type="CostsVO">
+		<id property="costPk" column="cost_pk" javaType="int"/>
+		<result property="cdFk" column="cd_fk" javaType="int"/>
+		<result property="costUniqueNum" column="cost_unique_num" javaType="String"/>
+		<result property="costName" column="cost_name" javaType="String"/>
+		<result property="costMeasureCal" column="cost_measure_cal" javaType="int"/>
+		<result property="costProductionTime" column="cost_production_time" javaType="int"/>
+		<result property="costUpdate" column="cost_update" javaType="java.sql.Timestamp"/>
+		<result property="costRegdate" column="cost_regdate" javaType="java.sql.Date"/>
+		
+		<collection property="costDetailList" ofType="CostDetailVO">
+			<id property="cdPk" column="cd_pk" javaType="int"/>
+			<result property="ccFk" column="cc_fk" javaType="int"/>
+			<result property="cdName" column="cd_name" javaType="String"/>
+			<result property="cdCost" column="cd_cost" javaType="int"/>
+			<result property="cdLossFlag" column="cd_loss_flag" javaType="boolean"/>
+			<result property="cdLossRate" column="cd_loss_rate" javaType="int"/>
+			<result property="cdCompanyDiagnosis" column="cd_company_diagnosis" javaType="boolean"/>
+			<result property="cdManufacturer" column="cd_manufacturer" javaType="String"/>
+			<result property="cdStoreCompany" column="cd_store_company" javaType="String"/>
+			<result property="cdMeasure" column="cd_measure" javaType="String"/>
+			<result property="cdRemark" column="cd_remark" javaType="String"/>
+			<result property="cdUpdate" column="cd_update" javaType="java.sql.Timestamp"/>
+			<result property="cdRegdate" column="cd_regdate" javaType="java.sql.Date"/>
+		</collection>
+		
+	</resultMap>
+
+	
+	<!-- 원가와 원가 상세사항을 조인하여 단위에 따라 조건식으로 계산하기 -->
+	<select id="selectCostsGroupBYTotalPriceResult" resultType="CostsVO">
+		SELECT cs.cost_name,
+			ROUND(SUM(
+			CASE
+				<![CDATA[
+				WHEN cd.cd_measure = 'kg' AND cd.cd_loss_rate > 0 THEN cs.cost_measure_cal * (cd.cd_cost + cd.cd_cost/cd.cd_loss_rate)/1000
+				]]> 
+			
+				WHEN cd.cd_measure = 'kg' AND cd.cd_loss_rate = 0 THEN cs.cost_measure_cal * (cd.cd_cost)/1000
+		        WHEN cd.cd_measure = 'liter' THEN cs.cost_measure_cal * (cd.cd_cost)/1000
+		        WHEN cd.cd_measure = 'ea' THEN cs.cost_measure_cal * cd.cd_cost
+		        END)) AS total_price,
+		        cs.cost_unique_num,
+		        DATE_FORMAT(cs.cost_regdate, '%Y-%m-%d') AS cost_regdate
+		FROM costs cs
+		JOIN cost_detail cd
+		ON cd.cd_pk = cs.cd_fk
+		GROUP BY cs.cost_name,cs.cost_unique_num, cost_regdate
+	</select>
+	
+	<!-- 원가사항 데이터 넣기, cost_unique_num의 경우 service단에서 삽입시간을 기준으로 넣어주기 예 ) 20190524105201 -->
+	<insert id="insertCostsData" parameterType="CostsVO">
+		INSERT INTO costs(
+			cd_fk,
+			cost_unique_num,
+			cost_name,
+			cost_measure_cal,
+			cost_production_time,
+			cost_update,
+			cost_regdate
+		)
+		VALUES(
+			#{cdFk},
+			#{costUniqueNum},
+			#{costName},
+			#{costMeasureCal},
+			#{costProductionTime},
+			NOW(),
+			NOW()
+		)
+	</insert>
+	
+	<!-- 원가명을 기준으로 데이터 전부 가져오기 -->
+	<select id="selectCostsPkByCostName" resultType="CostsVO" parameterType="OptionsCostsMatchingVO">
+		SELECT 
+			*
+		FROM 
+			costs
+		WHERE 
+			cost_name = #{costName} AND
+			cost_unique_num =#{costUniqueNum}
+	</select>
+	
+	<!-- 원가 별 개수 가져오기 -->
+	<select id="countingCostsGroupByCostName" resultType="int">
+		SELECT 
+			COUNT(inne.cost_name)
+		FROM(
+			SELECT
+				cost_name
+			FROM 
+				costs
+			GROUP BY
+				cost_name
+			) inne
+	</select>
+	
+	<select id="selectCostDetailByCostsData" parameterType="CostsVO" resultMap="costsListResultMap">
+		SELECT
+			*
+		FROM 
+			costs cs
+			JOIN cost_detail cd ON cs.cd_fk = cd.cd_pk
+		WHERE 
+			cs.cost_name = #{costName}
+			AND cs.cost_unique_num = #{costUniqueNum}
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+

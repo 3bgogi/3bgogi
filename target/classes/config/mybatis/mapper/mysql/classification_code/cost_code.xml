@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="classification.code">
+	
+	<select id="selectCostCodeList" resultType="CostCodeVO">
+		SELECT 
+			*
+		FROM 
+			cost_code
+		ORDER BY 
+			cc_code
+	</select>
+	
+	<select id="selectClassificationList" resultType="ClassificationVO">
+		SELECT 
+			cc.cf_pk, cc.cf_code, cc.cf_code_type, COUNT(pro.product_pk) AS cf_product_count
+		FROM 
+			classification cc 
+			LEFT JOIN products pro ON cc.cf_pk = pro.cf_fk
+		GROUP 
+			BY cc.cf_pk, cc.cf_code_type
+		ORDER 
+			BY cc.cf_code
+	</select>
+	
+	<update id="updateCostCode" parameterType="CostCodeVO">
+		UPDATE
+			cost_code
+		SET
+			cc_code = #{ccCode},
+			cc_code_type = #{ccCodeType},
+			cc_carcass_flag = #{ccCarcassFlag},
+			cc_manager = #{ccManager}
+		WHERE
+			cc_pk = #{ccPk}
+	</update>
+	
+	<insert id="insertCostCode" parameterType="CostCodeVO">
+		INSERT INTO
+			cost_code(
+				cc_code,
+				cc_code_type,
+				cc_manager
+			)
+		VALUES(
+			#{ccCode},
+			#{ccCodeType},
+			#{ccManager}
+		)
+	</insert>
+	
+</mapper>
+
+
+
+
+
+
+
+

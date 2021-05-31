@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.config.req_filter_keyword">
+	
+	<insert id="insertReqFilterKeyword" parameterType="ReqFilterKeywordVO">
+		INSERT INTO 
+			req_filter_keyword(
+				rfk_word
+			)
+		VALUES(
+			#{rfkWord}
+		)
+	</insert>
+	
+	<select id="selectAllReqFilterKeywordList" resultType="ReqFilterKeywordVO">
+		SELECT
+			*
+		FROM
+			req_filter_keyword
+	</select>
+	
+	<select id="selectUseReqFilterKeywordList" resultType="ReqFilterKeywordVO">
+		SELECT
+			*
+		FROM
+			req_filter_keyword
+		WHERE
+			rfk_flag = 1
+	</select>
+	
+	<delete id="deleteReqFilterKeywordByPk" parameterType="ReqFilterKeywordVO">
+		DELETE FROM 
+			req_filter_keyword
+		WHERE
+			rfk_pk = #{rfkPk}
+	</delete>
+	
+	<update id="updateReqFilterKeywordUseOrUnuse" parameterType="ReqFilterKeywordVO">
+		UPDATE
+			req_filter_keyword
+		SET
+			rfk_flag = #{rfkFlag}
+		WHERE
+			rfk_pk = #{rfkPk}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+

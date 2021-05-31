@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cost.cost_io">
+	
+	<resultMap id="CostDetailWithCostIoResultmap" type="CostDetailVO">
+		<id property="cdPk" column="cd_pk" javaType="int"/>
+		<result property="ccFk" column="cc_fk" javaType="int"/>
+		<result property="cdName" column="cd_name" javaType="String"/>
+		<result property="cdCost" column="cd_cost" javaType="int"/>
+		<result property="cdLossRate" column="cd_loss_rate" javaType="int"/>
+		<result property="cdLossFlag" column="cd_loss_flag" javaType="boolean"/>
+		<result property="cdCompanyDiagnosis" column="cd_company_diagnosis" javaType="boolean"/>
+		<result property="cdManufacturer" column="cd_manufacturer" javaType="String"/>
+		<result property="cdStoreCompany" column="cd_store_company" javaType="String"/>
+		<result property="cdMeasure" column="cd_measure" javaType="String"/>
+		<result property="cdRemark" column="cd_remark" javaType="String"/>
+		<result property="cdUpdate" column="cd_update" javaType="java.sql.Timestamp"/>
+		<result property="cdRegdate" column="cd_regdate" javaType="java.sql.Date"/>
+		
+		<!-- 원가, 입출고 합산-->
+		<collection property="costIoVOList" ofType="CostIoVO">
+			<id property="ciPk" column="ci_pk" javaType="int"/>
+			<result property="cdFk" column="cd_fk" javaType="int"/>
+			<result property="ciPrice" column="ci_price" javaType="int"/>
+			<result property="ciWeight" column="ci_weight" javaType="int"/>
+			<result property="ciOutputWeight" column="ci_output_weight" javaType="int"/>
+			<result property="ciOutputQty" column="ci_output_qty" javaType="int"/>
+			<result property="ciOutputLastTime" column="ci_output_last_time" javaType="java.sql.Date"/>
+			<result property="ciOutputFlag" column="ci_output_flag" javaType="boolean"/>
+			<result property="ciAnimalProdTraceNum" column="ci_animal_prod_trace_num" javaType="String"/>
+			<result property="ciLevel" column="ci_level" javaType="String"/>
+			<result property="ciAbattoir" column="ci_abattoir" javaType="String"/>
+			<result property="ciCountryOfOrigin" column="ci_country_of_origin" javaType="String"/>
+			<result property="ciItemsManufNum" column="ci_items_manuf_num" javaType="String"/>
+			<result property="ciMarblingLevel" column="ci_marbling_level" javaType="String"/>
+			<result property="ciRegdate" column="ci_regdate" javaType="java.sql.Timestamp"/>
+		</collection>
+	</resultMap>
+	
+	<!-- 상품 입고 할 때에 데이터 넣어주기 -->
+	<insert id="insertCostInputData" parameterType="CostIoVO">
+		INSERT INTO cost_io(
+			cd_fk, 
+			cil_fk,
+			ci_price, 
+			ci_weight, 
+			ci_animal_prod_trace_num, 
+			ci_abattoir, 
+			ci_country_of_origin, 
+			ci_level, 
+			ci_marbling_level,
+			ci_items_manuf_num)
+		VALUES(
+			#{cdFk},
+			#{cilFk},
+			#{ciPrice},
+			#{ciWeight},
+			#{ciAnimalProdTraceNum},
+			#{ciAbattoir},
+			#{ciCountryOfOrigin},
+			#{ciLevel},
+			#{ciMarblingLevel},
+			#{ciItemsManufNum}
+			)
+	</insert> 
+	
+	<!-- 상품 입출고 데이터 전부 가져오기 -->
+	<select id="selectCostIoData" parameterType="CostIoVO" resultType="CostIoVO">
+		SELECT
+			CONCAT(cc.cc_code_type, ' ', cd.cd_name) AS cost_detail_name,
+			ci.*
+		FROM
+			cost_io ci
+			INNER JOIN cost_detail cd	ON cd.cd_pk = ci.cd_fk
+            INNER JOIN cost_code cc 	ON cc.cc_pk = cd.cc_fk
+        WHERE
+			ci_pk = #{ciPk}
+	</select>
+	
+	<!-- 상품 입출고 데이터 수정하기 -->
+	<update id="updateCostIoData" parameterType="CostIoVO">
+		UPDATE
+			cost_io
+		SET
+			ci_price = #{ciPrice},
+			ci_weight = #{ciWeight},
+			ci_output_weight = #{ciOutputWeight},
+			ci_level = #{ciLevel},
+			ci_items_manuf_num = #{ciItemsManufNum},
+			ci_abattoir = #{ciAbattoir},
+			ci_marbling_level = #{ciMarblingLevel},
+			ci_country_of_origin = #{ciCountryOfOrigin}
+		WHERE
+			ci_pk = #{ciPk}
+	</update>
+	
+	<!-- 상품 입고할 경우 원가사항 가격 변동시키기 -->
+	<update id="updateCostDetailPrice" parameterType="CostIoVO">
+		UPDATE
+			cost_detail
+		SET
+			cd_cost = #{ciPrice}
+		WHERE
+			cd_pk = #{cdFk}
+	</update>
+	
+	
+	<!-- 상품 입출고 데이터 삭제하기 -->
+	<delete id="deleteCostIo" parameterType="CostIoVO">
+		DELETE FROM 
+			cost_io
+		WHERE
+			ci_pk = #{ciPk}
+	</delete>
+	
+	<!-- 출고되는 상품 테스트로 생고기계열 무게, 개수 계산해서 가져오기 -->
+	<select id="selectCostIOCanOutputProductList" parameterType="OrderSearchVO" resultType="CostIoVO">
+			SELECT
+		        INNE.cd_pk 																AS cd_fk,
+		        SUM(INNE.output_weight) 												AS ci_output_weight,
+				SUM(INNE.or_amount) 													AS ci_output_qty
+		        
+			FROM
+		        (SELECT
+					SUM(OUTPUT.or_amount * OUTPUT.om_option_amount) 					AS or_amount,
+		            OUTPUT.product_name 												AS or_product,
+					OUTPUT.eos_seq 														AS or_user_column3,
+		            SUM(OUTPUT.or_amount * OUTPUT.om_option_amount * OUTPUT.ocm_each )  AS output_weight,
+		            OUTPUT.cd_pk
+			    FROM
+			    (
+			        SELECT
+						od.or_pk,
+						eo.eos_seq,
+						od.ss_fk,
+						od.or_product_option,
+						od.or_amount,
+			            od.or_option_fk,
+			            pm.pm_pk,
+						pro.product_pk,
+						pro.cf_fk,
+						pro.product_name,
+						pro.product_flag,
+						om.om_pk,
+						om.om_store_option_name,
+						om.om_option_amount,
+						op.option_pk,
+			            op.option_name,
+			            op.option_barcode_number1,
+			            ocm.ocm_gram,
+						ocm.ocm_production_divide,
+						ocm.ocm_each,
+						cs.cost_name,
+						cs.cost_unique_num,
+		                cd.cd_pk
+					FROM
+						orders od
+						INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+						INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+						INNER JOIN options op ON om.option_fk = op.option_pk
+						INNER JOIN excel_order_seq eo ON op.eo_fk = eo.eos_pk
+						INNER JOIN options_costs_matching ocm ON ocm.option_fk = op.option_pk
+						INNER JOIN products pro ON pro.product_pk = op.product_fk
+						INNER JOIN costs cs ON cs.cost_pk = ocm.cost_fk
+						INNER JOIN cost_detail cd ON cs.cd_fk = cd.cd_pk
+					WHERE 
+			            od.or_cancled_flag = 0
+			            AND eo.eos_pk IN 
+			            	<foreach collection="searchKeywordNumList" item="numList" index="index" separator="," open="(" close=")">
+				            	#{numList}
+				            </foreach>
+				        AND od.or_serial_special_number IN
+				            <foreach collection="orSerialSpecialNumberList" item="specialNumber" index="index" separator="," open="(" close=")">
+			                    #{specialNumber}
+			            	</foreach>
+					GROUP BY
+						od.or_pk,
+						eo.eos_seq,
+						od.ss_fk,
+						od.or_product_option,
+						od.or_amount,
+			            pm.pm_pk,
+			            om.om_pk,
+						pro.product_pk,
+						pro.cf_fk,
+						pro.product_name,
+						pro.product_flag,
+						om.om_store_option_name,
+						om.om_option_amount,
+						op.option_pk,
+			            op.option_name,
+			            op.option_barcode_number1,
+			            ocm.ocm_gram,
+						ocm.ocm_production_divide,
+						ocm.ocm_each,
+						cs.cost_name,
+						cs.cost_unique_num,
+		                cd.cd_pk
+					) OUTPUT
+		        GROUP BY
+		        	OUTPUT.eos_seq,
+					OUTPUT.product_name,
+		            OUTPUT.ocm_each,
+		            OUTPUT.cd_pk
+				ORDER BY
+					OUTPUT.eos_seq
+				) INNE
+			GROUP BY
+				INNE.or_product,
+		        INNE.or_user_column3,
+		        INNE.cd_pk
+			ORDER BY
+				or_user_column3,
+		        or_product DESC
+	</select>
+	
+	<select id="selectCostInputList" parameterType="OrderSearchVO" resultMap="CostDetailWithCostIoResultmap">
+		SELECT
+			cd.cd_pk,
+			cd.cd_name,
+		    ci.ci_pk,
+		    ci.ci_price,
+		    ci.ci_weight,
+		    ci.ci_animal_prod_trace_num,
+		    ci.ci_abattoir,
+		    ci.ci_country_of_origin,
+		    ci.ci_level,
+		    ci.ci_items_manuf_num,
+		    ci.ci_regdate,
+		    ci.ci_output_flag
+		FROM
+			cost_detail cd
+		    INNER JOIN cost_io ci ON cd.cd_pk = ci.cd_fk
+		GROUP BY
+			cd.cd_pk,
+			cd.cd_name,
+		    ci.ci_pk,
+		    ci.ci_price,
+		    ci.ci_weight,
+		    ci.ci_animal_prod_trace_num,
+		    ci.ci_abattoir,
+		    ci.ci_country_of_origin,
+		    ci.ci_level,
+		    ci.ci_items_manuf_num,
+		    ci.ci_regdate,
+		    ci.ci_output_flag
+		ORDER BY
+			ci.ci_regdate DESC
+		limit #{minNum}, #{maxNum}
+	</select>
+	
+	
+	<!-- 원가 코드가져오기 -->
+	<select id="selectCostDetailCode" resultType="CostDetailVO">
+		SELECT
+			CONCAT(cc.cc_code_type, ' ', cd.cd_name) AS cd_name,
+			cd.cd_pk
+		FROM
+			cost_detail cd
+			INNER JOIN cost_code cc 	ON cc.cc_pk = cd.cc_fk
+		WHERE
+			cc_carcass_flag = 1
+	</select>
+	
+	<update id="updateCostIoOutputFlagAllZero" parameterType="CostIoVO">
+		UPDATE
+			cost_io
+		SET
+			ci_output_flag = 0
+		WHERE
+			cd_fk = #{cdFk}
+	</update>
+	
+	<update id="updateCostIoOutputFlagPosib" parameterType="CostIoVO">
+		UPDATE
+			cost_io
+		SET
+			ci_output_flag = 1
+		WHERE
+			ci_pk = #{ciPk}
+	</update>
+	
+	
+</mapper>
+
+
+
+
+
+
+
+

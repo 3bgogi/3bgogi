@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="classification.code.excel_order_seq">
+
+	<select id="selectExcelOrderSeqCodeList" resultType="ExcelOrderSeqVO">
+		SELECT
+			 *
+		FROM 
+			excel_order_seq
+		ORDER BY  
+			eos_seq ASC
+	</select>
+	
+	<update id="updateExcelOrderSeq" parameterType="ExcelOrderSeqVO">
+		UPDATE
+			excel_order_seq
+		SET
+			eos_seq = #{eosSeq},
+			eos_location = #{eosLocation},
+			eos_excel_total_qty_flag = #{eosExcelTotalQtyFlag}
+		WHERE
+			eos_pk = #{eosPk}
+	</update>
+	
+	<insert id="insertExcelOrderSeq" parameterType="ExcelOrderSeqVO">
+		INSERT INTO
+			excel_order_seq(
+				eos_seq
+				eos_location
+				eos_combine_flag,
+				eos_begit_flag
+			)
+		VALUES(
+			#{eosSeq},
+			#{eosLocation},
+			0,
+			0
+		)
+	</insert>
+	
+</mapper>
+
+
+
+
+
+
+
+

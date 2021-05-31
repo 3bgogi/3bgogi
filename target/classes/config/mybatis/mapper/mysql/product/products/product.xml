@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="products.product">
+
+	<resultMap type="com.gogi.proj.product.products.vo.ProductsVO" id="productModel">
+		<id property="productPk" column="product_pk" javaType="int"/>
+		<result property="cfFk" column="cf_fk" javaType="int"/>
+		<result property="productName" column="product_name" javaType="String"/>
+		<result property="productFlag" column="product_flag" javaType="boolean"/>
+		<result property="productRemark" column="product_remark" javaType="String"/>
+		<result property="productMemo1" column="product_memo1" javaType="String"/>
+		<result property="productMemo2" column="product_memo2" javaType="String"/>
+		<result property="productMemo3" column="product_memo3" javaType="String"/>
+		<result property="productMemo4" column="product_memo4" javaType="String"/>
+		<result property="productMemo5" column="product_memo5" javaType="String"/>
+		<result property="productMemo6" column="product_memo6" javaType="String"/>
+		<result property="productThumbnail1" column="product_thumbnail1" javaType="String"/>
+		<result property="productThumbnail2" column="product_thumbnail2" javaType="String"/>
+		<result property="productRegdate" column="product_regdate" javaType="java.sql.Date"/>
+		<collection property="optionVOList"  ofType="OptionsVO">
+			<id property="optionPk" column="option_pk" javaType="int"/>
+			<result property="optionName" column="option_name" javaType="String"/>
+			<result property="optionFlag" column="option_flag" javaType="boolean"/>
+			<result property="optionCost" column="option_cost" javaType="int"/>
+			<result property="optionStock" column="option_stock" javaType="int"/>
+			<result property="optionStockFlag" column="option_stock_flag" javaType="boolean"/>
+			<result property="optionCostFlag" column="option_cost_flag" javaType="boolean"/>
+			<result property="optionRegdate" column="option_regdate" javaType="java.sql.Date"/>
+		</collection>
+	</resultMap>
+	
+	<update id="updateProducts" parameterType="ProductsVO">
+		UPDATE
+			products
+		SET
+			product_name = #{productName},
+			product_flag = #{productFlag},
+			cf_fk		 = #{cfFk},
+			product_remark = #{productRemark},
+			product_memo1 = #{productMemo1},
+			product_memo2 = #{productMemo2},
+			product_memo3 = #{productMemo3},
+			product_memo4 = #{productMemo4},
+			product_memo5 = #{productMemo5},
+			product_memo6 = #{productMemo6},
+			product_thumbnail1 = #{productThumbnail1},
+			product_thumbnail2 = #{productThumbnail2}
+		WHERE
+			product_pk = #{productPk}
+	</update>
+	
+	<select id="selectDetailProductWithOptionByProductPk" resultMap="productModel" parameterType="int">
+		SELECT
+			pro.product_pk,
+			pro.cf_fk,
+			pro.product_name,
+			pro.product_flag,
+			pro.product_remark,
+			pro.product_memo1,
+			pro.product_memo2,
+			pro.product_memo3,
+			pro.product_memo4,
+			pro.product_memo5,
+			pro.product_memo6,
+			pro.product_thumbnail1,
+			pro.product_thumbnail2,
+			pro.product_regdate,
+			op.option_name,
+			op.option_pk,
+			op.option_flag,
+			IF(
+			op.option_cost_flag = true,
+			op.option_cost,
+			sum( ( ( (cd.cd_cost+(cd.cd_cost*cd.cd_loss_rate/100) ) / IF(cd.cd_measure = 'ea' , 1, 1000) ) * cs.cost_measure_cal ) / ocm.ocm_production_divide * ocm.ocm_each)
+			) AS option_cost
+		FROM
+			products pro
+			LEFT JOIN options op ON pro.product_pk = op.product_fk
+			LEFT JOIN options_costs_matching ocm ON op.option_pk = ocm.option_fk
+			LEFT JOIN costs cs ON cs.cost_pk = ocm.cost_fk
+			LEFT JOIN cost_detail cd ON cs.cd_fk = cd.cd_pk
+		WHERE
+		 pro.product_pk = #{productPk}
+		GROUP BY
+			pro.product_pk,
+			pro.cf_fk,
+			pro.product_name,
+			pro.product_flag,
+			pro.product_remark,
+			pro.product_memo1,
+			pro.product_memo2,
+			pro.product_memo3,
+			pro.product_memo4,
+			pro.product_memo5,
+			pro.product_memo6,
+			pro.product_thumbnail1,
+			pro.product_thumbnail2,
+			pro.product_regdate,
+			op.option_name,
+			op.option_cost_flag,
+			op.option_flag,
+			op.option_pk
+	</select>
+	
+	<select id="selectProductOptionsByCodeAndName" resultMap="productModel" parameterType="ProductsVO">
+		SELECT 
+			pro.*, 
+			opt.option_pk, 
+			opt.option_name, 
+			opt.option_stock_flag, 
+			opt.option_stock, 
+			opt.option_cost_flag, 
+			opt.option_regdate
+		FROM
+			products pro 
+			LEFT JOIN options opt 
+			ON pro.product_pk = opt.product_fk
+		WHERE 
+			CONCAT(pro.product_name,' ', opt.option_name) LIKE CONCAT('%',#{productName},'%')
+			AND opt.option_flag = 1
+		<if test="cfFk != 0">
+			AND cf_fk = #{cfFk}
+		</if>
+		ORDER BY 
+			cf_fk,
+			pro.product_name DESC,
+			opt.option_name DESC
+	</select>
+	
+	<select id="selectProductList" resultType="ProductsVO">
+		SELECT pro.product_pk, pro.product_name, pro.product_regdate, pro.product_memo1, count(opt.option_pk) AS product_option_count
+		FROM
+			products pro 
+		LEFT JOIN options opt ON pro.product_pk = opt.product_fk
+		LEFT JOIN classification cf ON pro.cf_fk = cf.cf_pk
+		GROUP BY 
+			pro.product_pk, pro.product_name, pro.product_regdate, pro.product_memo1
+		ORDER BY 
+			cf.cf_code,
+			pro.product_name DESC
+	</select>
+	
+	<select id="selectProductListByCfFk" resultType="ProductsVO" parameterType="int">
+		SELECT pro.product_pk, pro.product_name, pro.product_regdate, pro.product_memo1, count(opt.option_pk) AS product_option_count
+		FROM
+			products pro 
+		LEFT JOIN options opt ON pro.product_pk = opt.product_fk
+		LEFT JOIN classification cf ON pro.cf_fk = cf.cf_pk
+		<if test="value gt 0">
+			WHERE cf_fk = #{cfFk}		
+		</if>
+		GROUP BY 
+			pro.product_pk, pro.product_name, pro.product_regdate, pro.product_memo1
+		ORDER BY 
+			cf.cf_code,
+			pro.product_name DESC
+	</select>
+	
+	<insert id="insertProducts" useGeneratedKeys="true" keyProperty="productPk" parameterType="ProductsVO">
+		INSERT INTO products(cf_fk, product_name, product_flag, product_remark, product_memo1, 
+			product_memo2, product_memo3, product_memo4, product_memo5, product_memo6, product_thumbnail1, product_thumbnail2)
+		VALUES(#{cfFk}, #{productName}, #{productFlag}, #{productRemark}, #{productMemo1}, #{productMemo2}, #{productMemo3}, #{productMemo4}, #{productMemo5}, #{productMemo6},
+			#{productThumbnail1}, #{productThumbnail2})
+	</insert>
+	
+	<select id="selectProductCountByCfFk" resultType="int" parameterType="int">
+		SELECT COUNT(product_pk) AS productCount
+		FROM products
+		<if test="value gt 0">
+			WHERE cf_fk = #{cfFk}		
+		</if>
+	</select>
+	
+	<select id="selectProductByPk" parameterType="int" resultType="ProductsVO">
+		SELECT *
+		FROM products
+		WHERE product_pk = #{productPk}
+	</select>
+	
+	<select id="selectProductOptionList" resultType="ProductOptionVO">
+		SELECT
+			product_pk,
+			product_name,
+			option_pk,
+			option_name
+		FROM
+			products pro
+			INNER JOIN options op ON pro.product_pk = op.product_fk
+		ORDER BY
+			op.eo_fk,
+			product_name,
+			option_name
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

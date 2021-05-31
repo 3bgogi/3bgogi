@@ -1,0 +1,968 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="analytics.customer">
+
+	<resultMap id="localAreaResultMap" type="LocalAreaVO">
+		<id property="cfPk" column="cf_pk" javaType="int"/>
+		<result property="cfCodeType" column="cf_code_type" javaType="String"/>
+		
+		<collection property="paList" ofType="ProductAnalyVO">
+			<id property="products" column="products" javaType="String"/>
+			<result property="totalAmount" column="total_amount" javaType="int"/>
+			<result property="totalPrice" column="total_price" javaType="int"/>
+		</collection>
+	</resultMap>
+	
+	
+	<!-- 7일간 매출  -->
+	<select id="sevendaysTotalSalesWithoutCommision" resultType="OrdersVO" parameterType="OrderSearchVO">
+		SELECT 
+			DATE_FORMAT(or_sending_deadline, '%Y-%m-%d') AS or_sending_deadline,
+			SUM(or_total_price) AS or_total_price
+		FROM 
+			orders 
+		WHERE
+			<![CDATA[			
+				or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+				AND or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+			]]> 
+		GROUP BY
+			or_sending_deadline
+		ORDER BY 
+			or_sending_deadline ASC
+	</select>
+	
+	<!-- 7일간 매출 수수료 제외 -->
+	<select id="sevendaysTotalSales" resultType="OrdersVO" parameterType="OrderSearchVO">
+		SELECT
+			DATE_FORMAT(or_sending_deadline, '%Y-%m-%d') AS or_sending_deadline,
+			SUM(or_total_price+or_payment_commision+or_another_payment_commision) AS or_total_price
+		FROM 
+			orders 
+		WHERE 
+			<![CDATA[			
+				or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+				AND or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+			]]> 
+		GROUP BY 
+			or_sending_deadline
+		ORDER BY 
+			or_sending_deadline ASC
+	</select>
+	
+	<!-- 7일간 발송 건  -->
+	<select id="sevendaysSendingOut" resultType="OrdersVO" parameterType="OrderSearchVO">
+		SELECT 
+			inne.or_sending_deadline,
+			COUNT(inne.or_serial_special_number) AS total_order_count
+		FROM(    
+			SELECT 
+				or_serial_special_number,
+				DATE_FORMAT(or_sending_deadline, '%Y-%m-%d') AS or_sending_deadline
+			FROM 
+				orders 
+			WHERE 
+				<![CDATA[			
+					or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -7 DAY), '%Y-%m-%d')
+				AND or_sending_deadline <= DATE_FORMAT(NOW(), '%Y-%m-%d')
+				]]> 
+			GROUP BY
+				or_serial_special_number,
+				or_sending_deadline
+			) inne
+		GROUP BY 
+			inne.or_sending_deadline
+		ORDER BY 
+			or_sending_deadline ASC
+	</select>
+	
+	<select id="sixMonthTotalSales" resultType="OrdersVO" parameterType="OrderSearchVO">
+		SELECT
+			inne.or_sending_deadline AS or_request,
+		    SUM(inne.or_total_price) AS or_total_price
+		FROM
+			(
+			SELECT 
+				DATE_FORMAT(or_sending_deadline, '%Y-%m') AS or_sending_deadline,
+				SUM(or_total_price+or_payment_commision+or_another_payment_commision) AS or_total_price
+			FROM 
+				orders 
+			WHERE 
+				<![CDATA[
+					or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW() , INTERVAL -5 MONTH), '%Y-%m')
+				]]>
+			GROUP BY
+				or_sending_deadline
+			ORDER BY 
+				or_sending_deadline ASC
+			) inne
+		GROUP BY
+			inne.or_sending_deadline
+	</select>
+	
+	<select id="selectSevenDaysOutPutProductQty" resultType="OrdersVO">
+			SELECT
+				analy.or_sending_deadline,
+				SUM(analy.or_amount * analy.om_option_amount) AS or_amount
+			FROM(
+		        SELECT
+					od.or_pk,
+					od.ss_fk,
+					od.or_product,
+					od.or_product_option,
+					od.or_amount,
+		            od.or_product_fk,
+		            od.or_option_fk,
+		            DATE_FORMAT(od.or_sending_deadline, '%Y-%m-%d') as or_sending_deadline,
+		            pm.pm_pk,
+					om.om_pk,
+					om.om_store_option_name,
+					om.om_option_amount,
+					op.option_pk,
+		            op.option_name
+				FROM
+					orders od
+					INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+					INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+					INNER JOIN options op ON om.option_fk = op.option_pk
+				WHERE
+					<![CDATA[
+						od.or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -12 DAY), '%Y-%m-%d')
+                        AND od.or_sending_deadline < DATE_FORMAT(NOW(), '%Y-%m-%d')
+						AND od.or_cancled_flag = 0
+					]]>
+				GROUP BY
+					od.or_pk,
+					od.ss_fk,
+					od.or_product,
+					od.or_product_option,
+					od.or_amount,
+		            od.or_product_fk,
+		            od.or_option_fk,
+		            or_sending_deadline,
+		            pm.pm_pk,
+		            om.om_pk,
+					om.om_store_option_name,
+					om.om_option_amount,
+					op.option_pk,
+		            op.option_name
+				) analy
+			GROUP BY 
+				analy.or_sending_deadline
+			ORDER BY
+				analy.or_sending_deadline ASC
+			LIMIT 0, 7
+	</select>
+	
+	<select id="selectAnalyDataList" resultType="java.util.LinkedHashMap" parameterType="OrderSearchVO">
+		
+					SELECT
+                        ${groupList}
+						<if test="totalList != null">
+							,${totalList}
+						</if>
+					FROM
+						(
+							SELECT
+								od.or_serial_special_number,
+								 IF( od.or_buyer_id IS NULL,
+								'-',
+								od.or_buyer_id) AS or_buyer_id,
+                                od.or_product,
+                                od.or_product_option,
+                                 IF( od.or_inflow_route IS NULL,
+								'-',
+								od.or_inflow_route) AS or_inflow_route,
+								 IF( od.or_payment_type IS NULL,
+								'-',
+								od.or_payment_type) AS or_payment_type,
+								 IF( od.or_payment_position_type IS NULL,
+								'-',
+								od.or_payment_position_type) AS or_payment_position_type,
+							    ss.ss_name,
+							    od.or_buyer_name,
+							    od.or_buyer_contract_number1,
+							    od.or_receiver_name,
+							    od.or_pk,
+							    od.or_total_price,
+							    od.or_total_cost,
+							    od.or_sending_deadline,
+							    od.or_sending_day,
+							    od.or_cancled_flag,
+							    od.or_refunds,
+								CASE
+									WHEN od.or_cancled_flag = 0
+									THEN
+										SUM(od.or_amount)
+								END AS or_amount,
+								CASE
+									WHEN od.or_cancled_flag = 1
+									THEN
+										SUM(od.or_amount)
+								END AS or_cancled_qty
+							FROM
+								orders od 
+							    INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+							<trim prefix="WHERE" prefixOverrides="AND |OR ">
+								od.or_cancled_flag = 0
+									AND ss_fk IN
+									<foreach collection="ssPkList" item="storeList" open="(" close=")" separator=",">
+										#{storeList}
+									</foreach>
+									<if test="datePeriod == 0">
+										<![CDATA[
+											AND ${dateType} >= DATE_FORMAT(NOW(), '%Y-%m-%d')
+											AND  ${dateType} < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
+										]]>
+									</if>
+									<if test="datePeriod == 1">
+										<![CDATA[
+											AND ${dateType} >= DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'),INTERVAL -7 DAY)
+										]]>
+									</if>
+									<if test="datePeriod == 2">
+										<![CDATA[
+											AND ${dateType} >= #{dateStart} 
+											AND ${dateType} < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+										]]>
+									</if>
+
+									<if test="deliveryInvoiceFlag == 1">
+										AND (or_delivery_invoice_number IS NOT NULL AND or_delivery_invoice_number != '')
+									</if>
+									<if test="deliveryInvoiceFlag == 2">
+										AND (or_delivery_invoice_number IS NULL OR or_delivery_invoice_number = '')
+									</if>
+									<if test="reservationType == 1">
+										<![CDATA[
+										AND DATE_FORMAT(od.or_sending_deadline, '%Y-%m-%d') > DATE_FORMAT(NOW(), '%Y-%m-%d')
+										]]>
+									</if>
+									<if test="reservationType == 2">
+										<![CDATA[
+										AND DATE_FORMAT(od.or_sending_deadline, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+										]]>
+									</if>
+									
+									<if test="searchKeyword != ''">									
+										<if test="searchType == 'buyerName'">
+											AND or_buyer_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverName'">
+											AND or_receiver_name LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'buyerNum'">
+											AND or_buyer_contract_number1 LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverNum'">
+											AND or_receiver_contract_number1 LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'orderNum'">
+											AND or_order_number LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'invoiceNum'">
+											AND or_delivery_invoice_number LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'receiverAddress'">
+											AND (or_shipping_address_detail LIKE CONCAT('%',#{searchKeyword},'%') OR or_shipping_address LIKE CONCAT('%',#{searchKeyword},'%') )
+										</if>
+										<if test="searchType == 'deliveryMessage'">
+											AND or_delivery_message LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'orderProductNum'">
+											AND or_product_order_number LIKE CONCAT('%',#{searchKeyword},'%')
+										</if>
+										<if test="searchType == 'storeProduct'">
+											AND ( or_product LIKE CONCAT('%',#{searchKeyword},'%') OR or_product_option LIKE CONCAT('%',#{searchKeyword},'%') )
+										</if>
+									</if>
+								</trim>
+							GROUP BY
+								od.or_serial_special_number,
+								od.or_buyer_id,
+                                od.or_product,
+                                od.or_product_option,
+                                od.or_inflow_route,
+                                od.or_payment_type,
+                                od.or_payment_position_type,
+							    ss.ss_name,
+							    od.or_buyer_name,
+							    od.or_receiver_name,
+		                        od.or_pk,
+		                        or_amount,
+							    od.or_total_price,
+							    od.or_total_cost,
+							    od.or_sending_deadline,
+							    od.or_sending_day,
+							    od.or_cancled_flag,
+							    od.or_refunds
+							ORDER BY
+								od.or_settlement_day DESC
+							) inne
+						GROUP BY
+							${groupList}
+
+	</select>
+	<select id="selectReservProductQty" parameterType="OrderSearchVO" resultType="java.util.LinkedHashMap">
+					SELECT
+                        inne.product_name,
+                        inne.option_name,
+                        inne.cf_code,
+                        SUM(inne.or_amount * inne.om_option_amount) AS qty
+					FROM
+						(
+							SELECT
+								od.or_serial_special_number,
+								 IF( od.or_buyer_id IS NULL,
+								'-',
+								od.or_buyer_id) AS or_buyer_id,
+                                od.or_product,
+                                od.or_product_option,
+                                 IF( od.or_inflow_route IS NULL,
+								'-',
+								od.or_inflow_route) AS or_inflow_route,
+								 IF( od.or_payment_type IS NULL,
+								'-',
+								od.or_payment_type) AS or_payment_type,
+								 IF( od.or_payment_position_type IS NULL,
+								'-',
+								od.or_payment_position_type) AS or_payment_position_type,
+							    ss.ss_name,
+							    od.or_buyer_name,
+							    od.or_buyer_contract_number1,
+							    od.or_receiver_name,
+							    od.or_pk,
+							    od.or_total_price,
+							    od.or_total_cost,
+							    od.or_sending_deadline,
+							    od.or_sending_day,
+							    od.or_cancled_flag,
+							    od.or_refunds,
+							    op.option_name,
+							    pro.product_name,
+							    om.om_option_amount,
+							    cf.cf_code,
+							    od.or_amount
+							FROM
+								orders od 
+							    INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+							    INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+								INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+								INNER JOIN options op ON om.option_fk = op.option_pk
+								INNER JOIN products pro ON pro.product_pk = op.product_fk
+								INNER JOIN classification cf ON pro.cf_fk = cf.cf_pk
+							WHERE
+								od.or_sending_deadline IN 
+								<foreach item="item" collection="searchKeywordList" open="(" separator="," close=")">
+								    #{item}
+								</foreach>
+								AND od.or_cancled_flag = 0
+								
+							GROUP BY
+								od.or_serial_special_number,
+								od.or_buyer_id,
+                                od.or_product,
+                                od.or_product_option,
+                                od.or_inflow_route,
+                                od.or_payment_type,
+                                od.or_payment_position_type,
+							    ss.ss_name,
+							    od.or_buyer_name,
+							    od.or_receiver_name,
+		                        od.or_pk,
+		                        or_amount,
+							    od.or_total_price,
+							    od.or_total_cost,
+							    od.or_sending_deadline,
+							    od.or_sending_day,
+							    om.om_option_amount,
+							    op.option_name,
+							    pro.product_name,
+							    cf.cf_code
+							ORDER BY
+								od.or_settlement_day DESC
+							) inne
+						GROUP BY
+							inne.product_name,
+							inne.option_name,
+							inne.cf_code
+						ORDER BY
+							inne.cf_code ASC,
+							qty DESC
+							
+	</select>
+	
+	<select id="selectReservProductQtyInMonth" parameterType="DatesVO" resultType="java.util.LinkedHashMap">
+					SELECT
+                        or_sending_deadline AS date_end,
+                        SUM(inne.or_amount * inne.om_option_amount) AS max_num
+					FROM
+						(
+							SELECT
+								od.or_serial_special_number,
+								 IF( od.or_buyer_id IS NULL,
+								'-',
+								od.or_buyer_id) AS or_buyer_id,
+                                od.or_product,
+                                od.or_product_option,
+                                 IF( od.or_inflow_route IS NULL,
+								'-',
+								od.or_inflow_route) AS or_inflow_route,
+								 IF( od.or_payment_type IS NULL,
+								'-',
+								od.or_payment_type) AS or_payment_type,
+								 IF( od.or_payment_position_type IS NULL,
+								'-',
+								od.or_payment_position_type) AS or_payment_position_type,
+							    ss.ss_name,
+							    od.or_buyer_name,
+							    od.or_buyer_contract_number1,
+							    od.or_receiver_name,
+							    od.or_pk,
+							    od.or_total_price,
+							    od.or_total_cost,
+							    od.or_sending_deadline,
+							    od.or_sending_day,
+							    od.or_cancled_flag,
+							    od.or_refunds,
+							    op.option_name,
+							    pro.product_name,
+							    om.om_option_amount,
+								CASE
+									WHEN od.or_cancled_flag = 0
+									THEN
+										SUM(od.or_amount)
+								END AS or_amount,
+								CASE
+									WHEN od.or_cancled_flag = 1
+									THEN
+										SUM(od.or_amount)
+								END AS or_cancled_qty
+							FROM
+								orders od 
+							    INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+							    INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+								INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+								INNER JOIN options op ON om.option_fk = op.option_pk
+								INNER JOIN products pro ON pro.product_pk = op.product_fk
+							WHERE
+								or_sending_deadline > NOW()
+                                AND DATE_FORMAT(or_sending_deadline, '%Y-%m') = CONCAT(#{formatYear}, '-',#{formatMonth}) 
+							GROUP BY
+								od.or_serial_special_number,
+								od.or_buyer_id,
+                                od.or_product,
+                                od.or_product_option,
+                                od.or_inflow_route,
+                                od.or_payment_type,
+                                od.or_payment_position_type,
+							    ss.ss_name,
+							    od.or_buyer_name,
+							    od.or_receiver_name,
+		                        od.or_pk,
+		                        or_amount,
+							    od.or_total_price,
+							    od.or_total_cost,
+							    od.or_sending_deadline,
+							    od.or_sending_day,
+							    od.or_cancled_flag,
+							    od.or_refunds,
+							    om.om_option_amount,
+							    op.option_name,
+							    pro.product_name
+							ORDER BY
+								od.or_settlement_day DESC
+							) inne
+						GROUP BY
+							or_sending_deadline
+	</select>
+	
+	<select id="selectTotalSalesByDates" parameterType="OrderSearchVO" resultType="OrdersVO">
+		SELECT
+		    inne.ss_name,
+		    COUNT(inne.or_serial_special_number) AS pm_fk,
+		    SUM(inne.or_delivery_price) AS or_delivery_price,
+			SUM(inne.or_delivery_discount_price) AS or_delivery_discount_price,
+		    ( SUM(inne.total_price) - ( SUM(inne.total_price) * inne.ss_commission / 100 ) ) AS or_total_price 
+		FROM
+			(
+			SELECT 
+				ss.ss_name,
+		        ss.ss_commission,
+				od.or_serial_special_number,
+				<![CDATA[
+					SUM(
+						if(or_refunds > 0,
+			            
+						-((or_total_price+
+			            or_payment_commision+
+			            or_another_payment_commision) / or_amount) * or_refunds,
+			            
+						or_total_price+
+			            or_payment_commision+
+			            or_another_payment_commision
+			            )
+					)as  total_price, 
+				]]>
+		        od.or_delivery_price,
+		        od.or_delivery_discount_price
+		        
+			FROM
+				orders od
+				INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+			WHERE 
+				<![CDATA[				
+					or_sending_deadline >= #{dateStart}
+					AND or_sending_deadline < DATE_ADD(#{dateEnd}, INTERVAL 1 DAY) 
+				]]>
+				
+				AND or_cancled_flag = 0
+			GROUP BY
+				ss.ss_name,
+		        ss.ss_commission,
+				od.or_serial_special_number,
+		        od.or_delivery_price,
+		        od.or_delivery_discount_price
+			) inne
+		GROUP BY
+			inne.ss_name, inne.ss_commission
+	</select>
+	
+	<select id="selectCancledSalesByDates" parameterType="OrderSearchVO" resultType="OrdersVO">
+		SELECT
+		    inne.ss_name,
+		    COUNT(inne.or_serial_special_number) AS pm_fk,
+		    SUM(inne.or_delivery_price) AS or_delivery_price,
+			SUM(inne.or_delivery_discount_price) AS or_delivery_discount_price,
+		    SUM(inne.total_price) AS or_total_price 
+		FROM
+			(
+			SELECT 
+				ss.ss_name,
+		        ss.ss_commission,
+				od.or_serial_special_number,
+				SUM(
+					or_total_price+
+		            or_payment_commision+
+		            or_another_payment_commision
+				)as  total_price, 
+		        od.or_delivery_price,
+		        od.or_delivery_discount_price
+		        
+			FROM
+				orders od
+				INNER JOIN store_section ss ON od.ss_fk = ss.ss_pk
+			WHERE 
+				<![CDATA[				
+					or_sending_deadline >= #{dateStart}
+					AND or_sending_deadline < DATE_ADD(#{dateEnd}, INTERVAL 1 DAY) 
+				]]>
+		        AND or_cancled_flag = 1
+			GROUP BY
+				ss.ss_name,
+		        ss.ss_commission,
+				od.or_serial_special_number,
+		        od.or_delivery_price,
+		        od.or_delivery_discount_price
+			) inne
+		GROUP BY
+			inne.ss_name
+	</select>
+	
+	<select id="selectLocalAreaAnalytics" parameterType="OrderSearchVO" resultType="OrdersVO">
+		SELECT
+			COUNT(INNE.or_serial_special_number) AS total_order_count,
+		    ROUND(AVG(INNE.or_amount)) AS or_amount,
+		    ROUND(AVG(INNE.or_total_price)) AS or_total_price,
+		    INNE.CUT_ADDRESS AS or_shipping_address
+		FROM(
+		
+		    SELECT 
+				od.or_serial_special_number,
+		        SUM(od.or_amount) AS or_amount,
+		        SUM(od.or_total_price) AS or_total_price,
+				CASE
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '강원'
+					THEN
+						'강원도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경기'
+					THEN
+						'경기도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경남'
+					THEN
+						'경상남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경북'
+					THEN
+						'경상북도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '광주'
+					THEN
+						'광주광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '대구'
+					THEN
+						'대구광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '대전'
+					THEN
+						'대전광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '부산'
+					THEN
+						'부산광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '서울' OR SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '서울시'
+					THEN
+						'서울특별시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '울산'
+					THEN
+						'울산광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '인천'
+					THEN
+						'인천광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '전남'
+					THEN
+						'전라남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '전북'
+					THEN
+						'전라북도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '충남'
+					THEN
+						'충청남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '충북'
+					THEN
+						'충청북도'
+					ELSE
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' '))
+				END AS CUT_ADDRESS
+			FROM
+		        orders od 
+			WHERE
+				<![CDATA[				
+					od.or_regdate >= #{dateStart} 
+					AND od.or_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+				]]>
+		        AND od.or_cancled_flag = 0
+			GROUP BY
+				od.or_serial_special_number,
+		        CUT_ADDRESS
+		) INNE
+		GROUP BY
+			INNE.CUT_ADDRESS
+		ORDER BY
+			CUT_ADDRESS
+	</select>
+	
+	<select id="sleectLocalAreaTopProducts" parameterType="OrderSearchVO" resultMap="localAreaResultMap">
+		SELECT
+			SUM(INNE.or_amount * INNE.om_option_amount) AS total_amount,
+			SUM(INNE.or_total_price) AS total_price,
+		    CONCAT(INNE.product_name, ' [ ',INNE.option_name ,' ]') AS products,
+		    INNE.cf_pk,
+			INNE.cf_code_type
+		FROM(
+		    SELECT 
+				od.or_serial_special_number,
+		        od.or_amount,
+		        od.or_total_price,
+		        om.om_option_amount,
+		        pro.product_name,
+		        op.option_name,
+		        cf.cf_pk,
+		        cf.cf_code_type,
+				CASE
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '강원'
+					THEN
+						'강원도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경기'
+					THEN
+						'경기도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경남'
+					THEN
+						'경상남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경북'
+					THEN
+						'경상북도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '광주'
+					THEN
+						'광주광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '대구'
+					THEN
+						'대구광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '대전'
+					THEN
+						'대전광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '부산'
+					THEN
+						'부산광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '서울' OR SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '서울시'
+					THEN
+						'서울특별시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '울산'
+					THEN
+						'울산광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '인천'
+					THEN
+						'인천광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '전남'
+					THEN
+						'전라남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '전북'
+					THEN
+						'전라북도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '충남'
+					THEN
+						'충청남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '충북'
+					THEN
+						'충청북도'
+					ELSE
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' '))
+				END AS CUT_ADDRESS
+			FROM
+		        orders od 
+				INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+				INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+				INNER JOIN options op ON om.option_fk = op.option_pk
+				INNER JOIN products pro ON pro.product_pk = op.product_fk
+		        INNER JOIN classification cf ON cf_pk = pro.cf_fk
+			WHERE
+				<![CDATA[				
+					od.or_regdate >= #{dateStart} 
+					AND od.or_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+				]]>
+		        AND od.or_cancled_flag = 0
+		        AND cf.cf_pk NOT IN (4, 8,11, 19, 20, 21,22, 26)
+		) INNE
+		WHERE
+			INNE.CUT_ADDRESS = #{searchKeyword}
+		GROUP BY
+			products,
+			INNE.cf_code_type,
+		    INNE.cf_pk
+		ORDER BY
+			total_amount DESC
+	</select>
+	
+	
+	<select id="localAreaAnlayDetail" parameterType="OrderSearchVO" resultType="LocalAreaVO">
+		SELECT
+			SUM(INNE.or_total_price) AS total_price,
+		    COUNT(INNE.or_serial_special_number) AS total_order,
+		    MAX(or_total_price) AS max_price,
+		    MIN(or_total_price) AS min_price,
+		    MAX(or_amount) AS max_qty,
+		    MIN(or_amount) AS min_qty
+		FROM(
+		    SELECT 
+				od.or_serial_special_number,
+		        SUM(od.or_amount) AS or_amount,
+		        SUM(od.or_total_price) AS or_total_price,
+				CASE
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '강원'
+					THEN
+						'강원도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경기'
+					THEN
+						'경기도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경남'
+					THEN
+						'경상남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경북'
+					THEN
+						'경상북도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '광주'
+					THEN
+						'광주광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '대구'
+					THEN
+						'대구광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '대전'
+					THEN
+						'대전광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '부산'
+					THEN
+						'부산광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '서울' OR SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '서울시'
+					THEN
+						'서울특별시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '울산'
+					THEN
+						'울산광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '인천'
+					THEN
+						'인천광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '전남'
+					THEN
+						'전라남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '전북'
+					THEN
+						'전라북도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '충남'
+					THEN
+						'충청남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '충북'
+					THEN
+						'충청북도'
+					ELSE
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' '))
+				END AS CUT_ADDRESS
+			FROM
+		        orders od
+			WHERE
+				<![CDATA[				
+					od.or_regdate >= #{dateStart} 
+					AND od.or_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+				]]>
+		        AND od.or_cancled_flag = 0
+			GROUP BY
+				od.or_serial_special_number,
+		        CUT_ADDRESS
+		) INNE
+		WHERE
+			INNE.CUT_ADDRESS = #{searchKeyword}
+	</select>
+	
+	<select id="selectLocalAreaInflowRoute" parameterType="OrderSearchVO" resultType="LocalAreaVO">
+		SELECT
+		    COUNT(INNE.or_serial_special_number) AS total_order,
+		    INNE.or_inflow_route
+		FROM(
+		    SELECT 
+				od.or_serial_special_number,
+		        od.or_inflow_route,
+				CASE
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '강원'
+					THEN
+						'강원도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경기'
+					THEN
+						'경기도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경남'
+					THEN
+						'경상남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '경북'
+					THEN
+						'경상북도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '광주'
+					THEN
+						'광주광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '대구'
+					THEN
+						'대구광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '대전'
+					THEN
+						'대전광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '부산'
+					THEN
+						'부산광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '서울' OR SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '서울시'
+					THEN
+						'서울특별시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '울산'
+					THEN
+						'울산광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '인천'
+					THEN
+						'인천광역시'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '전남'
+					THEN
+						'전라남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '전북'
+					THEN
+						'전라북도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '충남'
+					THEN
+						'충청남도'
+					WHEN
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' ')) = '충북'
+					THEN
+						'충청북도'
+					ELSE
+						SUBSTRING(od.or_shipping_address, 1, INSTR(od.or_shipping_address, ' '))
+				END AS CUT_ADDRESS
+			FROM
+		        orders od
+			WHERE
+				<![CDATA[				
+					od.or_regdate >= #{dateStart} 
+					AND od.or_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+				]]>
+		        AND od.or_cancled_flag = 0
+			GROUP BY
+				od.or_serial_special_number,
+		        od.or_inflow_route,
+		        CUT_ADDRESS
+		) INNE
+		WHERE
+			INNE.CUT_ADDRESS = #{searchKeyword}
+		GROUP BY
+			INNE.or_inflow_route
+		ORDER BY
+			total_order DESC
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

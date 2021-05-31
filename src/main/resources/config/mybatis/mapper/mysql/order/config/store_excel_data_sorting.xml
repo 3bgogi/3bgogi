@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.config.store_excel_data_sorting">
+	
+	<insert id="insertStoreExcelDataSorting" parameterType="StoreSectionVO">
+		INSERT INTO store_excel_data_sorting(ss_fk)
+		VALUES(#{ssPk})
+	</insert>
+	
+	<select id="selectStoreExcelDataSorting" parameterType="StoreSectionVO" resultType="StoreExcelDataSortingVO">
+		SELECT
+			*
+		FROM
+			store_excel_data_sorting
+		WHERE
+			ss_fk = #{ssPk}
+	</select>
+	
+	<!-- 판매처 엑셀 열 변경하기 -->
+	<update id="updateStoreExcelDataSorting" parameterType="StoreExcelDataSortingVO">
+		UPDATE 
+			store_excel_data_sorting
+		SET
+			seds_buyer_id = #{sedsBuyerId},
+			seds_buyer_name = #{sedsBuyerName},
+			seds_buyer_contract_number1 = #{sedsBuyerContractNumber1},
+			seds_buyer_contract_number2 = #{sedsBuyerContractNumber2},
+			seds_receiver_name = #{sedsReceiverName},
+			seds_product = #{sedsProduct},
+			seds_product_type = #{sedsProductType},
+			seds_product_option = #{sedsProductOption},
+			seds_quantity = #{sedsQuantity},
+			seds_delivery_message = #{sedsDeliveryMessage},
+			seds_delivery_company = #{sedsDeliveryCompany},
+			seds_delivery_type = #{sedsDeliveryType},
+			seds_order_number = #{sedsOrderNumber},
+			seds_product_order_number = #{sedsProductOrderNumber},
+			seds_product_number = #{sedsProductNumber},
+			seds_payment_position_type = #{sedsPaymentPositionType},
+			seds_settlement_day = #{sedsSettlementDay},
+			seds_product_price = #{sedsProductPrice},
+			seds_product_option_price = #{sedsProductOptionPrice},
+			seds_discount_price = #{sedsDiscountPrice},
+			seds_total_price = #{sedsTotalPrice},
+			seds_total_cost = #{sedsTotalCost},
+			seds_order_check_day = #{sedsOrderCheckDay},
+			seds_sending_deadline = #{sedsSendingDeadline},
+			seds_sending_day = #{sedsSendingDay},
+			seds_delivery_charge_type = #{sedsDeliveryChargeType},
+			seds_delivery_number = #{sedsDeliveryNumber},
+			seds_delivery_price = #{sedsDeliveryPrice},
+			seds_delivery_discount_price = #{sedsDeliveryDiscountPrice},
+			seds_receiver_contract_number1 = #{sedsReceiverContractNumber1},
+			seds_receiver_contract_number2 = #{sedsReceiverContractNumber2},
+			seds_shipping_address_number = #{sedsShippingAddressNumber},
+			seds_shipping_address = #{sedsShippingAddress},
+			seds_shipping_address_detail = #{sedsShippingAddressDetail},
+			seds_special_region_flag = #{sedsSpecialRegionFlag},
+			seds_payment_type = #{sedsPaymentType},
+			seds_payment_commision = #{sedsPaymentCommision},
+			seds_inflow_route = #{sedsInflowRoute},
+			seds_Request = #{sedsRequest},
+			seds_gender = #{sedsGender},
+			seds_birth_date = #{sedsBirthDate},
+			seds_user_column1 = ${sedsUserColumn1},
+			seds_user_column2 = ${sedsUserColumn2},
+			seds_user_column3 = ${sedsUserColumn3},
+			seds_user_column4 = ${sedsUserColumn4},
+			seds_start_row = ${sedsStartRow}
+		WHERE
+			seds_pk = #{sedsPk}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+

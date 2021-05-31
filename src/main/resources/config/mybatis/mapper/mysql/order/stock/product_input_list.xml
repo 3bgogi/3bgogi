@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.product_input_list">
+	<resultMap id="productInputListResultMap" type="ProductInputListVO">
+	
+		<id property="pilPk" column="pil_pk" javaType="int"/>
+		<result property="pilQty" column="pil_qty" javaType="int"/>
+		<result property="pilAdmin" column="pil_admin" javaType="String"/>
+		<result property="pilAdminPk" column="pil_admin_pk" javaType="int"/>
+		<result property="pilPermFlag" column="pil_perm_flag" javaType="boolean"/>
+		<result property="pilReqDate" column="pil_req_date" javaType="String"/>
+		<result property="pilExpDate" column="pil_exp_date" javaType="String"/>
+		<result property="pilPermAdmin" column="pil_perm_admin" javaType="String"/>
+		<result property="pilPermAdminPk" column="pil_perm_admin_pk" javaType="int"/>
+		<result property="pilResDate" column="pil_res_date" javaType="String"/>
+		<result property="pilRegdate" column="pil_regdate" javaType="java.sql.Timestamp"/>
+		
+		<result property="pilFilePath" column="pil_file_path" javaType="String"/>
+		<result property="pilFileName" column="pil_file_name" javaType="String"/>
+		<result property="pilFileExe" column="pil_file_exe" javaType="String"/>
+		<result property="pilFileOriName" column="pil_file_ori_name" javaType="String"/>
+		
+		<collection property="productList" ofType="ProductOptionVO">
+			<id property="optionPk" column="option_pk" javaType="int"/>
+			<result property="productName" column="product_name" javaType="String"/>
+			<result property="optionName" column="option_name" javaType="String"/>
+			<result property="optionStock" column="option_stock" javaType="int"/>
+			<result property="option_stock_max_alarm" column="optionStockMaxAlarm" javaType="int"/>
+		</collection>
+	</resultMap>
+	
+	
+	<insert id="insertProductInputList" parameterType="ProductInputListVO">
+		INSERT INTO 
+			product_input_list(
+				option_fk,
+				pil_qty,
+				pil_admin,
+				pil_admin_pk,
+				pil_perm_flag,
+				pil_req_date,
+				pil_exp_date,
+				pil_perm_admin,
+				pil_perm_admin_pk,
+				pil_res_date,
+				pil_file_path,
+				pil_file_name,
+				pil_file_exe,
+				pil_file_ori_name
+			)
+		VALUES(
+				#{optionFk},
+				#{pilQty},
+				#{pilAdmin},
+				#{pilAdminPk},
+				#{pilPermFlag},
+				#{pilReqDate},
+				#{pilExpDate},
+				#{pilPermAdmin},
+				#{pilPermAdminPk},
+				#{pilResDate},
+				#{pilFilePath},
+				#{pilFileName},
+				#{pilFileExe},
+				#{pilFileOriName}
+		)
+	</insert>
+	
+	<select id="selectProductInputLists" resultMap="productInputListResultMap" parameterType="PaginationInfo">
+		SELECT
+			outter.*
+		FROM
+		(		
+			SELECT
+				pil.pil_pk,
+				pil.pil_qty,
+				pil.pil_admin,
+				pil.pil_admin_pk,
+				pil.pil_perm_flag,
+				DATE_FORMAT(pil.pil_req_date, '%Y-%m-%d') AS pil_req_date,
+				DATE_FORMAT(pil.pil_exp_date, '%Y-%m-%d') AS pil_exp_date,
+				pil.pil_perm_admin,
+				pil.pil_perm_admin_pk,
+				DATE_FORMAT(pil.pil_res_date, '%Y-%m-%d') AS pil_res_date,
+				pil.pil_regdate,
+				pil.pil_file_path,
+				pil.pil_file_name,
+				pil.pil_file_ori_name,
+				pil.pil_file_exe,
+				op.option_pk,
+				op.option_name,
+				op.option_stock,
+				op.option_stock_max_alarm,
+				pro.product_name
+			FROM
+				product_input_list pil
+				INNER JOIN options op ON pil.option_fk = op.option_pk
+				INNER JOIN products pro ON op.product_fk = pro.product_pk
+			<trim prefix="WHERE" prefixOverrides="AND |OR ">
+				<if test="searchOne != null">
+					AND (CONCAT(pro.product_name,' ',op.option_name) LIKE CONCAT('%',#{searchOne},'%') OR op.option_barcode_number1 = #{searchOne} )
+				</if>
+				<if test="permType == 'donPerm'">
+					AND pil_perm_flag = 0
+				</if>
+				<if test="permType == 'permision'">
+					AND pil_perm_flag = 1
+				</if>
+				
+				<if test="@com.gogi.proj.util.EmptyCheckUtil@isEmpty(dateType)">
+					<![CDATA[				
+						AND pil_regdate >= #{searchMinDate}
+						AND pil_regdate < DATE_FORMAT(DATE_ADD(#{searchMaxDate}, INTERVAL 1 DAY), '%Y-%m-%d')
+					]]>
+				</if>
+				<if test="@com.gogi.proj.util.EmptyCheckUtil@isNotEmpty(dateType)">
+					<![CDATA[				
+						AND ${dateType} >= #{searchMinDate}
+						AND ${dateType} < DATE_FORMAT(DATE_ADD(#{searchMaxDate}, INTERVAL 1 DAY), '%Y-%m-%d')
+					]]>
+				</if>
+				
+			</trim>
+		) outter
+		ORDER BY
+			outter.pil_regdate DESC
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+		
+	</select>
+	
+	<select id="selectProductInputListsCount" resultType="int" parameterType="PaginationInfo">
+		SELECT
+			COUNT(pil.pil_pk)
+		FROM
+			product_input_list pil
+			INNER JOIN options op ON pil.option_fk = op.option_pk
+			INNER JOIN products pro ON op.product_fk = pro.product_pk
+			<trim prefix="WHERE" prefixOverrides="AND |OR ">
+				<if test="searchOne != null">
+					AND (CONCAT(pro.product_name,' ',op.option_name) LIKE CONCAT('%',#{searchOne},'%') OR op.option_barcode_number1 = #{searchOne} )
+				</if>
+				<if test="permType == 'donPerm'">
+					AND pil_perm_flag = 0
+				</if>
+				<if test="permType == 'permision'">
+					AND pil_perm_flag = 1
+				</if>
+				
+				<if test="@com.gogi.proj.util.EmptyCheckUtil@isEmpty(dateType)">
+					<![CDATA[				
+						AND pil_regdate >= #{searchMinDate}
+						AND pil_regdate < DATE_FORMAT(DATE_ADD(#{searchMaxDate}, INTERVAL 1 DAY), '%Y-%m-%d')
+					]]>
+				</if>
+				<if test="@com.gogi.proj.util.EmptyCheckUtil@isNotEmpty(dateType)">
+					<![CDATA[				
+						AND ${dateType} >= #{searchMinDate}
+						AND ${dateType} < DATE_FORMAT(DATE_ADD(#{searchMaxDate}, INTERVAL 1 DAY), '%Y-%m-%d')
+					]]>
+				</if>
+				
+			</trim>
+		
+	</select>
+	
+	<select id="selectProductInputListFlag" resultType="boolean" parameterType="ProductInputListVO">
+		SELECT
+			pil_perm_flag
+		FROM
+			product_input_list
+		WHERE
+			pil_pk = #{pilPk}
+	</select>
+	
+	<update id="updateProductInputList" parameterType="ProductInputListVO">
+		UPDATE
+			product_input_list
+		SET
+			pil_perm_flag =	#{pilPermFlag},
+			pil_perm_admin = #{pilPermAdmin},
+			pil_perm_admin_pk = #{pilPermAdminPk},
+			pil_res_date = #{pilResDate}
+		WHERE
+			pil_pk = #{pilPk}
+	</update>
+	
+	<select id="selectProductInputListLimitTen" parameterType="ProductInputListVO">
+		SELECT
+			* 
+		FROM 
+			product_input_list
+		ORDER BY
+			pil_pk DESC
+		limit 0, 10
+	</select>
+	
+	<select id="productInputDontPerm" parameterType="int">
+		SELECT
+			COUNT(pil_pk)
+		FROM
+			product_input_list
+		WHERE
+			pil_perm_flag = 0
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="delivery.check">
+	
+	<select id="selectDelivNumCheckTarget" resultType="OrdersVO" parameterType="OrderSearchVO">
+		SELECT
+			or_delivery_invoice_number
+		FROM
+			orders
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="createInvoiceNumList != null and createInvoiceNumList.size != 0">			
+				AND or_invoice_num_date IN
+				<foreach collection="createInvoiceNumList" item="inoviceNum" open="(" close=")" separator=",">
+						#{inoviceNum}
+				</foreach>
+			</if>
+			AND or_sending_deadline = DATE_FORMAT(NOW(), '%Y-%m-%d')
+		</trim>
+		GROUP BY
+			or_delivery_invoice_number
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

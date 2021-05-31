@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="delivery.sending_request">
+	
+	<!-- 
+		private int srPk;					//고유값
+		private String srInvoiceNum;		//송장번호 -  fk값
+		private String srAdminId;			//관리자 아이디
+		private String srAdminName;			//관리자 이름
+		private boolean srCheckFlag;		//강제출고 메세지 확인 여부
+		private boolean srSendingFlag;		//발송 여부
+		private Timestamp srRegdate;		//요청일(등록일)
+	
+	 -->
+	<insert id="insertSendingRequest" parameterType="SendingRequestVO">
+		INSERT INTO
+			sending_request(
+				sr_invoice_num,
+				sr_admin_id,
+				sr_admin_name,
+				sr_reason
+			)
+		VALUES(
+			#{srInvoiceNum},
+			#{srAdminId},
+			#{srAdminName},
+			#{srReason}
+		)
+	</insert>
+	
+	<update id="checkSendingRequest" parameterType="SendingRequestVO">
+		UPDATE
+			sending_request
+		SET
+			sr_check_flag = 1
+		WHERE
+			sr_pk = #{srPk}
+	</update>
+	
+	<update id="sendingRequestFinished" parameterType="SendingRequestVO">
+		UPDATE
+			sending_request
+		SET
+			sr_check_flag = 1,
+			sr_sending_flag = 1
+		WHERE
+			sr_pk = #{srPk}
+	</update>
+	
+	
+	<select id="selectSendingRequestNotChecked" resultType="SendingRequestVO">
+		SELECT
+			*
+		FROM
+			sending_request
+		WHERE
+			sr_check_flag = 0
+		ORDER BY
+			sr_pk DESC
+	</select>
+	
+	<select id="selectSendingRequestNotSending" resultType="SendingRequestVO">
+		SELECT
+			*
+		FROM
+			sending_request
+		WHERE
+			sr_sending_flag = 0
+		ORDER BY
+			sr_pk DESC
+	</select>
+	
+	<update id="updateSendingDone" parameterType="OrdersVO">
+		UPDATE
+			sending_request
+		SET
+			sr_check_flag = 1,
+			sr_sending_flag = 1
+		WHERE
+			sr_pk IN (
+				SELECT
+					inne.sr_pk
+				FROM
+					(
+						SELECT
+							sr_pk
+						FROM
+							sending_request
+						WHERE
+							sr_invoice_num = #{orDeliveryInvoiceNumber}
+					)inne
+			)
+	</update>
+	
+	<select id="dupliSendingReq" parameterType="SendingRequestVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			sending_request
+		WHERE
+			sr_invoice_num = #{srInvoiceNum}
+			AND sr_regdate >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL - 1 MONTH), '%Y-%m-%d')
+	</select>
+	
+	<select id="selectAllSedingRequest" resultType="SendingRequestVO">
+		SELECT
+			*
+		FROM
+			sending_request
+		ORDER BY
+			sr_pk DESC
+	</select>
+	
+	<delete id="deleteSendingReq" parameterType="RegDataVO">
+		DELETE FROM
+			sending_request
+		WHERE
+			sr_pk IN (
+				SELECT
+					inne.sr_pk
+				FROM
+					(
+						SELECT
+							sr_pk
+						FROM
+							sending_request
+						WHERE
+							sr_invoice_num = #{regiNo}
+					)inne
+			)
+	</delete>
+	
+	<update id="sendingOrders" parameterType="SendingRequestVO">
+		UPDATE
+			orders
+		SET
+			or_sending_day = #{srRegdate}
+		WHERE
+			or_pk IN (
+				SELECT
+					inne.or_pk
+				FROM
+					(
+						SELECT
+							or_pk
+						FROM
+							orders
+						WHERE
+							or_delivery_invoice_number = #{srInvoiceNum}
+							AND or_sending_deadline >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL - 1 MONTH), '%Y-%m-%d')
+					) inne
+			)
+			
+	</update>
+	
+</mapper>
+
+
+
+
+
+
+
+

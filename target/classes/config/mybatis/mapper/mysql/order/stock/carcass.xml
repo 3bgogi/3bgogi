@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cost.carcass">
+	
+	<resultMap type="CarcassInputListVO" id="carcassInputListResultMap">
+		<id property="cilPk" column="cil_pk" javaType="int"/>
+		<result property="cilAnimalProdTraceNum" column="cil_animal_prod_trace_num" javaType="String"/>
+		<result property="cilPurchaseStore" column="cil_purchase_store" javaType="String"/>
+		<result property="cilPurchasePrice" column="cil_purchase_price" javaType="int"/>
+		<result property="cilWeight" column="cil_weight" javaType="int"/>
+		<result property="cilNum" column="cil_num" javaType="String"/>
+		<result property="cilProduct" column="cil_product" javaType="String"/>
+		<result property="cilQty" column="cil_qty" javaType="int"/>
+		<result property="cilAdmin" column="cil_admin" javaType="String"/>
+		<result property="cilAdminPk" column="cil_admin_pk" javaType="int"/>
+		<result property="cilFilePath" column="cil_file_path" javaType="String"/>
+		<result property="cilFileExe" column="cil_file_exe" javaType="String"/>
+		<result property="cilFileOriName" column="cil_file_ori_name" javaType="String"/>
+		<result property="cilFileUniqName" column="cil_file_uniq_name" javaType="String"/>
+		<result property="cilTransDetailFilePath" column="cil_trans_detail_file_path" javaType="String"/>
+		<result property="cilTransDetailFileExe" column="cil_trans_detail_file_exe" javaType="String"/>
+		<result property="cilTransDetailFileOriName" column="cil_trans_detail_file_ori_name" javaType="String"/>
+		<result property="cilTransDetailFileUniqName" column="cil_trans_detail_file_uniq_name" javaType="String"/>
+		<result property="cilInputDate" column="cil_input_date" javaType="String"/>
+		<result property="cilRegdate" column="cil_regdate" javaType="java.sql.Timestamp"/>
+		<result property="ciTotalCounting" column="ci_total_counting" javaType="int"/>
+		
+		<collection property="costIoList"  ofType="CostIoVO">
+			<id property="ciPk" column="ci_pk" javaType="int"/>
+			<result property="ciAnimalProdTraceNum" column="ci_animal_prod_trace_num" javaType="String"/>
+			<result property="ciWeight" column="ci_weight" javaType="int"/>
+			<result property="ciLevel" column="ci_level" javaType="String"/>
+			<result property="ciMarblingLevel" column="ci_marbling_level" javaType="String"/>
+		</collection>
+	</resultMap>
+	
+	
+	<resultMap id="CostDetailWithCostIoResultmap" type="CostDetailVO">
+		<id property="cdPk" column="cd_pk" javaType="int"/>
+		<result property="cdName" column="cd_name" javaType="String"/>
+		
+		<!-- 원가, 입출고 합산-->
+		<collection property="costIoVOList" ofType="CostIoVO">
+			<id property="ciPk" column="ci_pk" javaType="int"/>
+			<result property="cdFk" column="cd_fk" javaType="int"/>
+			<result property="cilFk" column="cil_fk" javaType="int"/>
+			<result property="ciPrice" column="ci_price" javaType="int"/>
+			<result property="ciWeight" column="ci_weight" javaType="int"/>
+			<result property="ciOutputWeight" column="ci_output_weight" javaType="int"/>
+			<result property="ciOutputQty" column="ci_output_qty" javaType="int"/>
+			<result property="ciOutputLastTime" column="ci_output_last_time" javaType="java.sql.Date"/>
+			<result property="ciOutputFlag" column="ci_output_flag" javaType="boolean"/>
+			<result property="ciAnimalProdTraceNum" column="ci_animal_prod_trace_num" javaType="String"/>
+			<result property="ciLevel" column="ci_level" javaType="String"/>
+			<result property="ciMarblingLevel" column="ci_marbling_level" javaType="String"/>
+			<result property="ciCountryOfOrigin" column="ci_country_of_origin" javaType="String"/>
+			<result property="ciItemsManufNum" column="ci_items_manuf_num" javaType="String"/>
+			<result property="ciRegdate" column="ci_regdate" javaType="java.sql.Timestamp"/>
+		</collection>
+	</resultMap>
+	
+	<insert id="insertCarcass" useGeneratedKeys="true" keyProperty="cilPk" parameterType="CarcassInputListVO">
+		INSERT INTO
+			carcass_input_list(
+				cil_animal_prod_trace_num,
+				cil_purchase_store,
+				cil_purchase_price,
+				cil_weight,
+				cil_num,
+				cil_product,
+				cil_qty,
+				cil_admin,
+				cil_admin_pk,
+				cil_file_path,
+				cil_file_exe,
+				cil_file_ori_name,
+				cil_file_uniq_name,
+				cil_trans_detail_file_path,
+				cil_trans_detail_file_exe,
+				cil_trans_detail_file_ori_name,
+				cil_trans_detail_file_uniq_name,
+				cil_input_date
+			)
+		VALUES(
+			#{cilAnimalProdTraceNum},
+			#{cilPurchaseStore},
+			#{cilPurchasePrice},
+			#{cilWeight},
+			#{cilNum},
+			#{cilProduct},
+			#{cilQty},
+			#{cilAdmin},
+			#{cilAdminPk},
+			#{cilFilePath},
+			#{cilFileExe},
+			#{cilFileOriName},
+			#{cilFileUniqName},
+			#{cilTransDetailFilePath},
+			#{cilTransDetailFileExe},
+			#{cilTransDetailFileOriName},
+			#{cilTransDetailFileUniqName},
+			#{cilInputDate}
+		)
+	</insert>
+	
+	<select id="selectCarcassInputList" parameterType="OrderSearchVO" resultType="CarcassInputListVO">
+		SELECT
+		    cil.cil_pk,
+		    cil.cil_animal_prod_trace_num,
+		    cil.cil_purchase_store,
+		    cil.cil_purchase_price,
+		    cil.cil_num,
+		    cil.cil_weight,
+		    cil.cil_product,
+		    cil.cil_qty,
+		    cil.cil_admin,
+		    cil.cil_admin_pk,
+		    cil.cil_file_path,
+		    cil.cil_file_exe,
+		    cil.cil_file_ori_name,
+		    cil.cil_file_uniq_name,
+		    
+		    cil.cil_trans_detail_file_path,
+		    cil.cil_trans_detail_file_exe,
+		    cil.cil_trans_detail_file_ori_name,
+		    cil.cil_trans_detail_file_uniq_name,
+		    
+		    cil.cil_input_date,
+		    cil.cil_regdate
+
+		FROM
+			carcass_input_list cil
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	<![CDATA[
+	        	AND cil.cil_input_date >= #{dateStart} 
+				AND cil.cil_input_date < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+        	]]>
+        	<if test="searchType == 'cilProduct'">
+				AND cil.cil_product LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchType == 'cilPurchase'">
+				AND cil.cil_purchase_store LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchType == 'cilAnimalProdTraceNum'">
+				AND cil.cil_animal_prod_trace_num LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchType == 'cilAdmin'">
+				AND cil.cil_admin LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="maxNum != 0">
+				AND 
+				<![CDATA[				
+					cil.cil_purchase_price >= #{minNum}
+					AND cil.cil_purchase_price <= #{manNum}  
+				]]>
+			</if>
+		</trim>
+		GROUP BY
+			cil.cil_pk,
+		    cil.cil_animal_prod_trace_num,
+		    cil.cil_purchase_store,
+		    cil.cil_purchase_price,
+		    cil.cil_num,
+		    cil.cil_weight,
+		    cil.cil_product,
+		    cil.cil_qty,
+		    cil.cil_admin,
+		    cil.cil_admin_pk,
+		    cil.cil_file_path,
+		    cil.cil_file_exe,
+		    cil.cil_file_ori_name,
+		    cil.cil_file_uniq_name,
+		    
+		    cil.cil_trans_detail_file_path,
+		    cil.cil_trans_detail_file_exe,
+		    cil.cil_trans_detail_file_ori_name,
+		    cil.cil_trans_detail_file_uniq_name,
+		    
+		    cil.cil_input_date,
+		    cil.cil_regdate
+		 ORDER BY
+		 	cil.cil_regdate DESC
+		 LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+		 	
+	</select>
+	
+	<select id="selectCarcassInputListCount" parameterType="OrderSearchVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+		(
+			SELECT
+			    cil.cil_pk,
+			    cil.cil_animal_prod_trace_num,
+			    cil.cil_purchase_store,
+			    cil.cil_purchase_price,
+			    cil.cil_num,
+			    cil.cil_weight,
+			    cil.cil_product,
+			    cil.cil_qty,
+			    cil.cil_admin,
+			    cil.cil_admin_pk,
+			    cil.cil_file_path,
+			    cil.cil_file_exe,
+			    cil.cil_file_ori_name,
+			    cil.cil_file_uniq_name,
+			    
+			    cil.cil_trans_detail_file_path,
+			    cil.cil_trans_detail_file_exe,
+			    cil.cil_trans_detail_file_ori_name,
+			    cil.cil_trans_detail_file_uniq_name,
+			    
+			    cil.cil_input_date,
+			    cil.cil_regdate
+	
+			FROM
+				carcass_input_list cil
+			<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	        	<![CDATA[
+		        	AND cil.cil_input_date >= #{dateStart} 
+					AND cil.cil_input_date < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+	        	]]>
+	        	<if test="searchType == 'cilProduct'">
+					AND cil.cil_product LIKE CONCAT('%',#{searchKeyword},'%')
+				</if>
+				<if test="searchType == 'cilPurchase'">
+					AND cil.cil_purchase_store LIKE CONCAT('%',#{searchKeyword},'%')
+				</if>
+				<if test="searchType == 'cilAnimalProdTraceNum'">
+					AND cil.cil_animal_prod_trace_num LIKE CONCAT('%',#{searchKeyword},'%')
+				</if>
+				<if test="searchType == 'cilAdmin'">
+					AND cil.cil_admin LIKE CONCAT('%',#{searchKeyword},'%')
+				</if>
+				<if test="maxNum != 0">
+				AND 
+				<![CDATA[				
+					cil.cil_purchase_price >= #{minNum}
+					AND cil.cil_purchase_price <= #{manNum}  
+				]]>
+			</if>
+			</trim>
+			GROUP BY
+				cil.cil_pk,
+			    cil.cil_animal_prod_trace_num,
+			    cil.cil_purchase_store,
+			    cil.cil_purchase_price,
+			    cil.cil_num,
+			    cil.cil_weight,
+			    cil.cil_product,
+			    cil.cil_qty,
+			    cil.cil_admin,
+			    cil.cil_admin_pk,
+			    cil.cil_file_path,
+			    cil.cil_file_exe,
+			    cil.cil_file_ori_name,
+			    cil.cil_file_uniq_name,
+			    
+			    cil.cil_trans_detail_file_path,
+			    cil.cil_trans_detail_file_exe,
+			    cil.cil_trans_detail_file_ori_name,
+			    cil.cil_trans_detail_file_uniq_name,
+			    
+			    cil.cil_input_date,
+			    cil.cil_regdate
+			 ORDER BY
+			 	cil.cil_regdate DESC
+		) inne
+	</select>
+
+	<select id="selectCarcassInputListDetail" parameterType="CarcassInputListVO" resultMap="carcassInputListResultMap">
+		SELECT
+		    cil.cil_pk,
+		    cil.cil_animal_prod_trace_num,
+		    cil.cil_purchase_store,
+		    cil.cil_purchase_price,
+		    cil.cil_num,
+		    cil.cil_weight,
+		    cil.cil_product,
+		    cil.cil_qty,
+		    cil.cil_input_date,
+		    
+		    cd.cd_name AS ci_animal_prod_trace_num,
+		    ci.ci_pk,
+		    ci.ci_weight,
+		    ci.ci_level,
+		    ci.ci_marbling_level
+		FROM
+			carcass_input_list cil
+		    INNER JOIN cost_io ci ON cil.cil_pk = ci.cil_fk
+		    INNER JOIN cost_detail cd ON cd.cd_pk = ci.cd_fk
+		WHERE
+			cil.cil_pk = #{cilPk}
+		GROUP BY
+			cil.cil_pk,
+		    cil.cil_animal_prod_trace_num,
+		    cil.cil_purchase_store,
+		    cil.cil_purchase_price,
+		    cil.cil_num,
+		    cil.cil_weight,
+		    cil.cil_product,
+		    cil.cil_qty,
+		    cil.cil_input_date,
+		    
+		    cd.cd_name,
+		    ci.ci_pk,
+		    ci.ci_weight,
+		    ci.ci_level,
+		    ci.ci_marbling_level
+	</select>
+	
+	<update id="updateCarcassInputList" parameterType="CarcassInputListVO">
+		UPDATE
+			carcass_input_list
+		SET
+			cil_product = #{cilProduct},
+			cil_purchase_store = #{cilPurchaseStore},
+			cil_input_date = #{cilInputDate}
+		WHERE
+			cil_pk = #{cilPk}
+	</update>
+	
+	<delete id="deleteCarcassInputList" parameterType="CarcassInputListVO">
+		DELETE FROM 
+			carcass_input_list
+		WHERE
+			cil_pk = #{cilPk}
+	</delete>
+	
+	
+	<!-- 부분육에 관한 부분 시작 -->
+	<select id="selectCostIoHistory" parameterType="OrderSearchVO" resultType="CostIoVO">
+		SELECT
+			CONCAT(cc.cc_code_type, ' ', cd.cd_name) AS cost_detail_name,
+			ci.*
+		FROM
+			cost_io ci
+			INNER JOIN cost_detail cd	ON cd.cd_pk = ci.cd_fk
+            INNER JOIN cost_code cc 	ON cc.cc_pk = cd.cc_fk
+        WHERE
+        	cc.cc_carcass_flag = 1
+        	<![CDATA[
+	        	AND ci.ci_regdate >= #{dateStart} 
+				AND ci.ci_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+        	]]>
+        	<if test="searchType == 'costName'">
+				AND CONCAT(cc.cc_code_type, ' ', cd.cd_name) LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchType == 'ciAbattoir'">
+				AND ci.ci_abattoir LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchType == 'ciAnimalProdTraceNum'">
+				AND ci.animal_prod_trace_num LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchType == 'ciItemsManufNum'">
+				AND ci.ci_items_manuf_num LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+        ORDER BY
+        	ci.ci_regdate DESC
+        LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+        
+	</select>
+	
+	<select id="selectCostIoHistoryCounting" parameterType="OrderSearchVO" resultType="int">
+		SELECT
+			COUNT(inne.ci_pk)
+		FROM(
+			SELECT
+				CONCAT(cc.cc_code_type, ' ', cd.cd_name) AS cost_detail_name,
+				ci.*
+			FROM
+				cost_io ci
+				INNER JOIN cost_detail cd	ON cd.cd_pk = ci.cd_fk
+				INNER JOIN cost_code cc 	ON cc.cc_pk = cd.cc_fk
+			WHERE
+				cc.cc_carcass_flag = 1
+				<![CDATA[
+		        	AND ci.ci_regdate >= #{dateStart} 
+					AND ci.ci_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+	        	]]>
+	        	<if test="searchType == 'costName'">
+					AND CONCAT(cc.cc_code_type, ' ', cd.cd_name) LIKE CONCAT('%',#{searchKeyword},'%')
+				</if>
+				<if test="searchType == 'ciAbattoir'">
+					AND ci.ci_abattoir LIKE CONCAT('%',#{searchKeyword},'%')
+				</if>
+				<if test="searchType == 'ciAnimalProdTraceNum'">
+					AND ci.animal_prod_trace_num LIKE CONCAT('%',#{searchKeyword},'%')
+				</if>
+				<if test="searchType == 'ciItemsManufNum'">
+					AND ci.ci_items_manuf_num LIKE CONCAT('%',#{searchKeyword},'%')
+				</if>
+			ORDER BY
+				ci.ci_regdate DESC
+        ) inne
+	</select>
+	
+	<select id="selsectCarcassCostCategoryCounting" parameterType="OrderSearchVO" resultType="CostDetailVO">
+		SELECT
+		    cd.cd_pk,
+		    cc.cc_pk,
+		    CONCAT(cc.cc_code_type, ' ', cd.cd_name ) AS cd_name,
+		    COUNT(ci.ci_pk) AS cd_cost
+		FROM
+			cost_code cc
+		    INNER JOIN cost_detail cd	ON	cc.cc_pk = cd.cc_fk
+		    INNER JOIN cost_io ci		ON	cd.cd_pk = ci.cd_fk
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	    	<if test="ccPk != 0">
+	    		AND cc.cc_pk = #{ccPk}
+	    	</if>    
+		</trim>
+		GROUP BY
+			cd.cd_pk,
+			cd_name
+		ORDER BY
+			cc.cc_code_type		DESC,
+			cd.cd_name			DESC
+	</select>
+	
+	
+	<select id="selectCarcassCostManage" parameterType="OrderSearchVO" resultMap="CostDetailWithCostIoResultmap">
+		SELECT
+		    cd.cd_pk,
+		    CONCAT(cc.cc_code_type, ' ', cd.cd_name ) AS cd_name,
+		    ci.ci_pk,
+		    ci.ci_weight,
+		    ci.ci_items_manuf_num,
+		    ci.ci_animal_prod_trace_num,
+		    ci.ci_level,
+		    ci.ci_marbling_level,
+		    ci.cil_fk,
+		    ci.ci_output_flag,
+		    ci.ci_regdate
+		FROM
+			cost_code cc
+		    INNER JOIN cost_detail cd	ON	cc.cc_pk = cd.cc_fk
+		    INNER JOIN cost_io ci		ON	cd.cd_pk = ci.cd_fk
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	    	<if test="labelBtn != 0">
+	    		ci.ci_output_flag = 1
+	    	</if>    
+	    	<if test="cdPk != 0">
+	    		AND cd.cd_pk = #{cdPk}
+	    	</if>
+	    	<if test="ccPk != 0">
+	    		AND cc.cc_pk = #{ccPk}
+	    	</if>   
+		</trim>
+		ORDER BY
+			cc.cc_code_type		DESC,
+			cd.cd_name			DESC,
+		    ci.ci_output_flag	DESC,
+		    ci.ci_regdate
+		    	<if test="sortingBtn == 0">
+		    		DESC
+		    	</if>
+		    	<if test="sortingBtn != 0">
+		    		ASC
+		    	</if>
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	<select id="selectCarcassCostManageCounting" parameterType="OrderSearchVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM(
+			SELECT
+			    cd.cd_pk,
+			    CONCAT(cc.cc_code_type, ' ', cd.cd_name ) AS cd_name,
+			    ci.ci_pk,
+			    ci.ci_weight,
+			    ci.ci_items_manuf_num,
+			    ci.ci_animal_prod_trace_num,
+			    ci.ci_level,
+			    ci.ci_marbling_level,
+			    ci.cil_fk,
+			    ci.ci_output_flag,
+			    ci.ci_regdate
+			FROM
+				cost_code cc
+			    INNER JOIN cost_detail cd	ON	cc.cc_pk = cd.cc_fk
+			    INNER JOIN cost_io ci		ON	cd.cd_pk = ci.cd_fk
+			<trim prefix="WHERE" prefixOverrides="AND |OR ">
+		    	<if test="labelBtn != 0">
+		    		ci.ci_output_flag = 1
+		    	</if>    
+		    	<if test="cdPk != 0">
+		    		AND cd.cd_pk = #{cdPk}
+		    	</if>
+		    	<if test="ccPk != 0">
+		    		AND cc.cc_pk = #{ccPk}
+		    	</if>   
+			</trim>
+			ORDER BY
+				cc.cc_code_type		DESC,
+				cd.cd_name			DESC,
+			    ci.ci_output_flag	DESC,
+			    ci.ci_regdate
+			    	<if test="sortingBtn == 0">
+			    		DESC
+			    	</if>
+			    	<if test="sortingBtn != 0">
+			    		ASC
+			    	</if>
+			) INNE
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

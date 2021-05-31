@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tax.tax_table">
+	
+	<insert id="insertTaxTableData" parameterType="TaxTableVO">
+		INSERT INTO tax_table(
+			tt_date,
+			tt_order_number,
+			tt_product_order_number,
+			tt_product,
+			tt_total_price,
+			tt_tax_price,
+			tt_duty_free_price,
+			tt_credit_price,
+			tt_cash_deduction_price,
+			tt_cash_receipt_price,
+			tt_another_price,
+			tt_tax_type,
+			tt_tax_stat
+			)
+		SELECT 
+			#{ttDate}, 
+			#{ttOrderNumber}, 
+			#{ttProductOrderNumber}, 
+			#{ttProduct},
+			#{ttTotalPrice},
+			#{ttTaxPrice},
+			#{ttDutyFreePrice},
+			#{ttCreditPrice},
+			#{ttCashDeductionPrice},
+			#{ttCashReceiptPrice},
+			#{ttAnotherPrice},
+			#{ttTaxType},
+			#{ttTaxStat}
+		FROM dual
+		WHERE NOT EXISTS(
+			SELECT 
+				tt_pk
+			FROM 
+				tax_table 
+			WHERE 
+				tt_order_number = #{ttOrderNumber}
+				AND tt_product_order_number = #{ttProductOrderNumber} 
+				AND tt_tax_type = #{ttTaxType}
+				AND tt_tax_stat = #{ttTaxStat}
+			)
+	</insert>
+	
+	<select id="taxZero" resultType="TaxTableVO">
+		SELECT
+			DATE_FORMAT(tt_date, '%Y-%m') AS tt_date,
+			SUM(tt_total_price) AS tt_total_price,
+		    SUM(tt_tax_price) AS tt_tax_price,
+		    SUM(tt_duty_free_price) AS tt_duty_free_price,
+		    SUM(tt_credit_price) AS tt_credit_price,
+		    SUM(tt_cash_deduction_price) AS tt_cash_deduction_price,
+		    SUM(tt_cash_receipt_price) AS tt_cash_receipt_price,
+		    SUM(tt_another_price) AS tt_another_price
+		FROM
+			tax_table
+		WHERE
+			tt_tax_price = 0
+		GROUP BY
+			DATE_FORMAT(tt_date, '%Y-%m')
+	</select>
+	
+	<select id="dutyZero" resultType="TaxTableVO">
+		SELECT
+			DATE_FORMAT(tt_date, '%Y-%m') AS tt_date,
+			SUM(tt_total_price) AS tt_total_price,
+		    SUM(tt_tax_price) AS tt_tax_price,
+		    SUM(tt_duty_free_price) AS tt_duty_free_price,
+		    SUM(tt_credit_price) AS tt_credit_price,
+		    SUM(tt_cash_deduction_price) AS tt_cash_deduction_price,
+		    SUM(tt_cash_receipt_price) AS tt_cash_receipt_price,
+		    SUM(tt_another_price) AS tt_another_price
+		FROM
+			tax_table
+		WHERE
+			tt_duty_free_price = 0
+		GROUP BY
+			DATE_FORMAT(tt_date, '%Y-%m')
+	</select>
+	
+	<select id="taxTableCount" resultType="TaxTableVO">
+		SELECT
+			DATE_FORMAT(tt_date, '%Y-%m') AS tt_date,
+			COUNT(*) as total_count
+		FROM
+			tax_table
+		GROUP BY
+			DATE_FORMAT(tt_date, '%Y-%m')
+	</select>
+	
+	<delete id="deleteTaxTable">
+		DELETE FROM tax_table
+		<![CDATA[		
+			WHERE tt_pk > 0
+		]]>
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+

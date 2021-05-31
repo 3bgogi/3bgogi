@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tax.product_info">
+	
+	<resultMap id="OrdersInfoResultMap" type="OrdersVO">
+		<id property="orPk" column="or_pk" javaType="int"/>
+		<result property="pmFk" column="pm_fk" javaType="int"/>
+		<result property="ssFk" column="ss_fk" javaType="int"/>
+		<result property="ssName" column="ss_name" javaType="String"/>
+		<result property="orSerialSpecialNumber" column="or_serial_special_number" javaType="String"/>
+		<result property="orBuyerId" column="or_buyer_id" javaType="String"/>
+		
+		<!-- 상품명 매칭 -->
+		<collection property="productMatchingVOList" ofType="ProductMatchingVO">
+			<id property="pmPk" column="pm_pk" javaType="int"/>
+			<result property="productFk" column="product_fk" javaType="int"/>
+			<result property="pmStoreProductName" column="pm_store_product_name" javaType="String"/>
+			<result property="pmEachFlag" column="pm_each_flag" javaType="boolean"/>
+			<result property="pmEachs" column="pm_eachs" javaType="int"/>
+			<result property="pmRegdate" column="pm_regdate" javaType="java.sql.Timestamp"/>
+			
+		</collection>
+		
+	</resultMap>
+	
+	
+	<insert id="insertProductInfo" parameterType="ProductInfoVO">
+		INSERT INTO product_info(
+			rc_fk,
+			pi_input_date,
+			pi_name,
+			pi_qty,
+			pi_measure,
+			pi_cost,
+			pi_tax,
+			pi_total_cost,
+			pi_account_receivable,
+			pi_remark1,
+			pi_remark2,
+			pi_file_ori_name,
+			pi_file_path,
+			pi_file_uniq_name,
+			pi_file_exe,
+			pi_taxbil_check_flag
+		)
+		VALUES(
+			#{rcFk},
+			#{piInputDate},
+			#{piName},
+			#{piQty},
+			#{piMeasure},
+			#{piCost},
+			#{piTax},
+			#{piTotalCost},
+			#{piAccountReceivable},
+			#{piRemark1},
+			#{piRemark2},
+			#{piFileOriName},
+			#{piFilePath},
+			#{piFileUniqName},
+			#{piFileExe},
+			#{piTaxbilCheckFlag}
+		)
+	</insert>
+	
+	<select id="selectProductInfoList" parameterType="OrderSearchVO" resultType="ProductInfoVO">
+		SELECT
+			rc.rc_name AS rc_names,
+			pi.*
+		FROM
+			res_company rc
+			INNER JOIN product_info pi	ON	rc.rc_pk = pi.rc_fk
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<![CDATA[
+				pi.pi_input_date >= #{dateStart} 
+				AND pi.pi_input_date < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+			]]>
+			<if test="ccPk != 0">
+				AND rc.rc_pk = #{ccPk}
+			</if>
+			<if test="searchKeyword != null and !searchKeyword.equals('')">
+				AND pi.pi_name LIKE CONCAT('%',#{searchKeyword},'%') 
+			</if>
+			
+			<if test="taxFlag == 1">
+				AND pi.pi_taxbil_check_flag = 1
+			</if>
+			<if test="taxFlag == 2">
+				AND pi.pi_taxbil_check_flag = 0
+			</if>
+			
+			
+			<if test="labelBtn == 1">
+				AND pi.pi_acc_flag = 1
+			</if>
+			<if test="labelBtn == 2">
+				AND pi.pi_acc_flag = 0
+			</if>
+			
+			<if test="matchingFlag == 1">
+				AND pi.pi_file_path IS NOT NULL
+			</if>
+			<if test="matchingFlag == 2">
+				AND pi.pi_file_path IS NULL
+			</if>
+			AND rc.rc_del_flag != 1
+		</trim>
+		ORDER BY
+			pi.pi_input_date DESC
+		
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	
+	<select id="selectProductInfoListCounting" parameterType="OrderSearchVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			res_company rc
+			INNER JOIN product_info pi	ON	rc.rc_pk = pi.rc_fk
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<![CDATA[
+				pi.pi_input_date >= #{dateStart} 
+				AND pi.pi_input_date < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+			]]>
+			<if test="ccPk != 0">
+				AND rc.rc_pk = #{ccPk}
+			</if>
+			<if test="searchKeyword != null and !searchKeyword.equals('')">
+				AND pi.pi_name LIKE CONCAT('%',#{searchKeyword},'%') 
+			</if>
+			
+			<if test="taxFlag == 1">
+				AND pi.pi_taxbil_check_flag = 1
+			</if>
+			<if test="taxFlag == 2">
+				AND pi.pi_taxbil_check_flag = 0
+			</if>
+			
+			
+			<if test="labelBtn == 1">
+				AND pi.pi_acc_flag = 1
+			</if>
+			<if test="labelBtn == 2">
+				AND pi.pi_acc_flag = 0
+			</if>
+			
+			<if test="matchingFlag == 1">
+				AND pi.pi_file_path IS NOT NULL
+			</if>
+			<if test="matchingFlag == 2">
+				AND pi.pi_file_path IS NULL
+			</if>
+			AND rc.rc_del_flag != 1
+		</trim>
+	</select>
+	
+	<select id="selectProductInfoByPiPk" parameterType="ProductInfoVO" resultType="ProductInfoVO">
+		SELECT
+			*
+		FROM
+			product_info
+		WHERE
+			pi_pk = #{piPk}
+	</select>
+	
+	<update id="updateTaxbilFlag" parameterType="ProductInfoVO">
+		UPDATE
+			product_info
+		SET
+			pi_taxbil_check_flag = #{piTaxbilCheckFlag}
+		WHERE
+			pi_pk = #{piPk}
+	</update>
+	
+	<update id="updateAccFlag" parameterType="ProductInfoVO">
+		UPDATE
+			product_info
+		SET
+			pi_acc_flag = #{piAccFlag}
+		WHERE
+			pi_pk = #{piPk}
+	</update>
+	
+	<update id="updateProductInfo" parameterType="ProductInfoVO">
+		UPDATE
+			product_info
+		SET
+			pi_input_date = #{piInputDate},
+			pi_name = #{piName},
+			pi_qty = #{piQty},
+			pi_tax = #{piTax},
+			pi_total_cost = #{piTotalCost},
+			pi_cost = #{piCost},
+			pi_account_receivable = #{piAccountReceivable},
+			pi_remark1 = #{piRemark1},
+			pi_remark2 = #{piRemark2},
+			pi_file_path = #{piFilePath},
+			pi_file_ori_name = #{piFileOriName},
+			pi_file_uniq_name = #{piFileUniqName},
+			pi_file_exe = #{piFileExe}
+		WHERE
+			pi_pk = #{piPk}
+	</update>
+	
+	
+	<delete id="deleteProductInfo"  parameterType="ProductInfoVO">
+		DELETE FROM 
+			product_info
+		WHERE
+			pi_pk = #{piPk}
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+

@@ -1,0 +1,755 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="freebie">
+	
+	<resultMap id="freebieResultMap" type="FreebieVO">
+		<id property="fbPk" column="fb_pk" javaType="int"/>
+		<result property="optionFk" column="option_fk" javaType="int"/>
+		<result property="optionName" column="option_name" javaType="String"/>
+		<result property="productName" column="product_name" javaType="String"/>
+		<result property="ssList" column="ss_list" javaType="String"/>
+		<result property="fbName" column="fb_name" javaType="String"/>
+		<result property="fbType" column="fb_type" javaType="int"/>
+		<result property="fbMinDate" column="fb_min_date" javaType="String"/>
+		<result property="fbMaxDate" column="fb_max_date" javaType="String"/>
+		<result property="fbMinPrice" column="fb_min_price" javaType="int"/>
+		<result property="fbMaxPrice" column="fb_max_price" javaType="int"/>
+		<result property="fbMinTotalQty" column="fb_min_total_qty" javaType="int"/>
+		<result property="fbMaxTotalQty" column="fb_max_total_qty" javaType="int"/>
+		<result property="fbTotalQtyFlag" column="fb_total_qty_flag" javaType="boolean"/>
+		<result property="fbAnotherCheckFlag" column="fb_another_check_flag" javaType="boolean"/>
+		<result property="fbAnotherCheckList" column="fb_another_check_list" javaType="int"/>
+		<result property="fbAnotherCheckWord" column="fb_another_check_word" javaType="String"/>
+		<result property="fbAnotherCheckType" column="fb_another_check_type" javaType="int"/>
+		<result property="fbAnotherCheckFlag2" column="fb_another_check_flag2" javaType="boolean"/>
+		<result property="fbAnotherCheckList2" column="fb_another_check_list2" javaType="int"/>
+		<result property="fbAnotherCheckWord2" column="fb_another_check_word2" javaType="String"/>
+		<result property="fbAnotherCheckType2" column="fb_another_check_type2" javaType="int"/>
+		<result property="fbAddType" column="fb_add_type" javaType="int"/>
+		<result property="fbAddQty" column="fb_add_qty" javaType="int"/>
+		
+		<result property="fbRegType" column="fb_reg_type" javaType="String"/>
+		
+		<result property="fbAddMultiQty" column="fb_add_muli_qty" javaType="int"/>
+		<result property="fbUpdate" column="fb_update" javaType="java.sql.Date"/>
+		<result property="fbRegdate" column="fb_regdate" javaType="java.sql.Timestamp"/>
+		
+		<collection property="fbCheckList" ofType="FreebieCheckVO">
+			<id property="fcPk" column="fc_pk" javaType="int"/>
+			<result property="fbFk" column="fb_fk" javaType="int"/>
+			<result property="fcOrderTarget" column="fc_order_target" javaType="String"/>
+			<result property="fcType" column="fc_type" javaType="int"/>
+
+		</collection>
+		
+	</resultMap>
+	
+	<insert id="insertFreebie" parameterType="FreebieVO">
+		INSERT INTO freebie(
+			option_fk,
+		    ss_list,
+		    fb_name,
+		    fb_type,
+		    fb_min_date,
+		    fb_max_date,
+		    fb_min_price,
+		    fb_max_price,
+		    fb_min_total_qty,
+		    fb_max_total_qty,
+		    fb_total_qty_flag,
+		    fb_another_check_flag,
+		    fb_another_check_list,
+		    fb_another_check_word,
+		    fb_another_check_type,
+		    fb_another_check_flag2,
+		    fb_another_check_list2,
+		    fb_another_check_word2,
+		    fb_another_check_type2,
+		    fb_add_type,
+		    fb_add_qty,
+		    fb_add_multi_qty,
+		    fb_update,
+		    fb_regdate,
+		    fb_reg_type
+		)
+		VALUES(
+			#{optionFk},
+		    #{ssList},
+		    #{fbName},
+		    #{fbType},
+		    #{fbMinDate},
+		    #{fbMaxDate},
+		    #{fbMinPrice},
+		    #{fbMaxPrice},
+		    #{fbMinTotalQty},
+		    #{fbMaxTotalQty},
+		    #{fbTotalQtyFlag},
+		    #{fbAnotherCheckFlag},
+		    #{fbAnotherCheckList},
+		    #{fbAnotherCheckWord},
+		    #{fbAnotherCheckType},
+		    #{fbAnotherCheckFlag2},
+		    #{fbAnotherCheckList2},
+		    #{fbAnotherCheckWord2},
+		    #{fbAnotherCheckType2},
+		    #{fbAddType},
+		    #{fbAddQty},
+		    #{fbAddMultiQty},
+		    NOW(),
+		    NOW(),
+		    #{fbRegType}
+		)
+	</insert>
+	
+	<update id="updateFreebieByPk" parameterType="FreebieVO">
+		UPDATE
+			freebie
+		SET
+			ss_list = #{ssList},
+			option_fk = #{optionFk},
+			fb_name = #{fbName},
+			fb_type = #{fbType},
+			fb_min_date = #{fbMinDate},
+			fb_max_date = #{fbMaxDate},
+			fb_min_price = #{fbMinPrice},
+			fb_max_price = #{fbMaxPrice},
+			fb_min_total_qty = #{fbMinTotalQty},
+			fb_max_total_qty = #{fbMaxTotalQty},
+			fb_total_qty_flag = #{fbTotalQtyFlag},
+			fb_another_check_flag = #{fbAnotherCheckFlag},
+			fb_another_check_list = #{fbAnotherCheckList},
+			fb_another_check_word = #{fbAnotherCheckWord},
+			fb_another_check_type = #{fbAnotherCheckType},
+			fb_another_check_flag2 = #{fbAnotherCheckFlag2},
+			fb_another_check_list2 = #{fbAnotherCheckList2},
+			fb_another_check_word2 = #{fbAnotherCheckWord2},
+			fb_another_check_type2 = #{fbAnotherCheckType2},
+			fb_add_type = #{fbAddType},
+			fb_add_qty = #{fbAddQty},
+			fb_add_multi_qty = #{fbAddMultiQty},
+			fb_update = NOW(),
+			fb_reg_type = #{fbRegType}
+		WHERE
+			fb_pk = #{fbPk}
+	</update>
+	
+	<select id="selectFreebieList" resultMap="freebieResultMap" parameterType="OrderSearchVO">
+		SELECT
+			fb.*,
+			op.option_name,
+			pro.product_pk,
+			pro.product_name,
+            fc.*
+		FROM
+			freebie fb
+			INNER JOIN options op ON fb.option_fk = op.option_pk
+			INNER JOIN products pro ON op.product_fk = pro.product_pk
+            LEFT JOIN freebie_check fc ON fc.fb_fk = fb.fb_pk
+	</select>
+	
+	<select id="selectFreebies" resultMap="freebieResultMap" parameterType="OrderSearchVO">
+		SELECT
+			fb.*,
+			op.option_name,
+			pro.product_pk,
+			pro.product_name
+		FROM
+			freebie fb
+			INNER JOIN options op ON fb.option_fk = op.option_pk
+			INNER JOIN products pro ON op.product_fk = pro.product_pk
+		ORDER BY
+			fb.fb_pk DESC
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	
+	<select id="selectFreebieCount" resultType="int" parameterType="OrderSearchVO">
+		SELECT
+			COUNT(inne.fb_pk)
+		FROM
+			(
+			SELECT
+				fb.*,
+				op.option_name,
+				pro.product_pk,
+				pro.product_name
+			FROM
+				freebie fb
+				INNER JOIN options op ON fb.option_fk = op.option_pk
+				INNER JOIN products pro ON op.product_fk = pro.product_pk
+			) inne
+	</select>
+	
+	<select id="selectFreebieDupliCheck" parameterType="FreebieCheckVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM	
+			freebie_check
+		WHERE
+			fb_fk = #{fbFk}
+		    AND fc_order_target = #{fcOrderTarget}
+		    AND fc_type = #{fcType}
+	</select>
+	
+	<select id="selectFreebieByFbpk" resultType="FreebieVO" parameterType="FreebieVO">
+		SELECT
+			fb.*,
+			op.option_name,
+			pro.product_pk,
+			pro.product_name
+		FROM
+			freebie fb
+			INNER JOIN options op ON fb.option_fk = op.option_pk
+			INNER JOIN products pro ON op.product_fk = pro.product_pk
+		WHERE
+			fb_pk = #{fbPk}
+			
+	</select>
+	
+	<insert id="insertFreebieCheck" parameterType="FreebieCheckVO">
+		INSERT INTO
+			freebie_check(
+				fb_fk,
+				fc_order_target,
+				fc_type
+			)
+		VALUES(
+			#{fbFk},
+			#{fcOrderTarget},
+			#{fcType}
+		)
+	</insert>
+	
+	<delete id="deleteFreebie" parameterType="FreebieVO">
+		DELETE FROM	
+			freebie
+		WHERE
+			fb_pk = #{fbPk}
+	</delete>
+	
+	<select id="selectFreebieTargetOrder" parameterType="FreebieVO" resultType="OrdersVO">
+			SELECT
+			    COUNT(ori_od.or_pk) AS or_pk,
+				SUM(ori_od.or_amount) AS or_amount,
+			    SUM(ori_od.or_total_price) AS or_total_price,
+			    
+			   if(  #{fbType} = 0, 
+                   ori_od.or_serial_special_number,
+                   	IF(	 #{fbType} = 1,
+						ori_od.or_order_number,
+						IF(	 #{fbType} = 2,
+							ori_od.or_receiver_contract_number1,
+							ori_od.or_buyer_contract_number1
+	                   	)
+                   	)
+                ) AS ss_name,
+                GROUP_CONCAT(DISTINCT ori_od.or_serial_special_number,',') AS or_serial_special_number,
+				ori_od.or_buyer_id,
+				ori_od.or_buyer_name,
+				ori_od.or_buyer_another_name,
+				ori_od.or_buyer_contract_number1,
+				ori_od.or_buyer_contract_number2,
+				ori_od.or_receiver_name,
+				ori_od.or_delivery_type,
+				ori_od.or_payment_position_type,
+				ori_od.or_sending_deadline,
+				ori_od.or_delivery_charge_type,
+				ori_od.or_delivery_number,
+				ori_od.or_delivery_discount_price,
+				ori_od.or_receiver_contract_number1,
+				ori_od.or_receiver_contract_number2,
+				ori_od.or_shipping_address_number,
+				ori_od.or_shipping_address,
+				ori_od.or_shipping_address_detail,
+				ori_od.or_special_region_flag,
+				ori_od.or_sending_address,
+				ori_od.or_payment_type,
+				ori_od.ss_fk,
+				ori_od.or_delivery_charge_payment_type,
+				ori_od.or_delivery_special_price,
+				ori_od.or_output_date,
+				ori_od.or_output_flag,
+				ori_od.or_output_posib_flag,
+				ori_od.or_regdate,
+				ori_od.or_special_region_check_flag
+			FROM
+				orders ori_od
+			    INNER JOIN ( 
+			    					SELECT
+					INNE.or_pk
+				FROM
+                (
+                    SELECT
+						od.or_pk,					
+						od.or_product,						
+						od.or_product_option,
+						od.or_product_number,
+						pro.product_name,
+						op.option_name,
+						od.or_shipping_address,
+						od.or_user_column1,
+						od.or_user_column2,
+						od.or_user_column3
+					FROM
+						orders od
+						INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+						INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+						INNER JOIN options op ON om.option_fk = op.option_pk
+						INNER JOIN products pro ON pro.product_pk = op.product_fk
+					WHERE
+						<![CDATA[
+						${fbRegType} >= #{fbMinDate}
+						AND ${fbRegType} < #{fbMaxDate}
+						AND od.or_devide_flag = 0
+						AND od.or_output_flag = 0
+						AND (od.or_delivery_invoice_number IS NULL OR od.or_delivery_invoice_number = '' )
+						AND od.or_sending_day IS NULL
+						AND od.or_product_order_number NOT LIKE '사은품%'
+						]]>
+						AND od.ss_fk IN
+						<foreach collection="ssArrayList" item="storeList" open="(" close=")" separator=",">
+							#{storeList}
+						</foreach>
+						
+						<if test="fbAnotherCheckFlag == 1">
+							<if test="fbAnotherCheckWordList.size != 0">
+								<if test="fbAnotherCheckType == 1 or fbAnotherCheckType == 2">
+								AND (
+								<if test="fbAnotherCheckType == 1">
+									<foreach item="item" collection="fbAnotherCheckWordList" separator="or">
+								
+									    <if test="fbAnotherCheckList == 0">							
+											od.or_product
+										</if>
+										<if test="fbAnotherCheckList == 1">							
+											od.or_product_option
+										</if>
+										<if test="fbAnotherCheckList == 2">							
+											od.or_product_number
+										</if>
+										<if test="fbAnotherCheckList == 3">							
+											pro.product_name
+										</if>
+										<if test="fbAnotherCheckList == 4">							
+											op.option_name
+										</if>
+										<if test="fbAnotherCheckList == 5">							
+											od.or_shipping_address
+										</if>
+										<if test="fbAnotherCheckList == 6">							
+											od.or_user_column1
+										</if>
+										<if test="fbAnotherCheckList == 7">							
+											od.or_user_column2
+										</if>
+										<if test="fbAnotherCheckList == 8">							
+											od.or_user_column3
+										</if>
+										
+										LIKE CONCAT('%',#{item},'%') 
+										
+									</foreach>
+								</if>
+								<if test="fbAnotherCheckType == 2">
+									<foreach item="item" collection="fbAnotherCheckWordList" separator="or">
+									
+									    <if test="fbAnotherCheckList == 0">							
+											od.or_product
+										</if>
+										<if test="fbAnotherCheckList == 1">							
+											od.or_product_option
+										</if>
+										<if test="fbAnotherCheckList == 2">							
+											od.or_product_number
+										</if>
+										<if test="fbAnotherCheckList == 3">							
+											pro.product_name
+										</if>
+										<if test="fbAnotherCheckList == 4">							
+											op.option_name
+										</if>
+										<if test="fbAnotherCheckList == 5">							
+											od.or_shipping_address
+										</if>
+										<if test="fbAnotherCheckList == 6">							
+											od.or_user_column1
+										</if>
+										<if test="fbAnotherCheckList == 7">							
+											od.or_user_column2
+										</if>
+										<if test="fbAnotherCheckList == 8">							
+											od.or_user_column3
+										</if>
+											= #{item}
+									</foreach>
+								</if>
+								)
+								</if>
+							</if>
+							
+						</if>
+					) INNE
+					<if test="fbAnotherCheckFlag2 == 1">
+					
+							<if test="fbAnotherCheckWord2 != null and !fbAnotherCheckWord2.equals('')">
+								
+								<if test="fbAnotherCheckType2 == 1 or fbAnotherCheckType2 == 2">
+								WHERE
+								(
+								<if test="fbAnotherCheckType2 == 1">		
+									    <if test="fbAnotherCheckList2 == 0">							
+											INNE.or_product
+										</if>
+										<if test="fbAnotherCheckList2 == 1">							
+											INNE.or_product_option
+										</if>
+										<if test="fbAnotherCheckList2 == 2">							
+											INNE.or_product_number
+										</if>
+										<if test="fbAnotherCheckList2 == 3">							
+											INNE.product_name
+										</if>
+										<if test="fbAnotherCheckList2 == 4">							
+											INNE.option_name
+										</if>
+										<if test="fbAnotherCheckList2 == 5">							
+											INNE.or_shipping_address
+										</if>
+										<if test="fbAnotherCheckList2 == 6">							
+											INNE.or_user_column1
+										</if>
+										<if test="fbAnotherCheckList2 == 7">							
+											INNE.or_user_column2
+										</if>
+										<if test="fbAnotherCheckList2 == 8">							
+											INNE.or_user_column3
+										</if>
+										
+										LIKE CONCAT('%',#{fbAnotherCheckWord2},'%') 
+								</if>
+								<if test="fbAnotherCheckType2 == 2">
+									    <if test="fbAnotherCheckList2 == 0">							
+											INNE.or_product
+										</if>
+										<if test="fbAnotherCheckList2 == 1">							
+											INNE.or_product_option
+										</if>
+										<if test="fbAnotherCheckList2 == 2">							
+											INNE.or_product_number
+										</if>
+										<if test="fbAnotherCheckList2 == 3">							
+											INNE.product_name
+										</if>
+										<if test="fbAnotherCheckList2 == 4">							
+											INNE.option_name
+										</if>
+										<if test="fbAnotherCheckList2 == 5">							
+											INNE.or_shipping_address
+										</if>
+										<if test="fbAnotherCheckList2 == 6">							
+											INNE.or_user_column1
+										</if>
+										<if test="fbAnotherCheckList2 == 7">							
+											INNE.or_user_column2
+										</if>
+										<if test="fbAnotherCheckList2 == 8">							
+											INNE.or_user_column3
+										</if>
+											= #{fbAnotherCheckWord2}
+								</if>
+								)
+								</if>
+							</if>
+							
+						</if>
+					GROUP BY
+						INNE.or_pk
+				) inner_od ON ori_od.or_pk = inner_od.or_pk
+				<trim prefix="WHERE" prefixOverrides="AND |OR ">
+					<![CDATA[
+						ori_od.or_pk  > 0
+					]]>
+				<if test="fbAnotherCheckWordList.size != 0">
+					<if test="fbAnotherCheckFlag == 1">
+						<if test="fbAnotherCheckType == 0 or fbAnotherCheckType == 3">
+						
+							AND ori_od.or_pk NOT IN  (
+								SELECT
+									od.or_pk
+								FROM
+									orders od
+									INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+									INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+									INNER JOIN options op ON om.option_fk = op.option_pk
+									INNER JOIN products pro ON pro.product_pk = op.product_fk
+								WHERE
+									<![CDATA[
+									
+									${fbRegType} >= #{fbMinDate}
+									AND ${fbRegType} < #{fbMaxDate}
+									AND od.or_devide_flag = 0
+									AND od.or_output_flag = 0
+									AND (od.or_delivery_invoice_number IS NULL OR od.or_delivery_invoice_number = '' )
+									AND od.or_sending_day IS NULL
+									]]>
+									AND od.ss_fk IN
+									<foreach collection="ssArrayList" item="storeList" open="(" close=")" separator=",">
+										#{storeList}
+									</foreach>	
+										AND (	
+										<if test="fbAnotherCheckType == 0">
+											<foreach item="item" collection="fbAnotherCheckWordList" separator="or">
+										
+											    <if test="fbAnotherCheckList == 0">							
+													od.or_product
+												</if>
+												<if test="fbAnotherCheckList == 1">							
+													od.or_product_option
+												</if>
+												<if test="fbAnotherCheckList == 2">							
+													od.or_product_number
+												</if>
+												<if test="fbAnotherCheckList == 3">							
+													pro.product_name
+												</if>
+												<if test="fbAnotherCheckList == 4">							
+													op.option_name
+												</if>
+												<if test="fbAnotherCheckList == 5">							
+													od.or_shipping_address
+												</if>
+												<if test="fbAnotherCheckList == 6">							
+													od.or_user_column1
+												</if>
+												<if test="fbAnotherCheckList == 7">							
+													od.or_user_column2
+												</if>
+												<if test="fbAnotherCheckList == 8">							
+													od.or_user_column3
+												</if>
+												
+												 LIKE CONCAT('%',#{item},'%') 
+												
+											</foreach>
+										</if>
+										<if test="fbAnotherCheckType == 3">
+											<foreach item="item" collection="fbAnotherCheckWordList" separator="or">
+											
+											    <if test="fbAnotherCheckList == 0">							
+													od.or_product
+												</if>
+												<if test="fbAnotherCheckList == 1">							
+													od.or_product_option
+												</if>
+												<if test="fbAnotherCheckList == 2">							
+													od.or_product_number
+												</if>
+												<if test="fbAnotherCheckList == 3">							
+													pro.product_name
+												</if>
+												<if test="fbAnotherCheckList == 4">							
+													op.option_name
+												</if>
+												<if test="fbAnotherCheckList == 5">							
+													od.or_shipping_address
+												</if>
+												<if test="fbAnotherCheckList == 6">							
+													od.or_user_column1
+												</if>
+												<if test="fbAnotherCheckList == 7">							
+													od.or_user_column2
+												</if>
+												<if test="fbAnotherCheckList == 8">							
+													od.or_user_column3
+												</if>
+													= #{item}
+												
+											</foreach>
+										</if>
+											)
+							GROUP BY
+								od.or_pk 
+						)
+						</if>
+					</if>		
+				</if>
+				<if test="fbAnotherCheckWord2 != null and !fbAnotherCheckWord2.equals('')">
+					<if test="fbAnotherCheckFlag2 == 1">
+						<if test="fbAnotherCheckType2 == 0 or fbAnotherCheckType2 == 3">
+						
+							AND ori_od.or_pk NOT IN  (
+								SELECT
+									od.or_pk
+								FROM
+									orders od
+									INNER JOIN product_matching pm ON od.pm_fk = pm.pm_pk
+									INNER JOIN option_matching om ON om.pm_fk = pm.pm_pk AND od.or_product_option = om.om_store_option_name
+									INNER JOIN options op ON om.option_fk = op.option_pk
+									INNER JOIN products pro ON pro.product_pk = op.product_fk
+								WHERE
+									<![CDATA[
+									
+									
+									${fbRegType} >= #{fbMinDate}
+									AND ${fbRegType} < #{fbMaxDate}
+									AND od.or_devide_flag = 0
+									AND od.or_output_flag = 0
+									AND (od.or_delivery_invoice_number IS NULL OR od.or_delivery_invoice_number = '' )
+									AND od.or_sending_day IS NULL
+									]]>
+									AND od.ss_fk IN
+									<foreach collection="ssArrayList" item="storeList" open="(" close=")" separator=",">
+										#{storeList}
+									</foreach>	
+										AND (	
+										<if test="fbAnotherCheckType2 == 0">
+										
+											    <if test="fbAnotherCheckList2 == 0">							
+													od.or_product
+												</if>
+												<if test="fbAnotherCheckList2 == 1">							
+													od.or_product_option
+												</if>
+												<if test="fbAnotherCheckList2 == 2">							
+													od.or_product_number
+												</if>
+												<if test="fbAnotherCheckList2 == 3">							
+													pro.product_name
+												</if>
+												<if test="fbAnotherCheckList2 == 4">							
+													op.option_name
+												</if>
+												<if test="fbAnotherCheckList2 == 5">							
+													od.or_shipping_address
+												</if>
+												<if test="fbAnotherCheckList2 == 6">							
+													od.or_user_column1
+												</if>
+												<if test="fbAnotherCheckList2 == 7">							
+													od.or_user_column2
+												</if>
+												<if test="fbAnotherCheckList2 == 8">							
+													od.or_user_column3
+												</if>
+												
+												 LIKE CONCAT('%',#{fbAnotherCheckWord2},'%') 
+										</if>
+										<if test="fbAnotherCheckType2 == 3">
+											    <if test="fbAnotherCheckList2 == 0">							
+													od.or_product
+												</if>
+												<if test="fbAnotherCheckList2 == 1">							
+													od.or_product_option
+												</if>
+												<if test="fbAnotherCheckList2 == 2">							
+													od.or_product_number
+												</if>
+												<if test="fbAnotherCheckList2 == 3">							
+													pro.product_name
+												</if>
+												<if test="fbAnotherCheckList2 == 4">							
+													op.option_name
+												</if>
+												<if test="fbAnotherCheckList2 == 5">							
+													od.or_shipping_address
+												</if>
+												<if test="fbAnotherCheckList2 == 6">							
+													od.or_user_column1
+												</if>
+												<if test="fbAnotherCheckList2 == 7">							
+													od.or_user_column2
+												</if>
+												<if test="fbAnotherCheckList2 == 8">							
+													od.or_user_column3
+												</if>
+													= #{fbAnotherCheckWord2}
+										</if>
+											)
+							GROUP BY
+								od.or_pk 
+						)
+						</if>
+					</if>		
+				</if>
+				</trim>
+					
+			GROUP BY
+				ss_name,
+				ori_od.or_buyer_id,
+				ori_od.or_buyer_name,
+				ori_od.or_buyer_another_name,
+				ori_od.or_buyer_contract_number1,
+				ori_od.or_buyer_contract_number2,
+				ori_od.or_receiver_name,
+				ori_od.or_delivery_type,
+				ori_od.or_payment_position_type,
+				ori_od.or_sending_deadline,
+				ori_od.or_delivery_charge_type,
+				ori_od.or_delivery_number,
+				ori_od.or_delivery_discount_price,
+				ori_od.or_receiver_contract_number1,
+				ori_od.or_receiver_contract_number2,
+				ori_od.or_shipping_address_number,
+				ori_od.or_shipping_address,
+				ori_od.or_shipping_address_detail,
+				ori_od.or_special_region_flag,
+				ori_od.or_sending_address,
+				ori_od.or_payment_type,
+				ori_od.ss_fk,
+				ori_od.or_delivery_charge_payment_type,
+				ori_od.or_delivery_special_price,
+				ori_od.or_output_date,
+				ori_od.or_output_flag,
+				ori_od.or_output_posib_flag,
+				ori_od.or_regdate,
+				ori_od.or_special_region_check_flag
+			<trim prefix="HAVING" prefixOverrides="AND |OR ">
+				<if test="fbAddType != 3">
+					<![CDATA[
+						or_total_price >= #{fbMinPrice}
+					    AND or_total_price <= #{fbMaxPrice}
+				    ]]>
+				    
+				    <if test="fbTotalQtyFlag != 0">	
+				    	<![CDATA[		    
+						    AND or_amount >= #{fbMinTotalQty} 
+						    AND or_amount <= #{fbMaxTotalQty}
+					    ]]>
+					    
+				    </if>
+				</if>
+				<if test="fbAddType == 3">
+					
+				    <if test="fbTotalQtyFlag == 0 ">	
+				    	<![CDATA[
+							or_total_price >= #{fbMinPrice}
+					    ]]>
+				    </if>
+				    <if test="fbTotalQtyFlag != 0 ">	
+				    	<![CDATA[		    
+						    AND or_amount >= #{fbMinTotalQty} 
+					    ]]>
+				    </if>
+				</if>
+			    <if test="fbCheckList.size != 0">
+			    		AND ss_name NOT IN 
+						<foreach item="item" collection="fbCheckList" open="(" separator="," close=")">
+						    #{item.fcOrderTarget}
+						</foreach>
+
+				</if>
+			</trim>
+				
+		
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.config.delete">
+	<insert id="insertDeleteOrders" parameterType="OrdersVO">
+		INSERT INTO
+			orders_delete
+			( order_del_order_number, order_del_product_order_number, order_del_product, order_del_product_option, order_del_product_qty, order_del_sending_deadline, order_del_ip, order_del_admin )
+		VALUES
+			( #{orOrderNumber}, #{orProductOrderNumber}, #{orProduct}, #{orProductOption}, #{orAmount}, #{orSendingDeadline}, INET_ATON(#{ip}), #{adminId} )
+			
+	</insert>
+	
+	<select id="selectOrdersDeleteList" parameterType="OrderSearchVO" resultType="OrdersDeleteVO">
+		SELECT
+			order_del_pk,
+			order_del_order_number, 
+			order_del_product_order_number, 
+			order_del_product, 
+			order_del_product_option,
+			order_del_product_qty, 
+			order_del_sending_deadline,
+			INET_NTOA(order_del_ip) AS order_del_ip, 
+			order_del_admin,
+			order_del_regdate
+		FROM
+			orders_delete
+		WHERE
+			<![CDATA[			
+				order_del_regdate >= #{dateStart} 
+				AND order_del_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+			]]>
+		ORDER BY
+			order_del_pk DESC
+		LIMIT #{firstRecordIndex}, #{recordCountPerPage} 
+	</select>
+	
+	<select id="selectOrdersDeleteListCounting" parameterType="OrderSearchVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			orders_delete
+		WHERE
+			<![CDATA[			
+				order_del_regdate >= #{dateStart} 
+				AND order_del_regdate < DATE_FORMAT(DATE_ADD(#{dateEnd}, INTERVAL 1 DAY), '%Y-%m-%d')
+			]]>
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

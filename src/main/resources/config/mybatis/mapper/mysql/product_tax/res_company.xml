@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tax.res_company">
+	
+	
+	<insert id="insertResCompany" parameterType="ResCompanyVO">
+		INSERT INTO res_company(
+			rc_name,
+			rc_num,
+			rc_contract_num,
+			rc_remark1,
+			rc_remark2,
+			rc_remark3,
+			rc_remark4,
+			rc_remark5,
+			rc_remark6
+		)
+		VALUES(
+			#{rcName},
+			#{rcNum},
+			#{rcContractNum},
+			#{rcRemark1},
+			#{rcRemark2},
+			#{rcRemark3},
+			#{rcRemark4},
+			#{rcRemark5},
+			#{rcRemark6}
+		)
+	</insert>
+	
+	<select id="selectRecCompany" resultType="ResCompanyVO" parameterType="OrderSearchVO">
+		SELECT
+			*
+		FROM
+			res_company
+		WHERE
+			rc_del_flag != 1
+	</select>
+	
+	<select id="selectRecCompanyCounting" resultType="int" parameterType="OrderSearchVO">
+		SELECT
+			COUNT(*)
+		FROM
+			res_company
+		WHERE
+			rc_del_flag != 1
+	</select>
+	
+	
+	<select id="selectRecCompanyByRcPk" resultType="ResCompanyVO" parameterType="ResCompanyVO">
+		SELECT
+			*
+		FROM
+			res_company
+		WHERE
+			rc_pk = #{rcPk}
+			AND rc_del_flag != 1
+	</select>
+	
+	<update id="updateResCompany" parameterType="ResCompanyVO">
+		UPDATE
+			res_company
+		SET
+			rc_name = #{rcName},
+			rc_num = #{rcNum},
+			rc_contract_num = #{rcContractNum},
+			rc_remark1 = #{rcRemark1},
+			rc_remark2 = #{rcRemark2},
+			rc_remark3 = #{rcRemark3},
+			rc_remark4 = #{rcRemark4},
+			rc_remark5 = #{rcRemark5},
+			rc_remark6 = #{rcRemark6}
+		WHERE
+			rc_pk = #{rcPk}
+	</update>
+	
+	<update id="deleteResCompany" parameterType="ResCompanyVO">
+		UPDATE
+			res_company
+		SET
+			rc_del_flag = 1
+		WHERE
+			rc_pk = #{rcPk}
+	</update>
+	
+</mapper>
+
+
+
+
+
+
+
+

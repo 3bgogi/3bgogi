@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin.project">
+
+	<!-- ProjectsVO - projectDetailVO : resultMap Model -->
+	<resultMap type="com.gogi.proj.admin.project.vo.ProjectsVO" id="projectListModel">
+		<id property="proPk" column="pro_pk" javaType="int"/>
+		<result property="proTitle" column="pro_title" javaType="String"/>
+		<result property="proTitleColor" column="pro_title_color" javaType="String"/>
+		<result property="proDetail" column="pro_detail" javaType="String"/>
+		<result property="proAlarmDate" column="pro_alarm_date" javaType="java.sql.Timestamp"/>
+		<result property="proAlarmType" column="pro_alarm_type" javaType="int"/>
+		<result property="proRepeatDay" column="pro_repeat_day" javaType="int"/>
+		<result property="proRepeatWeek" column="pro_repeat_week" javaType="int"/>
+		<result property="proDeleteFlag" column="pro_delete_flag" javaType="boolean"/>
+		<result property="proThumbnailImage" column="pro_thumbnail_image" javaType="String"/>
+		<result property="proThumbnailImageRealName" column="pro_thumbnail_image_real_name" javaType="String"/>
+		<result property="proThumbnailImageExtType" column="pro_thumbnail_image_ext_type" javaType="String"/>
+		<result property="proRegdate" column="pro_regdate" javaType="java.sql.Timestamp"/>
+		<collection property="projectDetailList"  ofType="ProjectDetailVO">
+			<id property="pdPk" column="pd_pk" javaType="int"/>
+			<result property="pdDetail" column="pd_detail" javaType="String"/>
+			<result property="pdFile1" column="pd_file1" javaType="String"/>
+			<result property="pdDisplayFlag" column="pd_display_flag" javaType="boolean"/>
+			<result property="pdImportant" column="pd_important" javaType="boolean"/>
+			<result property="pdFinishTime" column="pd_finish_time" javaType="java.sql.Timestamp"/>
+		</collection>
+		<collection property="projectTagList" ofType="ProjectTagVO">
+			<id property="ptagPk" column="ptag_pk" javaType="int"/>
+			<result property="ptagTitle" column="ptag_title" javaType="String"/>
+		</collection>
+		<collection property="projectTargetList" ofType="ProjectTargetVO">
+			<id property="ptPk" column="pt_pk" javaType="int"/>
+			<result property="ptAdminFk" column="pt_admin_fk" javaType="int"/>
+			<result property="ptDisplayFlag" column="pt_display_flag" javaType="boolean"/>
+			<result property="ptCreateFlag" column="pt_create_flag" javaType="boolean"/>
+			<result property="ptAlarmCheckDate" column="pt_alarm_check_date" javaType="java.sql.Date"/>
+			<result property="ptTopAlarmFlag" column="pt_top_alarm_flag" javaType="boolean"/>
+			<result property="proIdentify" column="pro_Identify" javaType="boolean"/>
+			<result property="ptRegdate" column="pt_regdate" javaType="java.sql.Timestamp"/>
+		</collection>
+	</resultMap>
+	
+	<resultMap id="projectALlResultmap" type="ProjectsVO">
+		<id property="proPk" column="pro_pk" javaType="int"/>
+		<result property="proTitle" column="pro_title" javaType="String"/>
+		<result property="proDetail" column="pro_detail" javaType="String"/>
+		<result property="proTitleColor" column="pro_title_color" javaType="String"/>
+		<result property="proAlarmDate" column="pro_alarm_date" javaType="java.sql.Timestamp"/>
+		<result property="proAlarmType" column="pro_alarm_type" javaType="int"/>
+		<result property="proRepeatDay" column="pro_repeat_day" javaType="int"/>
+		<result property="proRepeatWeek" column="pro_repeat_week" javaType="int"/>
+		<result property="proDeleteFlag" column="pro_delete_flag" javaType="boolean"/>
+		<result property="proThumbnailImage" column="pro_thumbnail_image" javaType="String"/>
+		<result property="proThumbnailImageRealName" column="pro_thumbnail_image_real_name" javaType="String"/>
+		<result property="proThumbnailImageExtType" column="pro_thumbnail_image_ext_type" javaType="String"/>
+		<result property="proRegdate" column="pro_regdate" javaType="java.sql.Timestamp"/>
+		
+		<!-- 업무 대상자 -->
+		<collection property="projectTargetList" ofType="ProjectTargetVO">
+			<id property="ptPk" column="pt_pk" javaType="int"/>
+			<result property="ptAdminFk" column="pt_admin_fk" javaType="int"/>
+			<result property="ptDisplayFlag" column="pt_display_flag" javaType="boolean"/>
+			<result property="ptCreateFlag" column="pt_create_flag" javaType="boolean"/>
+			<result property="ptAlarmCheckDate" column="pt_alarm_check_date" javaType="java.sql.Date"/>
+			<result property="ptTopAlarmFlag" column="pt_top_alarm_flag" javaType="boolean"/>
+			<result property="proIdentify" column="pro_Identify" javaType="boolean"/>
+			<result property="ptRegdate" column="pt_regdate" javaType="java.sql.Timestamp"/>
+			<result property="adminName" column="admin_name" javaType="String"/>
+		</collection>
+		
+		<!-- 업무 상세사항 -->
+		<collection property="projectDetailList"  ofType="ProjectDetailVO">
+			<id property="pdPk" column="pd_pk" javaType="int"/>
+			<result property="pdDetail" column="pd_detail" javaType="String"/>
+			<result property="pdFile1" column="pd_file1" javaType="String"/>
+			<result property="pdFileRealName" column="pd_file_real_name" javaType="String"/>
+			<result property="pdFileExtType" column="pd_file_ext_type" javaType="String"/>
+			<result property="pdDisplayFlag" column="pd_display_flag" javaType="boolean"/>
+			<result property="pdImportant" column="pd_important" javaType="boolean"/>
+			<result property="pdFinishTime" column="pd_finish_time" javaType="java.sql.Timestamp"/>
+			<result property="pdAdmin" column="pd_admin" javaType="String"/>
+		</collection>
+		
+		<!-- 업무 댓글 -->
+		<collection property="projectCommentList" ofType="ProjectCommentVO">
+			<id property="pcPk" column="pc_pk" javaType="int"/>
+			<result property="pcProFk" column="pc_pro_fk" javaType="int"/>
+			<result property="pcAdminFk" column="pc_admin_fk" javaType="int"/>
+			<result property="pcPdFk" column="pc_pd_fk" javaType="int"/>
+			<result property="pcDetail" column="pc_detail" javaType="String"/>
+			<result property="pcUpdate" column="pc_update" javaType="java.sql.Timestamp"/>
+			<result property="pcRegdate" column="pc_regdate" javaType="java.sql.Timestamp"/>
+		</collection>
+		
+		<!-- 업무 태그 -->
+		<collection property="projectTagList" ofType="ProjectTagVO">
+			<id property="ptagPk" column="ptag_pk" javaType="int"/>
+			<result property="ptagTitle" column="ptag_title" javaType="String"/>
+		</collection>
+	</resultMap>
+	
+	<!-- project search start-->
+	<!-- 자기 업무 사항 가져오기 -->
+	<select id="selectProjectConditionWithAlarmAndOwn" parameterType="int" resultType="ProjectsVO">
+		SELECT 
+			pro.pro_pk, 
+			pro.pro_title, 
+			pro.pro_title_color, 
+			pro.pro_regdate, 
+			pro.pro_thumbnail_image,
+			
+			CASE
+				/** 알람 반복타입이 반복 없음 일 경우 */
+				WHEN pro.pro_alarm_type = 0 THEN FALSE
+				
+				/** 매일 반복일 경우 */
+				WHEN ( pro.pro_alarm_type = 1 AND 
+					<![CDATA[
+						(  
+							/** 매일 반복 시간과 현재 시간 비교, 알람 해제일과 현재 날짜 비교  */
+							DATE_FORMAT(pro.pro_alarm_date, '%H:%i') <= DATE_FORMAT(NOW(), '%H:%i') AND 
+							DATE_FORMAT(pt.pt_alarm_check_date, '%Y-%m-%d') <  DATE_FORMAT(NOW(), '%Y-%m-%d') 
+						) OR
+						( 
+							/** 알람 해제일의 시간과 매일 반복 시간 비교  */
+							(DATE_FORMAT(pt.pt_alarm_check_date, '%H:%i') < DATE_FORMAT(pro.pro_alarm_date, '%H:%i')) AND
+							(DATE_FORMAT(NOW(), '%H:%i') >= DATE_FORMAT(pro.pro_alarm_date, '%H:%i')) AND
+							(DATE_FORMAT(pt.pt_alarm_check_date, '%Y-%m-%d') =  DATE_FORMAT(NOW(), '%Y-%m-%d'))
+						) 
+						/** 알람 해제일이 없을 경우 */
+					) OR pt.pt_alarm_check_date IS NULL THEN TRUE
+					]]>
+					
+				/** 요일 반복 일 경우 */
+				WHEN ( pro.pro_alarm_type  = 2 AND (pro.pro_repeat_week = WEEKDAY(NOW()) AND 
+					<![CDATA[
+							(
+								DATE_FORMAT(pro.pro_alarm_date, '%H:%i') > DATE_FORMAT(pt.pt_alarm_check_date, '%H:%i') AND
+								DATE_FORMAT(NOW(), '%H:%i') >= DATE_FORMAT(pro.pro_alarm_date, '%H:%i') AND
+								DATE_FORMAT(NOW(), '%Y-%m-%d') > DATE_FORMAT(pt.pt_alarm_check_date, '%Y-%m-%d')
+							)
+						)
+					]]>
+					 ) OR pt.pt_alarm_check_date IS NULL THEN TRUE
+					 
+				/** 일자 반복 일 경우 */
+				WHEN ( pro.pro_alarm_type = 3 AND (pro.pro_repeat_day = DAYOFMONTH(NOW()) AND DAYOFMONTH(NOW()) != DAYOFMONTH(pt.pt_alarm_check_date) AND
+					<![CDATA[
+					DATE_FORMAT(pro.pro_alarm_date, '%H:%i') >= DATE_FORMAT(pt.pt_alarm_check_date, '%H:%i'))
+					]]>
+					) OR pt.pt_alarm_check_date IS NULL THEN TRUE
+				ELSE FALSE
+			END AS pro_top_alarm_check
+		FROM 
+			projects pro
+		LEFT JOIN project_target pt		ON pro.pro_pk = pt.pt_pro_fk
+		WHERE 
+			pt.pt_admin_fk = #{adminPk}
+			AND pt.pt_top_alarm_flag > 0
+			AND pro.pro_delete_flag = 0
+			AND pro.pro_finished_flag = 0
+	</select>
+	
+	<!-- 업무 타이틀 색상 변경 -->
+	<update id="changeProjectTitleColor" parameterType="ProjectsVO">
+		UPDATE 
+			projects
+		SET 
+			pro_title_color = #{proTitleColor}
+		WHERE
+		 	pro_pk = #{proPk}
+	</update>
+	
+	<!-- 업무 삭제  -->
+	<update id="deleteProjectProcess" parameterType="int">
+		UPDATE
+			projects
+		SET
+			pro_delete_flag = 1
+		WHERE
+			pro_pk = #{proPk}
+	</update>
+	
+	
+	<!-- 업무알람일 변경 -->
+	<update id="changeProjectAlarmDate" parameterType="ProjectsVO">
+		UPDATE
+			projects
+		SET
+			pro_alarm_date = #{proAlarmDateString}
+		WHERE
+			pro_pk = #{proPk}
+	</update>
+	
+	
+	<!-- 업무알람타입 변경
+		0 반복없음
+		1 매일
+		2 일자로 반복
+		3 요일로 반복
+	 -->
+	<update id="changeProjectAlarmType" parameterType="ProjectsVO">
+		UPDATE
+			projects
+		SET
+			pro_alarm_type = #{proAlarmType}, pro_repeat_day = #{proRepeatDay}, pro_repeat_week = #{proRepeatWeek}
+		WHERE
+			pro_pk = #{proPk}
+	</update>
+	
+	
+	<!-- 알람 체크 -->
+	<update id="checkProjectAlarm" parameterType="ProjectTargetVO">
+		UPDATE
+			project_target
+		SET 
+			pt_alarm_check_date = NOW()
+		WHERE
+			pt_pk = #{ptPk}
+	</update>
+	
+	
+	
+	<!-- projects의 고유번호로 검색해서 해당 proejcts에 관련된 대상자, 완료사항, 태그, 댓글을 전부 가져오기
+		 이후 모달을 통해서 값 뿌려주기 -->
+	<select id="selectProjectDetailView" resultMap="projectALlResultmap" parameterType="ProjectSearchParameter">
+		SELECT 
+			A.*,
+			B.pt_pk,
+			B.pt_admin_fk,
+			B.pt_display_flag,
+			B.pt_create_flag,
+			B.pt_alarm_check_date,
+			B.pt_top_alarm_flag,
+			C.pd_pk,
+			C.pd_detail,
+			C.pd_display_flag,
+			C.pd_file1,
+			C.pd_file_real_name,
+			C.pd_file_ext_type,
+			C.pd_important,
+			C.pd_finish_time,
+			C.pd_admin,
+			D.ptag_pk,
+			D.ptag_admin_fk,
+			D.ptag_title,
+			E.pc_pk,
+			E.pc_pd_fk,
+			E.pc_detail,
+			E.pc_regdate,
+			F.admin_name,
+            if(B.pt_admin_fk = #{adminPk}, true, false) AS pro_identify,
+            IF(B.pt_admin_fk = F.admin_pk , true, false ) AS pro_inc
+		FROM projects A
+			LEFT OUTER JOIN project_target  B ON A.pro_pk = B.pt_pro_fk
+			LEFT OUTER JOIN admins         F ON B.pt_admin_fk = F.admin_pk
+			LEFT OUTER JOIN project_detail  C ON A.pro_pk = C.pd_pro_fk
+				/** 추가 사항 */
+				AND C.pd_display_flag = #{pdDisplayFlag}
+				<if test="pdImportant == 1">
+					AND C.pd_important = 1
+				</if>
+			LEFT OUTER JOIN project_tag     D ON A.pro_pk = D.ptag_pro_fk
+			LEFT OUTER JOIN project_comment E ON A.pro_pk = E.pc_pro_fk
+		WHERE 
+			A.pro_pk = #{proPk}
+		ORDER BY
+			C.pd_finish_time DESC,
+			E.pc_regdate DESC,
+			D.ptag_pk
+	</select>
+	<!-- project search end -->
+	
+	
+	<!-- 업무 데이터 최초 넣기 -->
+	<!-- projects start-->
+	<insert id="insertProject" parameterType="ProjectsVO" useGeneratedKeys="true" keyProperty="proPk">
+		INSERT INTO projects(pro_title, pro_title_color, pro_detail, pro_thumbnail_image, pro_thumbnail_image_real_name, pro_thumbnail_image_ext_type, pro_delete_flag, pro_alarm_type)
+		VALUES(#{proTitle}, #{proTitleColor}, #{proDetail},#{proThumbnailImage}, #{proThumbnailImageRealName}, #{proThumbnailImageExtType}, 0, 0 )
+	</insert>
+	
+	<select id="selectProject" resultMap="projectListModel" parameterType="ProjectSearchParameter">
+		SELECT
+			A.*,
+			B.*,
+			C.*
+		FROM projects A
+			LEFT JOIN project_target B ON A.pro_pk = B.pt_pro_fk
+		    LEFT JOIN project_tag 	 C ON A.pro_pk = C.ptag_pro_fk
+		<where>
+			<if test="todayProject == true">
+				AND ( (A.pro_alarm_type = 1 ) OR
+	            (A.pro_alarm_type = 2 AND WEEKDAY(NOW()) = A.pro_repeat_week) OR
+	            (A.pro_alarm_type = 3 AND DAYOFMONTH(NOW()) = A.pro_repeat_day ) )
+			</if>
+			<if test="showHide == true">
+				AND A.pro_delete_flag = 1
+			</if>
+			<if test="showHide == false">
+				AND A.pro_delete_flag = 0
+			</if>
+			<if test="alarmOnlyProject == true">
+				AND A.pro_alarm_type != 0
+			</if>
+			<if test="finishedProject == true">
+				AND A.pro_finished_flag = 1
+			</if>
+			<if test="projectTags != null">
+				AND C.ptag_title IN
+					<foreach item="listData" index="i" collection="projectTags" open="(" separator="," close=")">
+						#{listData}
+					</foreach>
+			</if>
+			<if test="showAnotherTeamProject == false">
+				AND B.pt_admin_fk = #{adminPk}
+			</if>
+		</where>
+		ORDER BY 
+			C.ptag_pk			
+	</select>
+	
+	<!-- 업무 완료 하기 -->
+	<update id="projectDone" parameterType="ProjectsVO">
+		UPDATE 
+			projects
+		SET 
+			pro_finished_flag = 1
+		WHERE
+			pro_pk = #{proPk}
+	</update>
+	<!-- projects end -->
+	
+	
+	<!-- project_target start -->
+	<!-- 업무를 생성과 동시에 업무대상자 추가 -->
+	<insert id="insertProjectTarget" parameterType="ProjectTargetVO">
+		INSERT INTO project_target(pt_pro_fk, pt_admin_fk, pt_display_flag, pt_create_flag, pt_top_alarm_flag)
+		VALUES(#{ptProFk}, #{ptAdminFk}, 1, 1, 1)
+	</insert>
+	
+	<!-- 해당 업무에 권한이 있는지 체크 -->
+	<select id="selectProjectTargetChecks" parameterType="map" resultType="boolean">
+		SELECT
+			EXISTS(
+				SELECT
+					*
+				FROM 
+					project_target
+				WHERE
+					pt_pro_fk = #{ptProFk}
+					AND pt_admin_fk = #{adminPk}
+		    )
+		AS checkFlag
+		
+		
+	</select>
+	
+	<!-- 해당 업무의 만든이 체크 -->
+	<select id="selectProjectTargetCreateCheck" parameterType="map" resultType="boolean">
+		SELECT 
+			IF( EXISTS(
+				SELECT
+					if(pt_create_flag = 1, TRUE, FALSE)
+				FROM 
+					project_target
+				WHERE
+					pt_pro_fk = #{proPk}
+					AND pt_admin_fk = #{adminPk}) , 
+		            (SELECT
+						pt_create_flag
+					FROM 
+						project_target
+					WHERE
+						pt_pro_fk = #{proPk}
+						AND pt_admin_fk = #{adminPk}), FALSE) AS checkFlag
+	</select>
+	
+	<!-- 상단 고정 상태 변경 : 업무 페이지에서 -->
+	<update id="changeProjectTargetTopFixedStatus" parameterType="map">
+		UPDATE 
+			project_target
+		SET 
+			pt_top_alarm_flag = #{status}
+		WHERE 
+			pt_pro_fk = #{ptProFk}
+			AND  pt_admin_fk = #{adminPk}
+	</update>
+	
+	<!-- 업무 대상자 및 비 대상자 정보 전부 가져오기 -->
+	<select id="selectProjectTargetIncludeCheck" parameterType="int" resultType="AdminNormalVO">
+		SELECT 
+			B.pt_pk,
+			F.admin_pk,
+            F.admin_name,
+            IF(B.pt_admin_fk IS NULL, FALSE, TRUE) AS pro_inc
+		FROM projects A
+			LEFT OUTER JOIN project_target  B ON A.pro_pk = B.pt_pro_fk
+			RIGHT JOIN admins               F ON B.pt_admin_fk = F.admin_pk AND B.pt_pro_fk = #{proPk}
+            WHERE F.enabled = 1
+	</select>
+	
+	<!-- 업무 대상자 추가하기 -->
+	<insert id="addProjectTarget" parameterType="ProjectTargetVO">
+		INSERT INTO 
+			project_target(
+				pt_pro_fk,
+				pt_admin_fk,
+				pt_display_flag,
+				pt_regdate,
+				pt_create_flag,
+				pt_top_alarm_flag
+			)
+		VALUES(
+				#{ptProFk},
+				#{ptAdminFk},
+				1,
+				NOW(),
+				0,
+				1
+		)
+	</insert>
+	
+	<!-- 업무 대상자 삭제하기 -->
+	<delete id="deleteProjectTarget" parameterType="int">
+		DELETE FROM 
+			project_target
+		WHERE
+			pt_pk = #{ptPk}
+	</delete>
+	
+	<!-- 업무 고유 번호와 관리자 고유 번호로 업무대상자 pk 찾기 -->
+	<select id="selectProjectTargetByPropkAndAdminpkForPtpk" parameterType="ProjectTargetVO" resultType="int">
+		SELECT 
+			pt_pk
+		FROM 
+			project_target
+		WHERE
+			pt_pro_fk = #{ptProFk}
+			AND pt_admin_fk = #{ptAdminFk}
+	</select>
+	<!-- project_target end -->
+	
+	
+	<!--project_detail start  -->
+	
+	<!-- 업무 완료 상세사항 데이터 입력 -->
+	<insert id="insertProjectDetail" parameterType="ProjectDetailVO">
+		INSERT INTO project_detail(pd_pro_fk, pd_detail, pd_file1, pd_file_real_name, pd_file_ext_type, pd_display_flag, pd_important, pd_admin, pd_check_admin_pk)
+		VALUES(#{pdProFk}, #{pdDetail}, #{pdFile1},#{pdFileRealName}, #{pdFileExtType},  1, 0, #{pdAdmin}, #{pdCheckAdminPk})
+	</insert>
+	
+	<!-- 업무 완료사항 중요도 상태 변경 
+		 projectcontroller에서 업무 대상자인지 먼저 확인 후 변경
+	-->
+	<update id="changeProjectDetailImportantStatus" parameterType="map">
+		UPDATE 
+			project_detail
+		SET 
+			pd_important = #{status}
+		WHERE
+			pd_pk = #{pdPk}
+	</update>
+	
+	<!-- 업무 완료사항 조회 : primary key 단독 조회 -->
+	<select id="selectProjectDetailByPdPk" parameterType="int" resultType="ProjectDetailVO">
+		SELECT
+			*
+		FROM
+			project_detail
+		WHERE
+			pd_pk = #{pdPk}
+	</select>
+	
+	<delete id="deleteProjectDetailByPdPk" parameterType="int">
+		DELETE FROM 
+			project_detail
+		WHERE
+			pd_pk = #{pdPk} 
+	</delete>
+	
+	<select id="projectDetailCountByProfk" parameterType="int" resultType="int">
+		SELECT
+			COUNT(pd_detail)
+		FROM
+			project_detail
+		WHERE 
+			pd_pro_fk = #{pdProFk}
+	</select>
+	<!-- project_detail end -->
+	
+	
+	
+	<!-- project_tag start -->
+	<!-- 업무 태그 생성 -->
+	<insert id="insertProjectTag" parameterType="ProjectTagVO">
+		INSERT INTO project_tag(
+			ptag_pro_fk,
+			ptag_admin_fk,
+			ptag_title
+		)
+		VALUES(
+			#{ptagProFk},
+			#{ptagAdminFk},
+			#{ptagTitle}
+		)
+	</insert>
+	
+	<!-- 업무 태그 삭제 -->
+	<delete id="deleteProjectTag" parameterType="int">
+		DELETE FROM
+			project_tag
+		WHERE
+			ptag_pk = #{ptagPk}
+	</delete>
+	
+	<!-- 업무 태그 카운팅용 : 업무 하나 당 최대 5개까지만 달 수 있도록 함 -->
+	<select id="selectProjectTagCounting" parameterType="int" resultType="int">
+		SELECT 
+			COUNT(ptag_title)
+		FROM 
+			project_tag
+		WHERE
+			 ptag_pro_fk = #{proPk}
+	</select>
+	
+	<select id="selectProjectTag" resultType="ProjectTagVO" parameterType="int">
+		SELECT 
+			ptag_title
+		FROM 
+			project_tag A
+		JOIN project_target B ON A.ptag_pro_fk = B.pt_pro_fk
+		JOIN projects C ON B.pt_pro_fk = C.pro_pk
+		WHERE
+			C.pro_delete_flag = 0
+		<if test="value != 0">		
+				AND B.pt_admin_fk = #{adminPk}
+			    AND A.ptag_admin_fk = #{adminPk}
+		</if>
+		group by ptag_title
+	</select>
+	<!-- project_tag end -->
+	
+	
+	
+	<!-- project_comment start -->
+	<!-- project_comment end -->
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
